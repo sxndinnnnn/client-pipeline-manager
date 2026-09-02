@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/tasks", label: "Tasks" },
   { href: "/system-log", label: "System Log" },
   { href: "/changelog", label: "Changelog" },
+  { href: "/how-it-works", label: "How It Works" },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
