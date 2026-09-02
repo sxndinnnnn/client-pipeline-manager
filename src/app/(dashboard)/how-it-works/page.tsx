@@ -13,7 +13,7 @@ const SECTIONS = [
     title: "The Pipeline board",
     href: "/pipeline",
     body: [
-      "Every deal moves through a set of stages — Lead, Contacted, Qualified, Proposal, Negotiation, Won, Lost — shown as columns on the Pipeline board.",
+      "Every deal moves through a set of stages — Lead, Contacted, Qualified, Proposal, Negotiation, Trial, Legal, Won, Lost — shown as columns on the Pipeline board.",
       "Drag a deal's card into another column to move it. Dropping a deal into Won or Lost automatically closes it and timestamps when that happened — you don't need to update that by hand.",
       "New deals are created from a client's page and start in the first stage (Lead).",
     ],
