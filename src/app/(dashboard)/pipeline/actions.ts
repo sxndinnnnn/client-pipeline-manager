@@ -6,14 +6,10 @@ import { logAudit } from "@/lib/audit-log";
 
 export async function moveDeal(dealId: string, stageId: string) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   const { error } = await supabase.rpc("move_deal_stage", {
     p_deal_id: dealId,
     p_stage_id: stageId,
-    p_actor_id: user?.id ?? null,
   });
 
   if (error) throw new Error(error.message);

@@ -4,10 +4,23 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit-log";
 
+// Only ever redirect within the app after login. redirectTo comes from a
+// client-controlled query param, so an unvalidated value here would be an
+// open redirect — an attacker's link could bounce a freshly-authenticated
+// browser off to an external phishing page right after real credentials
+// were entered.
+function safeRedirectPath(path: string | null): string {
+  if (!path) return "/clients";
+  if (!path.startsWith("/")) return "/clients";
+  if (path.startsWith("//") || path.startsWith("/\\")) return "/clients";
+  if (path.includes("://")) return "/clients";
+  return path;
+}
+
 export async function signIn(_prevState: { error: string | null }, formData: FormData) {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  const redirectTo = (formData.get("redirectTo") as string) || "/clients";
+  const redirectTo = safeRedirectPath(formData.get("redirectTo") as string | null);
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email, password });
