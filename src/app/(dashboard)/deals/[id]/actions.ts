@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { logAudit } from "@/lib/audit-log";
 import type { ActivityType } from "@/types/database";
 
 export async function updateDeal(dealId: string, formData: FormData) {
@@ -25,6 +26,13 @@ export async function updateDeal(dealId: string, formData: FormData) {
 
   if (error) throw new Error(error.message);
 
+  await logAudit({
+    action: "deal.update",
+    description: `Updated deal "${title}"`,
+    entityType: "deal",
+    entityId: dealId,
+  });
+
   revalidatePath(`/deals/${dealId}`);
   revalidatePath("/pipeline");
 }
@@ -35,6 +43,8 @@ export async function addActivity(dealId: string, formData: FormData) {
   const content = (formData.get("content") as string)?.trim();
   if (!content) throw new Error("Activity content is required");
 
+  const type = formData.get("type") as ActivityType;
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -42,11 +52,18 @@ export async function addActivity(dealId: string, formData: FormData) {
   const { error } = await supabase.from("activities").insert({
     deal_id: dealId,
     author_id: user?.id ?? null,
-    type: formData.get("type") as ActivityType,
+    type,
     content,
   });
 
   if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "deal.activity_add",
+    description: `Logged a ${type} on a deal`,
+    entityType: "deal",
+    entityId: dealId,
+  });
 
   revalidatePath(`/deals/${dealId}`);
 }
@@ -61,14 +78,25 @@ export async function addTask(dealId: string, formData: FormData) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const { error } = await supabase.from("tasks").insert({
-    deal_id: dealId,
-    assignee_id: user?.id ?? null,
-    title,
-    due_date: (formData.get("due_date") as string) || null,
-  });
+  const { data, error } = await supabase
+    .from("tasks")
+    .insert({
+      deal_id: dealId,
+      assignee_id: user?.id ?? null,
+      title,
+      due_date: (formData.get("due_date") as string) || null,
+    })
+    .select("id")
+    .single();
 
   if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "task.create",
+    description: `Added task "${title}"`,
+    entityType: "task",
+    entityId: data.id,
+  });
 
   revalidatePath(`/deals/${dealId}`);
   revalidatePath("/tasks");
@@ -83,6 +111,13 @@ export async function setTaskStatus(dealId: string, taskId: string, done: boolea
     .eq("id", taskId);
 
   if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "task.status_change",
+    description: `Marked a task as ${done ? "done" : "pending"}`,
+    entityType: "task",
+    entityId: taskId,
+  });
 
   revalidatePath(`/deals/${dealId}`);
   revalidatePath("/tasks");

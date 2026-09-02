@@ -6,18 +6,22 @@ TypeScript + Tailwind, backed by Supabase (Postgres, Auth, RLS). See
 
 ## Status
 
-Phase 1 (MVP) is built: login, clients + contacts, pipeline board with drag-and-drop,
-deal detail with activity log + tasks, and the standalone tasks view. It is **not yet
-connected to a real Supabase project** — see setup below.
+Phase 1 (MVP) is built and deployed: login, clients + contacts, pipeline board with
+drag-and-drop, deal detail with activity log + tasks, the standalone tasks view, and a
+System Log audit trail (every mutating action, with the actor, IP address, and
+geolocation).
 
 ## Setup
 
 1. **Create a Supabase project** at [supabase.com](https://supabase.com).
-2. **Run the migration**: open the SQL Editor in your Supabase dashboard and run the
-   contents of [`supabase/migrations/0001_init.sql`](supabase/migrations/0001_init.sql).
-   This creates the schema, enables RLS, seeds the default pipeline stages, and adds the
-   `move_deal_stage` function the pipeline board uses to atomically move a deal + log an
-   activity.
+2. **Run the migrations**: open the SQL Editor in your Supabase dashboard and run each
+   file in `supabase/migrations/` **in order**:
+   - [`0001_init.sql`](supabase/migrations/0001_init.sql) — schema, RLS, seed pipeline
+     stages, and the `move_deal_stage` function the pipeline board uses to atomically
+     move a deal + log an activity
+   - [`0002_audit_log.sql`](supabase/migrations/0002_audit_log.sql) — the `audit_log`
+     table backing the System Log page (append-only: readable by any authenticated
+     user, but no update/delete policy)
 3. **Set environment variables**: copy `.env.local.example` to `.env.local` and fill in
    your project's URL and anon key (Project Settings → API in the Supabase dashboard):
 
@@ -49,13 +53,17 @@ connected to a real Supabase project** — see setup below.
 
 - `supabase/migrations/0001_init.sql` — schema, RLS policies, seed data, and the
   `move_deal_stage` Postgres function
+- `supabase/migrations/0002_audit_log.sql` — the `audit_log` table
 - `src/lib/supabase/` — browser/server Supabase clients + session-refresh middleware
+- `src/lib/audit-log.ts` — `logAudit()`, called from every mutating server action;
+  pulls IP + geolocation from Vercel's edge headers (`x-vercel-ip-*`), null in local dev
 - `src/proxy.ts` — route protection (redirects unauthenticated users to `/login`)
-- `src/app/login/` — auth
+- `src/app/login/` — auth (also logs `login`/`logout` events)
 - `src/app/(dashboard)/clients/` — clients list + detail (contacts CRUD, deals list)
 - `src/app/(dashboard)/pipeline/` — kanban board (`@dnd-kit/core`)
 - `src/app/(dashboard)/deals/[id]/` — deal detail, activity log, tasks
 - `src/app/(dashboard)/tasks/` — cross-deal open tasks view
+- `src/app/(dashboard)/system-log/` — audit trail view
 
 ## Phase 2 (not built yet — per the build plan, wait until Phase 1 is in daily use)
 

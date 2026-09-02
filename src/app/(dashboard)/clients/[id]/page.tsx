@@ -179,7 +179,7 @@ export default async function ClientDetailPage({
             }
             async function remove() {
               "use server";
-              await deleteContact(id, contact.id);
+              await deleteContact(id, contact.id, contact.name);
             }
             return (
               <ContactRow key={contact.id} contact={contact} onUpdate={update} onDelete={remove} />
