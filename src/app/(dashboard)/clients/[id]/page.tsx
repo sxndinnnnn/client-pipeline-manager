@@ -11,9 +11,9 @@ import {
 import { ContactRow } from "./contact-row";
 
 const statusStyles: Record<string, string> = {
-  OPEN: "bg-blue-100 text-blue-700",
-  WON: "bg-green-100 text-green-700",
-  LOST: "bg-zinc-200 text-zinc-600",
+  OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  WON: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  LOST: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
 export default async function ClientDetailPage({
@@ -55,59 +55,72 @@ export default async function ClientDetailPage({
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <Link href="/clients" className="text-sm text-zinc-500 hover:text-zinc-700">
+        <Link
+          href="/clients"
+          className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        >
           ← All clients
         </Link>
         <div className="mt-2 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-zinc-900">{client.name}</h1>
-            {client.industry && <p className="mt-1 text-sm text-zinc-500">{client.industry}</p>}
+            <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+              {client.name}
+            </h1>
+            {client.industry && (
+              <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">{client.industry}</p>
+            )}
           </div>
           <details className="relative">
-            <summary className="cursor-pointer list-none rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100">
+            <summary className="cursor-pointer list-none rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
               Edit client
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg">
+            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
               <form action={saveClient} className="flex flex-col gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">Name *</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                    Name *
+                  </label>
                   <input
                     name="name"
                     defaultValue={client.name}
                     required
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">Industry</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                    Industry
+                  </label>
                   <input
                     name="industry"
                     defaultValue={client.industry ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
                     Tags (comma-separated)
                   </label>
                   <input
                     name="tags"
                     defaultValue={client.tags?.join(", ") ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">Notes</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                    Notes
+                  </label>
                   <textarea
                     name="notes"
                     defaultValue={client.notes ?? ""}
                     rows={3}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+                  className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                 >
                   Save changes
                 </button>
@@ -118,48 +131,55 @@ export default async function ClientDetailPage({
         {client.tags && client.tags.length > 0 && (
           <div className="mt-3 flex flex-wrap gap-1.5">
             {client.tags.map((tag: string) => (
-              <span key={tag} className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600">
+              <span
+                key={tag}
+                className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+              >
                 {tag}
               </span>
             ))}
           </div>
         )}
-        {client.notes && <p className="mt-4 max-w-2xl text-sm text-zinc-600">{client.notes}</p>}
+        {client.notes && (
+          <p className="mt-4 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+            {client.notes}
+          </p>
+        )}
       </div>
 
       <section>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900">Contacts</h2>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Contacts</h2>
           <details className="relative">
-            <summary className="cursor-pointer list-none text-sm font-medium text-zinc-600 hover:text-zinc-900">
+            <summary className="cursor-pointer list-none text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
               + Add contact
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-72 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg">
+            <div className="absolute right-0 z-10 mt-2 w-72 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
               <form action={addContactAction} className="flex flex-col gap-3">
                 <input
                   name="name"
                   placeholder="Name *"
                   required
-                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
                 <input
                   name="role"
                   placeholder="Role"
-                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
                 <input
                   name="email"
                   placeholder="Email"
-                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
                 <input
                   name="phone"
                   placeholder="Phone"
-                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
                 <button
                   type="submit"
-                  className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+                  className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                 >
                   Add contact
                 </button>
@@ -170,7 +190,7 @@ export default async function ClientDetailPage({
 
         <div className="mt-3 flex flex-col gap-2">
           {(!contacts || contacts.length === 0) && (
-            <p className="text-sm text-zinc-500">No contacts yet.</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">No contacts yet.</p>
           )}
           {contacts?.map((contact) => {
             async function update(formData: FormData) {
@@ -190,44 +210,44 @@ export default async function ClientDetailPage({
 
       <section>
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-semibold text-zinc-900">Deals</h2>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Deals</h2>
           <details className="relative">
-            <summary className="cursor-pointer list-none rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800">
+            <summary className="cursor-pointer list-none rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
               + Add deal
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg">
+            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
               <form action={createDealAction} className="flex flex-col gap-3">
                 <input
                   name="title"
                   placeholder="Deal title *"
                   required
-                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
                 <input
                   name="value"
                   type="number"
                   step="0.01"
                   placeholder="Value ($)"
-                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
                 <input
                   name="source"
                   placeholder="Source"
-                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                  className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                 />
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
                     Expected close date
                   </label>
                   <input
                     name="expected_close_date"
                     type="date"
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+                  className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                 >
                   Create deal
                 </button>
@@ -238,17 +258,19 @@ export default async function ClientDetailPage({
 
         <div className="mt-3 flex flex-col gap-2">
           {(!deals || deals.length === 0) && (
-            <p className="text-sm text-zinc-500">No deals yet for this client.</p>
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">No deals yet for this client.</p>
           )}
           {deals?.map((deal) => (
             <Link
               key={deal.id}
               href={`/deals/${deal.id}`}
-              className="flex items-center justify-between rounded-md border border-zinc-200 bg-white p-3 hover:border-zinc-300"
+              className="flex items-center justify-between rounded-md border border-zinc-200 bg-white p-3 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
             >
               <div>
-                <p className="text-sm font-medium text-zinc-900">{deal.title}</p>
-                <p className="text-xs text-zinc-500">
+                <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                  {deal.title}
+                </p>
+                <p className="text-xs text-zinc-500 dark:text-zinc-400">
                   {(deal as unknown as { pipeline_stages: { name: string } | null })
                     .pipeline_stages?.name ?? "No stage"}
                   {deal.value != null && ` · $${Number(deal.value).toLocaleString()}`}

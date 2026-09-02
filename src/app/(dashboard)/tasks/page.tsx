@@ -30,12 +30,16 @@ export default async function TasksPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-zinc-900">Open Tasks</h1>
+      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Open Tasks</h1>
 
-      {error && <p className="text-sm text-red-600">Failed to load tasks: {error.message}</p>}
+      {error && (
+        <p className="text-sm text-red-600 dark:text-red-400">
+          Failed to load tasks: {error.message}
+        </p>
+      )}
 
       {!error && typedTasks.length === 0 && (
-        <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500">
+        <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
           Nothing open right now — nice work.
         </div>
       )}
@@ -45,7 +49,7 @@ export default async function TasksPage() {
           {typedTasks.map((task) => (
             <div
               key={task.id}
-              className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white p-3"
+              className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
             >
               <TaskCheckbox
                 taskId={task.id}
@@ -54,10 +58,10 @@ export default async function TasksPage() {
                 onToggle={setTaskStatus}
               />
               <div className="flex-1">
-                <p className="text-sm text-zinc-800">{task.title}</p>
+                <p className="text-sm text-zinc-800 dark:text-zinc-200">{task.title}</p>
                 <Link
                   href={`/deals/${task.deal_id}`}
-                  className="text-xs text-zinc-500 hover:text-zinc-700"
+                  className="text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
                 >
                   {task.deals?.title}
                   {task.deals?.clients?.name && ` · ${task.deals.clients.name}`}
@@ -66,7 +70,9 @@ export default async function TasksPage() {
               {task.due_date && (
                 <span
                   className={`text-xs font-medium ${
-                    isOverdue(task.due_date) ? "text-red-600" : "text-zinc-500"
+                    isOverdue(task.due_date)
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-zinc-500 dark:text-zinc-400"
                   }`}
                 >
                   {task.due_date}

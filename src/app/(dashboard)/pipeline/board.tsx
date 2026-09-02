@@ -33,20 +33,20 @@ function DealCard({ deal }: { deal: DealWithClient }) {
       style={style}
       {...listeners}
       {...attributes}
-      className={`cursor-grab rounded-md border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing ${
+      className={`cursor-grab rounded-md border border-zinc-200 bg-white p-3 shadow-sm active:cursor-grabbing dark:border-zinc-800 dark:bg-zinc-900 ${
         isDragging ? "opacity-40" : ""
       }`}
     >
       <Link
         href={`/deals/${deal.id}`}
         onClick={(e) => e.stopPropagation()}
-        className="text-sm font-medium text-zinc-900 hover:underline"
+        className="text-sm font-medium text-zinc-900 hover:underline dark:text-zinc-50"
       >
         {deal.title}
       </Link>
-      <p className="mt-1 text-xs text-zinc-500">{deal.clients?.name}</p>
+      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{deal.clients?.name}</p>
       {deal.value != null && (
-        <p className="mt-1 text-xs font-medium text-zinc-700">
+        <p className="mt-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
           ${Number(deal.value).toLocaleString()}
         </p>
       )}
@@ -67,23 +67,25 @@ function Column({
   return (
     <div
       ref={setNodeRef}
-      className={`flex w-72 shrink-0 flex-col rounded-lg border bg-zinc-100/60 p-3 ${
-        isOver ? "border-zinc-400 bg-zinc-100" : "border-zinc-200"
+      className={`flex w-72 shrink-0 flex-col rounded-lg border bg-zinc-100/60 p-3 dark:bg-zinc-900/60 ${
+        isOver
+          ? "border-zinc-400 bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800"
+          : "border-zinc-200 dark:border-zinc-800"
       }`}
     >
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-zinc-900">{stage.name}</h3>
-        <span className="text-xs text-zinc-500">{deals.length}</span>
+        <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{stage.name}</h3>
+        <span className="text-xs text-zinc-500 dark:text-zinc-400">{deals.length}</span>
       </div>
       {total > 0 && (
-        <p className="mb-2 text-xs text-zinc-500">${total.toLocaleString()}</p>
+        <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">${total.toLocaleString()}</p>
       )}
       <div className="flex flex-col gap-2">
         {deals.map((deal) => (
           <DealCard key={deal.id} deal={deal} />
         ))}
         {deals.length === 0 && (
-          <p className="rounded-md border border-dashed border-zinc-300 p-3 text-center text-xs text-zinc-400">
+          <p className="rounded-md border border-dashed border-zinc-300 p-3 text-center text-xs text-zinc-400 dark:border-zinc-700 dark:text-zinc-500">
             No deals
           </p>
         )}

@@ -49,14 +49,23 @@ const SECTIONS = [
       "A running list of what's changed in the tool itself — new features, fixes, improvements — grouped by date, so the team can see what's new without having to ask.",
     ],
   },
+  {
+    title: "Dark mode",
+    href: undefined,
+    body: [
+      "Use the sun/moon button in the top-right corner of the header to switch between light and dark mode. It defaults to your system's setting the first time you visit, and remembers whatever you pick after that on this device.",
+    ],
+  },
 ];
 
 export default function HowItWorksPage() {
   return (
     <div className="flex flex-col gap-8">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-900">How This Application Works</h1>
-        <p className="mt-1 max-w-2xl text-sm text-zinc-500">
+        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+          How This Application Works
+        </h1>
+        <p className="mt-1 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
           A quick tour of each part of the tool and how they fit together. This is an
           internal pipeline tracker for the team — everyone who&apos;s signed in has full
           access to everything below.
@@ -67,14 +76,16 @@ export default function HowItWorksPage() {
         {SECTIONS.map((section) => (
           <section
             key={section.title}
-            className="rounded-lg border border-zinc-200 bg-white p-5"
+            className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-zinc-900">{section.title}</h2>
+              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                {section.title}
+              </h2>
               {section.href && (
                 <Link
                   href={section.href}
-                  className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
+                  className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
                 >
                   Go there →
                 </Link>
@@ -82,7 +93,7 @@ export default function HowItWorksPage() {
             </div>
             <div className="mt-2 flex flex-col gap-2">
               {section.body.map((paragraph, i) => (
-                <p key={i} className="text-sm text-zinc-600">
+                <p key={i} className="text-sm text-zinc-600 dark:text-zinc-400">
                   {paragraph}
                 </p>
               ))}
@@ -91,9 +102,11 @@ export default function HowItWorksPage() {
         ))}
       </div>
 
-      <section className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-5">
-        <h2 className="text-sm font-semibold text-zinc-900">A typical flow, start to finish</h2>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-zinc-600">
+      <section className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-900">
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+          A typical flow, start to finish
+        </h2>
+        <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-400">
           <li>Add the client, and a contact there you&apos;re talking to.</li>
           <li>Create a deal for that client — it starts in the Lead stage.</li>
           <li>Drag it across the Pipeline board as it progresses.</li>

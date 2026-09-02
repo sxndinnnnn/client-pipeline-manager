@@ -5,9 +5,9 @@ import { TaskCheckbox } from "@/components/task-checkbox";
 import { addActivity, addTask, setTaskStatus, updateDeal } from "./actions";
 
 const statusStyles: Record<string, string> = {
-  OPEN: "bg-blue-100 text-blue-700",
-  WON: "bg-green-100 text-green-700",
-  LOST: "bg-zinc-200 text-zinc-600",
+  OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  WON: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
+  LOST: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
 };
 
 const ACTIVITY_TYPES = ["note", "call", "email", "meeting"] as const;
@@ -70,72 +70,88 @@ export default async function DealDetailPage({
     <div className="flex flex-col gap-8">
       <div>
         {client && (
-          <Link href={`/clients/${client.id}`} className="text-sm text-zinc-500 hover:text-zinc-700">
+          <Link
+            href={`/clients/${client.id}`}
+            className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+          >
             ← {client.name}
           </Link>
         )}
         <div className="mt-2 flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-semibold text-zinc-900">{deal.title}</h1>
+            <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+              {deal.title}
+            </h1>
             <div className="mt-1 flex items-center gap-2">
               <span
                 className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[deal.status]}`}
               >
                 {deal.status}
               </span>
-              <span className="text-xs text-zinc-500">{stage?.name ?? "No stage"}</span>
-              <Link href="/pipeline" className="text-xs text-zinc-400 hover:text-zinc-600">
+              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                {stage?.name ?? "No stage"}
+              </span>
+              <Link
+                href="/pipeline"
+                className="text-xs text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+              >
                 (change stage on Pipeline board)
               </Link>
             </div>
           </div>
           <details className="relative">
-            <summary className="cursor-pointer list-none rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100">
+            <summary className="cursor-pointer list-none rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
               Edit deal
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg">
+            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
               <form action={saveDeal} className="flex flex-col gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">Title *</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                    Title *
+                  </label>
                   <input
                     name="title"
                     defaultValue={deal.title}
                     required
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">Value ($)</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                    Value ($)
+                  </label>
                   <input
                     name="value"
                     type="number"
                     step="0.01"
                     defaultValue={deal.value ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">Source</label>
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                    Source
+                  </label>
                   <input
                     name="source"
                     defaultValue={deal.source ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600">
+                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
                     Expected close date
                   </label>
                   <input
                     name="expected_close_date"
                     type="date"
                     defaultValue={deal.expected_close_date ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+                  className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                 >
                   Save changes
                 </button>
@@ -145,24 +161,26 @@ export default async function DealDetailPage({
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
-            <dt className="text-xs text-zinc-500">Value</dt>
-            <dd className="text-sm font-medium text-zinc-900">
+            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Value</dt>
+            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
               {deal.value != null ? `$${Number(deal.value).toLocaleString()}` : "—"}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-zinc-500">Source</dt>
-            <dd className="text-sm font-medium text-zinc-900">{deal.source ?? "—"}</dd>
+            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Source</dt>
+            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+              {deal.source ?? "—"}
+            </dd>
           </div>
           <div>
-            <dt className="text-xs text-zinc-500">Expected close</dt>
-            <dd className="text-sm font-medium text-zinc-900">
+            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Expected close</dt>
+            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
               {deal.expected_close_date ?? "—"}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-zinc-500">Closed at</dt>
-            <dd className="text-sm font-medium text-zinc-900">
+            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Closed at</dt>
+            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
               {deal.closed_at ? formatDateTime(deal.closed_at) : "—"}
             </dd>
           </div>
@@ -172,15 +190,18 @@ export default async function DealDetailPage({
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-zinc-900">Activity</h2>
+            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Activity</h2>
           </div>
 
-          <form action={addActivityAction} className="mt-3 flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-3">
+          <form
+            action={addActivityAction}
+            className="mt-3 flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+          >
             <div className="flex gap-2">
               <select
                 name="type"
                 defaultValue="note"
-                className="rounded-md border border-zinc-300 px-2 py-1.5 text-sm"
+                className="rounded-md border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
               >
                 {ACTIVITY_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -190,7 +211,7 @@ export default async function DealDetailPage({
               </select>
               <button
                 type="submit"
-                className="ml-auto rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+                className="ml-auto rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
               >
                 Log activity
               </button>
@@ -200,48 +221,54 @@ export default async function DealDetailPage({
               required
               rows={2}
               placeholder="What happened?"
-              className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+              className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
           </form>
 
           <div className="mt-3 flex flex-col gap-2">
             {(!activities || activities.length === 0) && (
-              <p className="text-sm text-zinc-500">No activity logged yet.</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">No activity logged yet.</p>
             )}
             {activities?.map((activity) => (
-              <div key={activity.id} className="rounded-md border border-zinc-200 bg-white p-3">
+              <div
+                key={activity.id}
+                className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+              >
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+                  <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                     {activity.type}
                   </span>
-                  <span className="text-xs text-zinc-400">
+                  <span className="text-xs text-zinc-400 dark:text-zinc-500">
                     {formatDateTime(activity.created_at)}
                   </span>
                 </div>
-                <p className="mt-1 text-sm text-zinc-700">{activity.content}</p>
+                <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{activity.content}</p>
               </div>
             ))}
           </div>
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-zinc-900">Tasks</h2>
+          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Tasks</h2>
 
-          <form action={addTaskAction} className="mt-3 flex gap-2 rounded-lg border border-zinc-200 bg-white p-3">
+          <form
+            action={addTaskAction}
+            className="mt-3 flex gap-2 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+          >
             <input
               name="title"
               required
               placeholder="New task..."
-              className="flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+              className="flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             <input
               name="due_date"
               type="date"
-              className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm"
+              className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             <button
               type="submit"
-              className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800"
+              className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
               Add
             </button>
@@ -249,12 +276,12 @@ export default async function DealDetailPage({
 
           <div className="mt-3 flex flex-col gap-2">
             {(!tasks || tasks.length === 0) && (
-              <p className="text-sm text-zinc-500">No tasks for this deal.</p>
+              <p className="text-sm text-zinc-500 dark:text-zinc-400">No tasks for this deal.</p>
             )}
             {tasks?.map((task) => (
               <label
                 key={task.id}
-                className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white p-3"
+                className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
               >
                 <TaskCheckbox
                   taskId={task.id}
@@ -264,12 +291,18 @@ export default async function DealDetailPage({
                 />
                 <span
                   className={`flex-1 text-sm ${
-                    task.status === "DONE" ? "text-zinc-400 line-through" : "text-zinc-800"
+                    task.status === "DONE"
+                      ? "text-zinc-400 line-through dark:text-zinc-500"
+                      : "text-zinc-800 dark:text-zinc-200"
                   }`}
                 >
                   {task.title}
                 </span>
-                {task.due_date && <span className="text-xs text-zinc-500">{task.due_date}</span>}
+                {task.due_date && (
+                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    {task.due_date}
+                  </span>
+                )}
               </label>
             ))}
           </div>
