@@ -1,6 +1,7 @@
 export type DealStatus = "OPEN" | "WON" | "LOST";
 export type ActivityType = "call" | "email" | "meeting" | "note";
 export type TaskStatus = "PENDING" | "DONE";
+export type ChangelogCategory = "feature" | "fix" | "improvement";
 
 export interface Client {
   id: string;
@@ -78,12 +79,26 @@ export interface AuditLog {
   created_at: string;
 }
 
+export interface ChangelogEntry {
+  id: string;
+  title: string;
+  description: string | null;
+  category: ChangelogCategory;
+  released_on: string;
+  created_at: string;
+}
+
 export interface Database {
   public: {
     Tables: {
       clients: { Row: Client; Insert: Partial<Client>; Update: Partial<Client> };
       contacts: { Row: Contact; Insert: Partial<Contact>; Update: Partial<Contact> };
       audit_log: { Row: AuditLog; Insert: Partial<AuditLog>; Update: Partial<AuditLog> };
+      changelog_entries: {
+        Row: ChangelogEntry;
+        Insert: Partial<ChangelogEntry>;
+        Update: Partial<ChangelogEntry>;
+      };
       pipeline_stages: {
         Row: PipelineStage;
         Insert: Partial<PipelineStage>;
