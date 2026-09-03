@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
 import type { ChangelogCategory, ChangelogEntry } from "@/types/database";
-import { addChangelogEntry } from "./actions";
 
 const categoryStyles: Record<ChangelogCategory, string> = {
   feature: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -38,64 +37,11 @@ export default async function ChangelogPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-            Release Note
-          </h1>
-          <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-            What&apos;s shipped in this tool over time.
-          </p>
-        </div>
-        <details className="relative">
-          <summary className="cursor-pointer list-none rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
-            + Add entry
-          </summary>
-          <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-            <form action={addChangelogEntry} className="flex flex-col gap-3">
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Title *
-                </label>
-                <input
-                  name="title"
-                  required
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Category
-                </label>
-                <select
-                  name="category"
-                  defaultValue="feature"
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                >
-                  <option value="feature">Feature</option>
-                  <option value="improvement">Improvement</option>
-                  <option value="fix">Fix</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Description
-                </label>
-                <textarea
-                  name="description"
-                  rows={3}
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <button
-                type="submit"
-                className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-              >
-                Add entry
-              </button>
-            </form>
-          </div>
-        </details>
+      <div>
+        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Release Note</h1>
+        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
+          What&apos;s shipped in this tool over time.
+        </p>
       </div>
 
       {error && (
