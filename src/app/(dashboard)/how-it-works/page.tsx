@@ -63,7 +63,7 @@ export default function HowItWorksPage() {
     <div className="flex flex-col gap-8">
       <div>
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-          How This Application Works
+          Guide
         </h1>
         <p className="mt-1 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
           A quick tour of each part of the tool and how they fit together. This is an
