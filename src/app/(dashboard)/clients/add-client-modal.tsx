@@ -44,9 +44,9 @@ export function AddClientModal() {
             e.clientX > rect.right;
           if (outside) close();
         }}
-        className="w-full max-w-sm rounded-lg border border-zinc-200 bg-white p-4 shadow-lg backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
+        className="m-auto w-full max-w-sm max-h-[85vh] overflow-y-auto rounded-lg border border-zinc-200 bg-white p-4 shadow-lg backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
           <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Add Client</h2>
           <button
             type="button"
