@@ -11,6 +11,7 @@ import {
 import { ContactRow } from "./contact-row";
 import { ClientTabs } from "./client-tabs";
 import { ClientLogo } from "./client-logo";
+import { AddContactModal } from "./add-contact-modal";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -166,61 +167,61 @@ export default async function ClientDetailPage({
     <section>
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Contacts</h2>
-        <details className="relative">
-          <summary className="cursor-pointer list-none text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50">
-            + Add contact
-          </summary>
-          <div className="absolute right-0 z-10 mt-2 w-72 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-            <form action={addContactAction} className="flex flex-col gap-3">
-              <input
-                name="name"
-                placeholder="Name *"
-                required
-                className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-              <input
-                name="role"
-                placeholder="Role"
-                className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-              <input
-                name="email"
-                placeholder="Email"
-                className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-              <input
-                name="phone"
-                placeholder="Phone"
-                className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-              <button
-                type="submit"
-                className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-              >
-                Add contact
-              </button>
-            </form>
-          </div>
-        </details>
+        <AddContactModal addContactAction={addContactAction} />
       </div>
 
-      <div className="mt-3 flex flex-col gap-2">
-        {contactCount === 0 && (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No contacts yet.</p>
-        )}
-        {contacts?.map((contact) => {
-          async function update(formData: FormData) {
-            "use server";
-            await updateContact(id, contact.id, formData);
-          }
-          async function remove() {
-            "use server";
-            await deleteContact(id, contact.id, contact.name);
-          }
-          return (
-            <ContactRow key={contact.id} contact={contact} onUpdate={update} onDelete={remove} />
-          );
-        })}
+      <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <table className="min-w-full divide-y divide-zinc-200 text-sm dark:divide-zinc-800">
+          <thead className="bg-zinc-50 dark:bg-zinc-950">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Full Name
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Role
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Email
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Phone
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {contactCount === 0 && (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                >
+                  No contacts yet.
+                </td>
+              </tr>
+            )}
+            {contacts?.map((contact) => {
+              async function update(formData: FormData) {
+                "use server";
+                await updateContact(id, contact.id, formData);
+              }
+              async function remove() {
+                "use server";
+                await deleteContact(id, contact.id, contact.name);
+              }
+              return (
+                <ContactRow
+                  key={contact.id}
+                  contact={contact}
+                  onUpdate={update}
+                  onDelete={remove}
+                />
+              );
+            })}
+          </tbody>
+        </table>
       </div>
     </section>
   );
