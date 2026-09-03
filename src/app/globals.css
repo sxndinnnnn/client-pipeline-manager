@@ -30,3 +30,11 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Edge/Chromium adds its own built-in reveal-password icon inside
+   type="password" inputs, which stacks on top of our custom eye-icon
+   toggle button. Hide the native one so there's only one. */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear {
+  display: none;
+}
