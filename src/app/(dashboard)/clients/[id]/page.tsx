@@ -384,7 +384,9 @@ export default async function ClientDetailPage({
 
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-400 dark:text-zinc-500">
           <span>Created: {formatDate(client.created_at)}</span>
+          {client.created_by_email && <span>Created By: {client.created_by_email}</span>}
           <span>Updated: {formatDate(client.updated_at)}</span>
+          {client.updated_by_email && <span>Updated By: {client.updated_by_email}</span>}
         </div>
       </div>
 

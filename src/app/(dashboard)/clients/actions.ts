@@ -19,6 +19,10 @@ export async function createClientRecord(formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Client name is required");
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { data, error } = await supabase
     .from("clients")
     .insert({
@@ -26,6 +30,8 @@ export async function createClientRecord(formData: FormData) {
       industry: (formData.get("industry") as string) || null,
       notes: (formData.get("notes") as string) || null,
       tags: parseTags(formData.get("tags")),
+      created_by_email: user?.email ?? null,
+      updated_by_email: user?.email ?? null,
     })
     .select("id")
     .single();
@@ -49,6 +55,10 @@ export async function updateClientRecord(clientId: string, formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Client name is required");
 
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { error } = await supabase
     .from("clients")
     .update({
@@ -56,6 +66,7 @@ export async function updateClientRecord(clientId: string, formData: FormData) {
       industry: (formData.get("industry") as string) || null,
       notes: (formData.get("notes") as string) || null,
       tags: parseTags(formData.get("tags")),
+      updated_by_email: user?.email ?? null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", clientId);
