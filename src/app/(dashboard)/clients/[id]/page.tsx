@@ -367,15 +367,6 @@ export default async function ClientDetailPage({
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                 {client.name}
               </h1>
-              <div className="mt-1 flex flex-wrap items-center gap-3 text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                <span>Client</span>
-                {client.industry && (
-                  <>
-                    <span aria-hidden>·</span>
-                    <span>{client.industry}</span>
-                  </>
-                )}
-              </div>
             </div>
           </div>
         </div>

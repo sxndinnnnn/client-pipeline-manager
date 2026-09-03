@@ -39,31 +39,8 @@ function EyeIcon() {
   );
 }
 
-function PencilIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"
-      />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"
-      />
-    </svg>
-  );
-}
-
 type DealWithStage = Deal & { pipeline_stages: { name: string } | null };
+type DetailTab = "activity" | "tasks";
 
 export function DealRow({
   deal,
@@ -87,6 +64,7 @@ export function DealRow({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mounted, setMounted] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [tab, setTab] = useState<DetailTab>("activity");
 
   useEffect(() => {
     // Portal target (document.body) only exists client-side; same
@@ -97,11 +75,6 @@ export function DealRow({
 
   function openView() {
     setEditing(false);
-    dialogRef.current?.showModal();
-  }
-
-  function openEdit() {
-    setEditing(true);
     dialogRef.current?.showModal();
   }
 
@@ -124,32 +97,14 @@ export function DealRow({
         </span>
       </td>
       <td className="px-4 py-3">
-        <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={openView}
-            aria-label="View deal"
-            className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-          >
-            <EyeIcon />
-          </button>
-          <button
-            type="button"
-            onClick={openEdit}
-            aria-label="Edit deal"
-            className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-          >
-            <PencilIcon />
-          </button>
-          <button
-            type="button"
-            onClick={() => onDelete()}
-            aria-label="Delete deal"
-            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
-          >
-            <TrashIcon />
-          </button>
-        </div>
+        <button
+          type="button"
+          onClick={openView}
+          aria-label="View deal"
+          className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+        >
+          <EyeIcon />
+        </button>
       </td>
 
       {mounted &&
@@ -166,11 +121,11 @@ export function DealRow({
                 e.clientX > rect.right;
               if (outside) dialogRef.current?.close();
             }}
-            className="m-auto max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-zinc-200 bg-white p-5 shadow-lg backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
+            className="m-auto flex max-h-[92vh] w-[95vw] max-w-5xl flex-col overflow-y-auto rounded-lg border border-zinc-200 bg-white p-6 shadow-lg backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
           >
             <div className="flex items-start justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
               <div>
-                <h2 className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                   {deal.title}
                 </h2>
                 <div className="mt-1 flex items-center gap-2">
@@ -192,6 +147,16 @@ export function DealRow({
                 </button>
                 <button
                   type="button"
+                  onClick={async () => {
+                    await onDelete();
+                    dialogRef.current?.close();
+                  }}
+                  className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+                >
+                  Delete deal
+                </button>
+                <button
+                  type="button"
                   onClick={() => dialogRef.current?.close()}
                   aria-label="Close"
                   className="text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200"
@@ -207,7 +172,7 @@ export function DealRow({
                   await onUpdate(formData);
                   setEditing(false);
                 }}
-                className="mt-4 flex flex-col gap-3"
+                className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
               >
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
@@ -255,7 +220,7 @@ export function DealRow({
                 </div>
                 <button
                   type="submit"
-                  className="mt-1 self-start rounded-md bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                  className="col-span-full mt-1 self-start rounded-md bg-zinc-900 px-4 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                 >
                   Save Changes
                 </button>
@@ -289,130 +254,155 @@ export function DealRow({
               </dl>
             )}
 
-            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <section>
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-                  Activity
-                </h3>
-                <form
-                  action={onAddActivity}
-                  className="mt-2 flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950"
+            <div className="mt-6 flex min-h-0 flex-1 flex-col">
+              <div className="flex gap-6 border-b border-zinc-200 dark:border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setTab("activity")}
+                  className={`border-b-2 px-1 pb-2 text-sm font-medium transition-colors ${
+                    tab === "activity"
+                      ? "border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-50"
+                      : "border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  }`}
                 >
-                  <div className="flex gap-2">
-                    <select
-                      name="type"
-                      defaultValue="note"
-                      className="rounded-md border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                    >
-                      {ACTIVITY_TYPES.map((t) => (
-                        <option key={t} value={t}>
-                          {t[0].toUpperCase() + t.slice(1)}
-                        </option>
-                      ))}
-                    </select>
+                  Activity
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setTab("tasks")}
+                  className={`border-b-2 px-1 pb-2 text-sm font-medium transition-colors ${
+                    tab === "tasks"
+                      ? "border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-50"
+                      : "border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                  }`}
+                >
+                  Tasks
+                </button>
+              </div>
+
+              {tab === "activity" && (
+                <div className="pt-4">
+                  <form
+                    action={onAddActivity}
+                    className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950"
+                  >
+                    <div className="flex gap-2">
+                      <select
+                        name="type"
+                        defaultValue="note"
+                        className="rounded-md border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                      >
+                        {ACTIVITY_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {t[0].toUpperCase() + t.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="submit"
+                        className="ml-auto rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                      >
+                        Log activity
+                      </button>
+                    </div>
+                    <textarea
+                      name="content"
+                      required
+                      rows={2}
+                      placeholder="What happened?"
+                      className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                  </form>
+
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {activities.length === 0 && (
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                        No activity logged yet.
+                      </p>
+                    )}
+                    {activities.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="rounded-md border border-zinc-200 p-3 dark:border-zinc-800"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                            {activity.type}
+                          </span>
+                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                            {formatDateTime(activity.created_at)}
+                          </span>
+                        </div>
+                        <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
+                          {activity.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {tab === "tasks" && (
+                <div className="pt-4">
+                  <form
+                    action={onAddTask}
+                    className="flex gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950"
+                  >
+                    <input
+                      name="title"
+                      required
+                      placeholder="New task..."
+                      className="flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
+                    <input
+                      name="due_date"
+                      type="date"
+                      className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    />
                     <button
                       type="submit"
-                      className="ml-auto rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                      className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                     >
-                      Log activity
+                      Add
                     </button>
-                  </div>
-                  <textarea
-                    name="content"
-                    required
-                    rows={2}
-                    placeholder="What happened?"
-                    className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                  />
-                </form>
+                  </form>
 
-                <div className="mt-3 flex max-h-60 flex-col gap-2 overflow-y-auto">
-                  {activities.length === 0 && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      No activity logged yet.
-                    </p>
-                  )}
-                  {activities.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="rounded-md border border-zinc-200 p-3 dark:border-zinc-800"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                          {activity.type}
-                        </span>
-                        <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                          {formatDateTime(activity.created_at)}
-                        </span>
-                      </div>
-                      <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
-                        {activity.content}
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {tasks.length === 0 && (
+                      <p className="text-sm text-zinc-500 dark:text-zinc-400">
+                        No tasks for this deal.
                       </p>
-                    </div>
-                  ))}
-                </div>
-              </section>
-
-              <section>
-                <h3 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Tasks</h3>
-                <form
-                  action={onAddTask}
-                  className="mt-2 flex gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950"
-                >
-                  <input
-                    name="title"
-                    required
-                    placeholder="New task..."
-                    className="flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                  />
-                  <input
-                    name="due_date"
-                    type="date"
-                    className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                  />
-                  <button
-                    type="submit"
-                    className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-                  >
-                    Add
-                  </button>
-                </form>
-
-                <div className="mt-3 flex max-h-60 flex-col gap-2 overflow-y-auto">
-                  {tasks.length === 0 && (
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">
-                      No tasks for this deal.
-                    </p>
-                  )}
-                  {tasks.map((task) => (
-                    <label
-                      key={task.id}
-                      className="flex items-center gap-3 rounded-md border border-zinc-200 p-3 dark:border-zinc-800"
-                    >
-                      <TaskCheckbox
-                        taskId={task.id}
-                        dealId={deal.id}
-                        initialDone={task.status === "DONE"}
-                        onToggle={onSetTaskStatus}
-                      />
-                      <span
-                        className={`flex-1 text-sm ${
-                          task.status === "DONE"
-                            ? "text-zinc-400 line-through dark:text-zinc-500"
-                            : "text-zinc-800 dark:text-zinc-200"
-                        }`}
+                    )}
+                    {tasks.map((task) => (
+                      <label
+                        key={task.id}
+                        className="flex items-center gap-3 rounded-md border border-zinc-200 p-3 dark:border-zinc-800"
                       >
-                        {task.title}
-                      </span>
-                      {task.due_date && (
-                        <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                          {task.due_date}
+                        <TaskCheckbox
+                          taskId={task.id}
+                          dealId={deal.id}
+                          initialDone={task.status === "DONE"}
+                          onToggle={onSetTaskStatus}
+                        />
+                        <span
+                          className={`flex-1 text-sm ${
+                            task.status === "DONE"
+                              ? "text-zinc-400 line-through dark:text-zinc-500"
+                              : "text-zinc-800 dark:text-zinc-200"
+                          }`}
+                        >
+                          {task.title}
                         </span>
-                      )}
-                    </label>
-                  ))}
+                        {task.due_date && (
+                          <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                            {task.due_date}
+                          </span>
+                        )}
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </section>
+              )}
             </div>
           </dialog>,
           document.body
