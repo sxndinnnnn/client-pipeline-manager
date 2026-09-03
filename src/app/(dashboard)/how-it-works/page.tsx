@@ -43,7 +43,7 @@ const SECTIONS = [
     ],
   },
   {
-    title: "Changelog",
+    title: "Release Note",
     href: "/changelog",
     body: [
       "A running list of what's changed in the tool itself — new features, fixes, improvements — grouped by date, so the team can see what's new without having to ask.",

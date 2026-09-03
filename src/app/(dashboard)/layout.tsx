@@ -8,7 +8,7 @@ const NAV_LINKS = [
   { href: "/pipeline", label: "Pipeline" },
   { href: "/tasks", label: "Tasks" },
   { href: "/system-log", label: "System Log" },
-  { href: "/changelog", label: "Changelog" },
+  { href: "/changelog", label: "Release Note" },
   { href: "/how-it-works", label: "How It Works" },
 ];
 
