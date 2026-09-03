@@ -83,7 +83,11 @@ export function LoginForm() {
         </div>
       </div>
 
-      {state.error && <p className="text-sm text-red-600 dark:text-red-400">{state.error}</p>}
+      {state.error && (
+        <p className="text-center text-sm capitalize text-red-600 dark:text-red-400">
+          {state.error}
+        </p>
+      )}
 
       <button
         type="submit"
