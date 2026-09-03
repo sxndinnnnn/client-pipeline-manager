@@ -8,6 +8,7 @@ const SECTIONS = [
       "A Client is a company or account you're selling to. Each client can have any number of Contacts — the people there you actually talk to.",
       "From the Clients page, use \"+ Add Client\" to create one. Opening a client shows a header card (logo or initials, contact/deal counts, open pipeline value) and three tabs — Details (an always-editable Basic Details panel), Contacts, and Deals.",
       "Click Upload under the avatar to set a client's logo, or Change / Remove once one's set.",
+      "The Contacts tab lists contacts in a table — click the pencil icon to edit one, or + Add Contact to open the add form as a modal.",
     ],
   },
   {
