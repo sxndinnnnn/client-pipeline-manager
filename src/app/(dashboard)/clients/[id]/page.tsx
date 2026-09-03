@@ -142,16 +142,6 @@ export default async function ClientDetailPage({
         </div>
         <div>
           <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-            Tags (comma-separated)
-          </label>
-          <input
-            name="tags"
-            defaultValue={client.tags?.join(", ") ?? ""}
-            className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
             Notes
           </label>
           <textarea
