@@ -21,7 +21,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
       <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+        <div className="flex items-center justify-between px-6 py-3">
           <div className="flex items-center gap-6">
             <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
               Pipeline Manager
@@ -52,7 +52,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8">{children}</main>
+      <main className="w-full flex-1 px-6 py-8">{children}</main>
     </div>
   );
 }
