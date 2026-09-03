@@ -40,7 +40,7 @@ export function AddDealModal({
         onClick={(e) => {
           if (e.target === dialogRef.current) close();
         }}
-        className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none flex items-center justify-center bg-transparent p-4 backdrop:bg-black/40"
+        className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
       >
         <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
           <div className="flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
