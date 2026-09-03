@@ -13,6 +13,80 @@ function parseTags(raw: FormDataEntryValue | null): string[] {
     .filter(Boolean);
 }
 
+const LOGO_BUCKET = "client-logos";
+
+function logoStoragePath(logoUrl: string): string | null {
+  const marker = `/${LOGO_BUCKET}/`;
+  const idx = logoUrl.indexOf(marker);
+  return idx === -1 ? null : logoUrl.slice(idx + marker.length);
+}
+
+export async function uploadClientLogo(clientId: string, formData: FormData) {
+  const supabase = await createClient();
+
+  const file = formData.get("logo");
+  if (!(file instanceof File) || file.size === 0) {
+    throw new Error("No logo file provided");
+  }
+
+  const ext = file.name.split(".").pop() || "png";
+  const path = `${clientId}/logo-${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from(LOGO_BUCKET)
+    .upload(path, file, { upsert: true });
+  if (uploadError) throw new Error(uploadError.message);
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from(LOGO_BUCKET).getPublicUrl(path);
+
+  const { error } = await supabase
+    .from("clients")
+    .update({ logo_url: publicUrl })
+    .eq("id", clientId);
+  if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "client.logo_upload",
+    description: "Uploaded a client logo",
+    entityType: "client",
+    entityId: clientId,
+  });
+
+  revalidatePath(`/clients/${clientId}`);
+}
+
+export async function removeClientLogo(clientId: string) {
+  const supabase = await createClient();
+
+  const { data: existing } = await supabase
+    .from("clients")
+    .select("logo_url")
+    .eq("id", clientId)
+    .single();
+
+  const { error } = await supabase
+    .from("clients")
+    .update({ logo_url: null })
+    .eq("id", clientId);
+  if (error) throw new Error(error.message);
+
+  const path = existing?.logo_url ? logoStoragePath(existing.logo_url) : null;
+  if (path) {
+    await supabase.storage.from(LOGO_BUCKET).remove([path]);
+  }
+
+  await logAudit({
+    action: "client.logo_remove",
+    description: "Removed a client logo",
+    entityType: "client",
+    entityId: clientId,
+  });
+
+  revalidatePath(`/clients/${clientId}`);
+}
+
 export async function createClientRecord(formData: FormData) {
   const supabase = await createClient();
 

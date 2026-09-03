@@ -10,6 +10,7 @@ import {
 } from "../actions";
 import { ContactRow } from "./contact-row";
 import { ClientTabs } from "./client-tabs";
+import { ClientLogo } from "./client-logo";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -314,9 +315,7 @@ export default async function ClientDetailPage({
       <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-zinc-100 text-xl font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
-              {initials(client.name)}
-            </div>
+            <ClientLogo clientId={id} logoUrl={client.logo_url} initials={initials(client.name)} />
             <div>
               <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
                 {client.name}

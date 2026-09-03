@@ -9,6 +9,7 @@ export interface Client {
   industry: string | null;
   notes: string | null;
   tags: string[];
+  logo_url: string | null;
   created_by_email: string | null;
   updated_by_email: string | null;
   created_at: string;
