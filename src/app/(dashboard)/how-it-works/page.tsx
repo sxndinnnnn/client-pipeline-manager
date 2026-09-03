@@ -6,7 +6,7 @@ const SECTIONS = [
     href: "/clients",
     body: [
       "A Client is a company or account you're selling to. Each client can have any number of Contacts — the people there you actually talk to.",
-      "From the Clients page, use \"+ Add client\" to create one. Open a client to edit its details, add or edit contacts inline, and see every deal tied to that client.",
+      "From the Clients page, use \"+ Add Client\" to create one. Opening a client shows a header card (contact/deal counts, open pipeline value) and three tabs — Details (an always-editable Basic Details panel), Contacts, and Deals.",
     ],
   },
   {
