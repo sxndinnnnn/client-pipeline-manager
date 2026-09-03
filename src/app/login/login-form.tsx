@@ -13,7 +13,7 @@ export function LoginForm() {
   );
 
   return (
-    <form action={formAction} className="mt-6 flex flex-col gap-4">
+    <form action={formAction} className="mt-8 flex flex-col gap-4">
       <input type="hidden" name="redirectTo" value={redirectTo} />
 
       <div>
@@ -54,7 +54,7 @@ export function LoginForm() {
         disabled={pending}
         className="mt-2 rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-50 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
       >
-        {pending ? "Signing in..." : "Sign in"}
+        {pending ? "Logging in..." : "Login"}
       </button>
     </form>
   );
