@@ -9,6 +9,7 @@ const SECTIONS = [
       "From the Clients page, use \"+ Add Client\" to create one. Opening a client shows a header card (logo or initials, contact/deal counts, open pipeline value) and three tabs — Details (an always-editable Basic Details panel), Contacts, and Deals.",
       "Click Upload under the avatar to set a client's logo, or Change / Remove once one's set.",
       "The Contacts tab lists contacts in a table — click the pencil icon to edit one, or + Add Contact to open the add form as a modal.",
+      "The Deals tab works the same way — a table of the client's deals with a View link per row, and + Add Deal opens the create form as a modal.",
     ],
   },
   {
