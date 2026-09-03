@@ -14,6 +14,7 @@ import {
   type DragStartEvent,
 } from "@dnd-kit/core";
 import type { Deal, PipelineStage } from "@/types/database";
+import { formatLKR } from "@/lib/currency";
 import { moveDeal } from "./actions";
 
 type DealWithClient = Deal & { clients: { name: string } | null };
@@ -47,7 +48,7 @@ function DealCard({ deal }: { deal: DealWithClient }) {
       <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{deal.clients?.name}</p>
       {deal.value != null && (
         <p className="mt-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-          ${Number(deal.value).toLocaleString()}
+          {formatLKR(Number(deal.value))}
         </p>
       )}
     </div>
@@ -78,7 +79,7 @@ function Column({
         <span className="text-xs text-zinc-500 dark:text-zinc-400">{deals.length}</span>
       </div>
       {total > 0 && (
-        <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">${total.toLocaleString()}</p>
+        <p className="mb-2 text-xs text-zinc-500 dark:text-zinc-400">{formatLKR(total)}</p>
       )}
       <div className="flex flex-col gap-2">
         {deals.map((deal) => (

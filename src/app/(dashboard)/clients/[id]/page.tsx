@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { formatLKR } from "@/lib/currency";
 import {
   addContact,
   createDeal,
@@ -8,17 +10,20 @@ import {
   updateClientRecord,
   updateContact,
 } from "../actions";
+import {
+  addActivity,
+  addTask,
+  deleteDeal,
+  setTaskStatus,
+  updateDeal,
+} from "../../deals/[id]/actions";
 import { ContactRow } from "./contact-row";
 import { ClientTabs } from "./client-tabs";
 import { ClientLogo } from "./client-logo";
 import { AddContactModal } from "./add-contact-modal";
 import { AddDealModal } from "./add-deal-modal";
-
-const statusStyles: Record<string, string> = {
-  OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  WON: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  LOST: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
-};
+import { DealRow } from "./deal-row";
+import type { Activity, Deal, Task } from "@/types/database";
 
 function initials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -97,6 +102,33 @@ export default async function ClientDetailPage({
   const openValue = (deals ?? [])
     .filter((d) => d.status === "OPEN")
     .reduce((sum, d) => sum + (Number(d.value) || 0), 0);
+
+  const dealIds = (deals ?? []).map((d) => d.id);
+  const [{ data: allActivities }, { data: allTasks }] =
+    dealIds.length > 0
+      ? await Promise.all([
+          supabase
+            .from("activities")
+            .select("*")
+            .in("deal_id", dealIds)
+            .order("created_at", { ascending: false }),
+          supabase
+            .from("tasks")
+            .select("*")
+            .in("deal_id", dealIds)
+            .order("due_date", { ascending: true, nullsFirst: false }),
+        ])
+      : [{ data: [] as Activity[] }, { data: [] as Task[] }];
+
+  function groupByDealId<T extends { deal_id: string }>(items: T[]): Record<string, T[]> {
+    const grouped: Record<string, T[]> = {};
+    for (const item of items) {
+      (grouped[item.deal_id] ??= []).push(item);
+    }
+    return grouped;
+  }
+  const activitiesByDeal = groupByDealId(allActivities ?? []);
+  const tasksByDeal = groupByDealId(allTasks ?? []);
 
   async function saveClient(formData: FormData) {
     "use server";
@@ -266,38 +298,52 @@ export default async function ClientDetailPage({
                 </td>
               </tr>
             )}
-            {deals?.map((deal) => (
-              <tr
-                key={deal.id}
-                className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
-              >
-                <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                  {deal.title}
-                </td>
-                <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
-                  {(deal as unknown as { pipeline_stages: { name: string } | null })
-                    .pipeline_stages?.name ?? "No stage"}
-                </td>
-                <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
-                  {deal.value != null ? `$${Number(deal.value).toLocaleString()}` : "—"}
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[deal.status]}`}
-                  >
-                    {deal.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <Link
-                    href={`/deals/${deal.id}`}
-                    className="text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
-                  >
-                    View
-                  </Link>
-                </td>
-              </tr>
-            ))}
+            {deals?.map((deal) => {
+              async function updateAction(formData: FormData) {
+                "use server";
+                await updateDeal(deal.id, formData);
+                revalidatePath(`/clients/${id}`);
+              }
+              async function deleteAction() {
+                "use server";
+                await deleteDeal(deal.id, deal.title);
+                revalidatePath(`/clients/${id}`);
+              }
+              async function addActivityAction(formData: FormData) {
+                "use server";
+                await addActivity(deal.id, formData);
+                revalidatePath(`/clients/${id}`);
+              }
+              async function addTaskAction(formData: FormData) {
+                "use server";
+                await addTask(deal.id, formData);
+                revalidatePath(`/clients/${id}`);
+              }
+              async function setTaskStatusAction(
+                dealId: string,
+                taskId: string,
+                done: boolean
+              ) {
+                "use server";
+                await setTaskStatus(dealId, taskId, done);
+                revalidatePath(`/clients/${id}`);
+              }
+              return (
+                <DealRow
+                  key={deal.id}
+                  deal={
+                    deal as unknown as Deal & { pipeline_stages: { name: string } | null }
+                  }
+                  activities={activitiesByDeal[deal.id] ?? []}
+                  tasks={tasksByDeal[deal.id] ?? []}
+                  onUpdate={updateAction}
+                  onDelete={deleteAction}
+                  onAddActivity={addActivityAction}
+                  onAddTask={addTaskAction}
+                  onSetTaskStatus={setTaskStatusAction}
+                />
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -363,7 +409,7 @@ export default async function ClientDetailPage({
             </span>
             <div>
               <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
-                ${openValue.toLocaleString()}
+                {formatLKR(openValue)}
               </p>
               <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                 Open Pipeline Value

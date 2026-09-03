@@ -80,7 +80,7 @@ export function AddDealModal({
           </div>
           <div>
             <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Value ($)
+              Value (LKR)
             </label>
             <input
               name="value"

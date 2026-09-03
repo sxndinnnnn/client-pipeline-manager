@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TaskCheckbox } from "@/components/task-checkbox";
+import { formatLKR } from "@/lib/currency";
 import { addActivity, addTask, setTaskStatus, updateDeal } from "./actions";
 
 const statusStyles: Record<string, string> = {
@@ -118,7 +119,7 @@ export default async function DealDetailPage({
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                    Value ($)
+                    Value (LKR)
                   </label>
                   <input
                     name="value"
@@ -163,7 +164,7 @@ export default async function DealDetailPage({
           <div>
             <dt className="text-xs text-zinc-500 dark:text-zinc-400">Value</dt>
             <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              {deal.value != null ? `$${Number(deal.value).toLocaleString()}` : "—"}
+              {deal.value != null ? formatLKR(Number(deal.value)) : "—"}
             </dd>
           </div>
           <div>

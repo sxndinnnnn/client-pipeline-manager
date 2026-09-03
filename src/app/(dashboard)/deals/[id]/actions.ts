@@ -37,6 +37,22 @@ export async function updateDeal(dealId: string, formData: FormData) {
   revalidatePath("/pipeline");
 }
 
+export async function deleteDeal(dealId: string, dealTitle: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("deals").delete().eq("id", dealId);
+  if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "deal.delete",
+    description: `Deleted deal "${dealTitle}"`,
+    entityType: "deal",
+    entityId: dealId,
+  });
+
+  revalidatePath("/pipeline");
+}
+
 export async function addActivity(dealId: string, formData: FormData) {
   const supabase = await createClient();
 
