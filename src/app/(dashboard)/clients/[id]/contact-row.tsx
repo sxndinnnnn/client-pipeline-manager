@@ -55,6 +55,16 @@ export function ContactRow({
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    // Defensive: this row is keyed by contact.id, so if the browser/router
+    // reuses this component instance across a navigation (back/forward
+    // cache, router cache) instead of a fresh mount, force the dialog
+    // closed rather than trust inherited `open` state.
+    if (mounted) {
+      dialogRef.current?.close();
+    }
+  }, [mounted]);
+
   return (
     <tr className="border-b border-zinc-100 last:border-0 dark:border-zinc-800">
       <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-50">

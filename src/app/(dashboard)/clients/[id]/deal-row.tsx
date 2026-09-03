@@ -73,6 +73,17 @@ export function DealRow({
     setMounted(true);
   }, []);
 
+  useEffect(() => {
+    // Defensive: this row is keyed by deal.id, so if the same deal was
+    // viewed earlier and the browser/router reuses this component instance
+    // across a navigation (back/forward cache, router cache) instead of a
+    // fresh mount, force the dialog closed rather than trust inherited
+    // `open` state — it should only ever open from an explicit click.
+    if (mounted) {
+      dialogRef.current?.close();
+    }
+  }, [mounted]);
+
   function openView() {
     setEditing(false);
     dialogRef.current?.showModal();
