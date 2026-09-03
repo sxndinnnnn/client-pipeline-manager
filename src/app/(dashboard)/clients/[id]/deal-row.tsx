@@ -112,17 +112,11 @@ export function DealRow({
           <dialog
             ref={dialogRef}
             onClick={(e) => {
-              const rect = dialogRef.current?.getBoundingClientRect();
-              if (!rect) return;
-              const outside =
-                e.clientY < rect.top ||
-                e.clientY > rect.bottom ||
-                e.clientX < rect.left ||
-                e.clientX > rect.right;
-              if (outside) dialogRef.current?.close();
+              if (e.target === dialogRef.current) dialogRef.current?.close();
             }}
-            className="m-auto flex max-h-[92vh] w-[95vw] max-w-5xl flex-col overflow-y-auto rounded-lg border border-zinc-200 bg-white p-6 shadow-lg backdrop:bg-black/40 dark:border-zinc-800 dark:bg-zinc-900"
+            className="fixed inset-0 m-0 h-full max-h-none w-full max-w-none flex items-center justify-center bg-transparent p-4 backdrop:bg-black/40"
           >
+          <div className="flex max-h-[92vh] w-[95vw] max-w-5xl flex-col overflow-y-auto rounded-lg border border-zinc-200 bg-white p-6 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
             <div className="flex items-start justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
               <div>
                 <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
@@ -404,6 +398,7 @@ export function DealRow({
                 </div>
               )}
             </div>
+          </div>
           </dialog>,
           document.body
         )}
