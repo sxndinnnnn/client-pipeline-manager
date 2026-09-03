@@ -318,7 +318,7 @@ export default async function ClientDetailPage({
         href="/clients"
         className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
       >
-        ← All clients
+        ← All Clients
       </Link>
 
       <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
