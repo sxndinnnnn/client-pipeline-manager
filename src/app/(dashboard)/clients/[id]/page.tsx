@@ -78,10 +78,13 @@ function ValueIcon() {
 
 export default async function ClientDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ tab?: string }>;
 }) {
   const { id } = await params;
+  const { tab } = await searchParams;
   const supabase = await createClient();
 
   const [{ data: client, error: clientError }, { data: contacts }, { data: deals }] =
@@ -418,6 +421,7 @@ export default async function ClientDetailPage({
       </div>
 
       <ClientTabs
+        defaultTab={tab}
         tabs={[
           { key: "details", label: "Details", content: detailsPanel },
           { key: "contacts", label: "Contacts", count: contactCount, content: contactsPanel },

@@ -274,5 +274,5 @@ export async function createDeal(clientId: string, formData: FormData) {
   });
 
   revalidatePath(`/clients/${clientId}`);
-  redirect(`/deals/${data.id}`);
+  redirect(`/clients/${clientId}?tab=deals`);
 }

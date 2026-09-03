@@ -9,8 +9,9 @@ type Tab = {
   content: ReactNode;
 };
 
-export function ClientTabs({ tabs }: { tabs: Tab[] }) {
-  const [active, setActive] = useState(tabs[0]?.key);
+export function ClientTabs({ tabs, defaultTab }: { tabs: Tab[]; defaultTab?: string }) {
+  const initial = tabs.some((t) => t.key === defaultTab) ? defaultTab : tabs[0]?.key;
+  const [active, setActive] = useState(initial);
 
   return (
     <div>
