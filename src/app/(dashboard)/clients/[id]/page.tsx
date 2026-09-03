@@ -12,6 +12,7 @@ import { ContactRow } from "./contact-row";
 import { ClientTabs } from "./client-tabs";
 import { ClientLogo } from "./client-logo";
 import { AddContactModal } from "./add-contact-modal";
+import { AddDealModal } from "./add-deal-modal";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -230,76 +231,75 @@ export default async function ClientDetailPage({
     <section>
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Deals</h2>
-        <details className="relative">
-          <summary className="cursor-pointer list-none rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
-            + Add deal
-          </summary>
-          <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-            <form action={createDealAction} className="flex flex-col gap-3">
-              <input
-                name="title"
-                placeholder="Deal title *"
-                required
-                className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-              <input
-                name="value"
-                type="number"
-                step="0.01"
-                placeholder="Value ($)"
-                className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-              <input
-                name="source"
-                placeholder="Source"
-                className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-              />
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Expected close date
-                </label>
-                <input
-                  name="expected_close_date"
-                  type="date"
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <button
-                type="submit"
-                className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-              >
-                Create deal
-              </button>
-            </form>
-          </div>
-        </details>
+        <AddDealModal createDealAction={createDealAction} />
       </div>
 
-      <div className="mt-3 flex flex-col gap-2">
-        {dealCount === 0 && (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">No deals yet for this client.</p>
-        )}
-        {deals?.map((deal) => (
-          <Link
-            key={deal.id}
-            href={`/deals/${deal.id}`}
-            className="flex items-center justify-between rounded-md border border-zinc-200 bg-white p-3 hover:border-zinc-300 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
-          >
-            <div>
-              <p className="text-sm font-medium text-zinc-900 dark:text-zinc-50">{deal.title}</p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
-                {(deal as unknown as { pipeline_stages: { name: string } | null })
-                  .pipeline_stages?.name ?? "No stage"}
-                {deal.value != null && ` · $${Number(deal.value).toLocaleString()}`}
-              </p>
-            </div>
-            <span
-              className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[deal.status]}`}
-            >
-              {deal.status}
-            </span>
-          </Link>
-        ))}
+      <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <table className="min-w-full divide-y divide-zinc-200 text-sm dark:divide-zinc-800">
+          <thead className="bg-zinc-50 dark:bg-zinc-950">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Title
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Stage
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Value
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Status
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                Action
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {dealCount === 0 && (
+              <tr>
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                >
+                  No deals yet for this client.
+                </td>
+              </tr>
+            )}
+            {deals?.map((deal) => (
+              <tr
+                key={deal.id}
+                className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
+              >
+                <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+                  {deal.title}
+                </td>
+                <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+                  {(deal as unknown as { pipeline_stages: { name: string } | null })
+                    .pipeline_stages?.name ?? "No stage"}
+                </td>
+                <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+                  {deal.value != null ? `$${Number(deal.value).toLocaleString()}` : "—"}
+                </td>
+                <td className="px-4 py-3">
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[deal.status]}`}
+                  >
+                    {deal.status}
+                  </span>
+                </td>
+                <td className="px-4 py-3">
+                  <Link
+                    href={`/deals/${deal.id}`}
+                    className="text-xs font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+                  >
+                    View
+                  </Link>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </section>
   );
