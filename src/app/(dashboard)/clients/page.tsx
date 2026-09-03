@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { createClientRecord } from "./actions";
+import { AddClientModal } from "./add-client-modal";
 
 export default async function ClientsPage({
   searchParams,
@@ -19,59 +19,7 @@ export default async function ClientsPage({
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Clients</h1>
-        <details className="relative">
-          <summary className="cursor-pointer list-none rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white">
-            + Add client
-          </summary>
-          <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-            <form action={createClientRecord} className="flex flex-col gap-3">
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Name *
-                </label>
-                <input
-                  name="name"
-                  required
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Industry
-                </label>
-                <input
-                  name="industry"
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Tags (comma-separated)
-                </label>
-                <input
-                  name="tags"
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                  Notes
-                </label>
-                <textarea
-                  name="notes"
-                  rows={2}
-                  className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <button
-                type="submit"
-                className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
-              >
-                Create client
-              </button>
-            </form>
-          </div>
-        </details>
+        <AddClientModal />
       </div>
 
       <form method="get" className="flex gap-2">
