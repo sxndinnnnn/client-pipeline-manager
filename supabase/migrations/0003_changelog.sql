@@ -24,7 +24,7 @@ insert into changelog_entries (title, description, category, released_on) values
   ),
   (
     'System audit log',
-    'Every mutating action — logins, client/contact/deal changes, stage moves, tasks — is now recorded with the acting user, IP address, and geolocation. View it on the System Log page.',
+    'Every mutating action - logins, client/contact/deal changes, stage moves, tasks - is now recorded with the acting user, IP address, and geolocation. View it on the System Log page.',
     'feature',
     current_date
   ),

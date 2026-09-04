@@ -1,4 +1,4 @@
--- Client Pipeline Manager — initial schema
+-- Client Pipeline Manager - initial schema
 create extension if not exists "uuid-ossp";
 
 create table clients (

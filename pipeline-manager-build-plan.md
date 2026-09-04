@@ -1,4 +1,4 @@
-# Client Pipeline Manager — Build Plan
+# Client Pipeline Manager - Build Plan
 
 Give this whole document to Claude Code as the starting brief. It's a full spec for a
 custom sales/client pipeline tracker for a 2-3 person team.
@@ -12,15 +12,15 @@ Single internal team, no external/customer-facing surface.
 ## 2. Tech Stack
 
 - **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **Backend**: Supabase — Postgres database, built-in Auth, auto-generated REST API,
+- **Backend**: Supabase - Postgres database, built-in Auth, auto-generated REST API,
   Row-Level Security for access control
 - **Custom backend logic**: Next.js API routes (or Supabase Edge Functions) *only* for
-  operations that aren't plain CRUD — e.g. moving a deal to a new stage while logging
+  operations that aren't plain CRUD - e.g. moving a deal to a new stage while logging
   an activity in one transaction, or dashboard aggregate queries
 - **Hosting**: Vercel (frontend), Supabase (database/auth)
 - **Client library**: `@supabase/supabase-js` and `@supabase/ssr` for server/client data access
 
-Do not introduce Prisma or a separate ORM — query Supabase directly via its client library
+Do not introduce Prisma or a separate ORM - query Supabase directly via its client library
 so we get the auto-generated API and RLS for free.
 
 ## 3. Data Model
@@ -98,7 +98,7 @@ create index on tasks (deal_id);
 ```
 
 **Row-Level Security**: enable RLS on every table. Since this is one internal team with no
-per-client customer access, the policy is simple — any authenticated user can read/write
+per-client customer access, the policy is simple - any authenticated user can read/write
 everything:
 
 ```sql
@@ -114,30 +114,30 @@ create policy "authenticated full access" on clients
 -- repeat the same policy for contacts, deals, activities, tasks, pipeline_stages
 ```
 
-**Seed data**: insert default pipeline stages — Lead, Contacted, Qualified, Proposal,
+**Seed data**: insert default pipeline stages - Lead, Contacted, Qualified, Proposal,
 Negotiation, Won, Lost (sort_order 0-6).
 
 ## 4. Auth
 
-Use Supabase Auth with email/password (magic link is fine too). No self-signup —
+Use Supabase Auth with email/password (magic link is fine too). No self-signup -
 team members are invited manually via the Supabase dashboard. No roles/permissions
 needed for v1; every authenticated user has full access.
 
-## 5. Core Pages / Features (MVP — build in this order)
+## 5. Core Pages / Features (MVP - build in this order)
 
-1. **Login page** — Supabase Auth email/password form
-2. **Clients list** — table/cards of all clients, search by name, "Add client" form
-3. **Client detail page** — client info, its contacts (add/edit/delete inline), list of
+1. **Login page** - Supabase Auth email/password form
+2. **Clients list** - table/cards of all clients, search by name, "Add client" form
+3. **Client detail page** - client info, its contacts (add/edit/delete inline), list of
    its deals
-4. **Pipeline board** (`/pipeline`) — kanban view, one column per stage, deal cards
+4. **Pipeline board** (`/pipeline`) - kanban view, one column per stage, deal cards
    draggable between columns (use `@dnd-kit/core`); dropping a card updates `stage_id`
    and, if dropped in Won/Lost, also sets `status` + `closed_at`
-5. **Deal detail page** — deal fields (editable), activity log (add a note/call/email/
+5. **Deal detail page** - deal fields (editable), activity log (add a note/call/email/
    meeting entry, newest first), task list scoped to this deal
-6. **Tasks view** (`/tasks`) — all open tasks across deals, sorted by due date, checkbox
+6. **Tasks view** (`/tasks`) - all open tasks across deals, sorted by due date, checkbox
    to mark done
 
-## 6. Phase 2 (after MVP is in daily use — do not build until Phase 1 is confirmed working)
+## 6. Phase 2 (after MVP is in daily use - do not build until Phase 1 is confirmed working)
 
 - Dashboard: total pipeline value by stage, win rate, deals closing this month
 - CSV import for migrating existing spreadsheet data
@@ -165,7 +165,7 @@ Work through these steps sequentially, confirming each works before moving to th
 
 Do not build: role-based permissions, multi-tenant support, email/calendar integration,
 mobile app, notifications, or any billing/payments. Keep the schema and UI exactly as
-scoped above — resist adding fields or tables not listed here.
+scoped above - resist adding fields or tables not listed here.
 
 ## 9. Acceptance Criteria
 

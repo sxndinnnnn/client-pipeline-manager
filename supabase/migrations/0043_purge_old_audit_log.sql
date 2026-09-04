@@ -24,7 +24,7 @@ end;
 $$;
 
 comment on function purge_old_audit_log() is
-  'Deletes all but the 1000 most recent audit_log rows (by created_at). Scheduled via pg_cron — see the purge-audit-log-daily job.';
+  'Deletes all but the 1000 most recent audit_log rows (by created_at). Scheduled via pg_cron - see the purge-audit-log-daily job.';
 
 -- Re-running select cron.schedule with the same job name updates that job in
 -- place rather than creating a duplicate, so this migration is safe to re-run.

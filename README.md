@@ -16,10 +16,10 @@ geolocation).
 1. **Create a Supabase project** at [supabase.com](https://supabase.com).
 2. **Run the migrations**: open the SQL Editor in your Supabase dashboard and run each
    file in `supabase/migrations/` **in order**:
-   - [`0001_init.sql`](supabase/migrations/0001_init.sql) — schema, RLS, seed pipeline
+   - [`0001_init.sql`](supabase/migrations/0001_init.sql) - schema, RLS, seed pipeline
      stages, and the `move_deal_stage` function the pipeline board uses to atomically
      move a deal + log an activity
-   - [`0002_audit_log.sql`](supabase/migrations/0002_audit_log.sql) — the `audit_log`
+   - [`0002_audit_log.sql`](supabase/migrations/0002_audit_log.sql) - the `audit_log`
      table backing the System Log page (append-only: readable by any authenticated
      user, but no update/delete policy)
 3. **Set environment variables**: copy `.env.local.example` to `.env.local` and fill in
@@ -39,7 +39,7 @@ geolocation).
    npm run dev
    ```
 
-   Visit http://localhost:3000 — you'll land on `/login`.
+   Visit http://localhost:3000 - you'll land on `/login`.
 
 ## Deploying
 
@@ -51,20 +51,20 @@ geolocation).
 
 ## Project structure
 
-- `supabase/migrations/0001_init.sql` — schema, RLS policies, seed data, and the
+- `supabase/migrations/0001_init.sql` - schema, RLS policies, seed data, and the
   `move_deal_stage` Postgres function
-- `supabase/migrations/0002_audit_log.sql` — the `audit_log` table
-- `src/lib/supabase/` — browser/server Supabase clients + session-refresh middleware
-- `src/lib/audit-log.ts` — `logAudit()`, called from every mutating server action;
+- `supabase/migrations/0002_audit_log.sql` - the `audit_log` table
+- `src/lib/supabase/` - browser/server Supabase clients + session-refresh middleware
+- `src/lib/audit-log.ts` - `logAudit()`, called from every mutating server action;
   pulls IP + geolocation from Vercel's edge headers (`x-vercel-ip-*`), null in local dev
-- `src/proxy.ts` — route protection (redirects unauthenticated users to `/login`)
-- `src/app/login/` — auth (also logs `login`/`logout` events)
-- `src/app/(dashboard)/clients/` — clients list + detail (contacts CRUD, deals list)
-- `src/app/(dashboard)/pipeline/` — kanban board (`@dnd-kit/core`)
-- `src/app/(dashboard)/deals/[id]/` — deal detail, activity log, tasks
-- `src/app/(dashboard)/tasks/` — cross-deal open tasks view
-- `src/app/(dashboard)/system-log/` — audit trail view
+- `src/proxy.ts` - route protection (redirects unauthenticated users to `/login`)
+- `src/app/login/` - auth (also logs `login`/`logout` events)
+- `src/app/(dashboard)/clients/` - clients list + detail (contacts CRUD, deals list)
+- `src/app/(dashboard)/pipeline/` - kanban board (`@dnd-kit/core`)
+- `src/app/(dashboard)/deals/[id]/` - deal detail, activity log, tasks
+- `src/app/(dashboard)/tasks/` - cross-deal open tasks view
+- `src/app/(dashboard)/system-log/` - audit trail view
 
-## Phase 2 (not built yet — per the build plan, wait until Phase 1 is in daily use)
+## Phase 2 (not built yet - per the build plan, wait until Phase 1 is in daily use)
 
 Dashboard aggregates, CSV import/export, global search.

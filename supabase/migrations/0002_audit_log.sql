@@ -24,7 +24,7 @@ alter table audit_log enable row level security;
 
 -- Any authenticated teammate can read the log (matches the rest of the app's
 -- "single internal team, full access" model), but there is deliberately no
--- update/delete policy — entries are append-only once written.
+-- update/delete policy - entries are append-only once written.
 create policy "authenticated read" on audit_log
   for select using (auth.role() = 'authenticated');
 
