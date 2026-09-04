@@ -56,8 +56,6 @@ export default async function SystemLogPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">System Log</h1>
-
       {error && (
         <p className="text-sm text-red-600 dark:text-red-400">
           Failed to load log: {error.message}

@@ -55,8 +55,6 @@ export function ReleaseNoteTimeline({
 
   return (
     <div className="flex flex-col gap-10">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Release Note</h1>
-
       {error && <p className="text-sm text-red-600 dark:text-red-400">Failed to load changelog: {error}</p>}
 
       {!error && grouped.length === 0 && (

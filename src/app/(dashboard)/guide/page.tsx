@@ -129,13 +129,6 @@ function flowNodes() {
 export default function GuidePage() {
   return (
     <div className="flex flex-col gap-8">
-      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-        <span aria-hidden className="mr-2">
-          🧭
-        </span>
-        Guide
-      </h1>
-
       <div className="flex flex-col gap-6">
         {SECTIONS.map((section) => (
           <section
