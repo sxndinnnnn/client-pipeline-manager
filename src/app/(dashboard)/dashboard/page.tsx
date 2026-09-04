@@ -1,15 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/currency";
-import type { Activity, ActivityType, Client, Deal } from "@/types/database";
-
-const STALE_DAYS = 14;
-
-const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
-  note: "notes",
-  call: "calls",
-  email: "emails",
-  meeting: "meetings",
-};
+import type { Client, Deal } from "@/types/database";
 
 function monthKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
@@ -147,24 +138,17 @@ export function StageBarChart({
 export default async function DashboardPage() {
   const supabase = await createClient();
 
-  const [{ data: deals }, { data: stages }, { data: activities }, { data: tasks }, { data: clients }] =
-    await Promise.all([
-      supabase.from("deals").select("*"),
-      supabase.from("pipeline_stages").select("*").order("sort_order", { ascending: true }),
-      supabase.from("activities").select("id, deal_id, type, created_at"),
-      supabase.from("tasks").select("id, deal_id, status, due_date"),
-      supabase.from("clients").select("id, name, created_at"),
-    ]);
+  const [{ data: deals }, { data: stages }, { data: clients }] = await Promise.all([
+    supabase.from("deals").select("*"),
+    supabase.from("pipeline_stages").select("*").order("sort_order", { ascending: true }),
+    supabase.from("clients").select("id, name, created_at"),
+  ]);
 
   const allDeals = (deals ?? []) as Deal[];
-  const allActivities = (activities ?? []) as Pick<Activity, "id" | "deal_id" | "type" | "created_at">[];
   const allClients = (clients ?? []) as Pick<Client, "id" | "name" | "created_at">[];
-  const allTasks = tasks ?? [];
 
   const now = new Date();
-  const todayStart = new Date(now.toDateString());
   const thisMonthKey = monthKey(now);
-  const lastMonthKey = monthKey(new Date(now.getFullYear(), now.getMonth() - 1, 1));
 
   const openDeals = allDeals.filter((d) => d.status === "OPEN");
   const wonDeals = allDeals.filter((d) => d.status === "WON");
@@ -194,52 +178,6 @@ export default async function DashboardPage() {
     const list = dealsByStage.get(s.id) ?? [];
     return { name: s.name, count: list.length, value: numericValues(list).reduce((sum, v) => sum + v, 0) };
   });
-
-  // This month
-  const dealsClosingThisMonth = openDeals.filter(
-    (d) => d.expected_close_date && d.expected_close_date.slice(0, 7) === thisMonthKey
-  );
-  const dealsClosingThisMonthValue = numericValues(dealsClosingThisMonth).reduce((s, v) => s + v, 0);
-  const revenueThisMonth = numericValues(
-    wonDeals.filter((d) => d.closed_at && monthKey(new Date(d.closed_at)) === thisMonthKey)
-  ).reduce((s, v) => s + v, 0);
-  const revenueLastMonth = numericValues(
-    wonDeals.filter((d) => d.closed_at && monthKey(new Date(d.closed_at)) === lastMonthKey)
-  ).reduce((s, v) => s + v, 0);
-  const revenueDeltaPct =
-    revenueLastMonth > 0 ? ((revenueThisMonth - revenueLastMonth) / revenueLastMonth) * 100 : null;
-
-  // Needs attention
-  const overdueDeals = openDeals.filter(
-    (d) => d.expected_close_date && new Date(d.expected_close_date) < todayStart
-  );
-  const lastActivityByDeal = new Map<string, string>();
-  for (const a of allActivities) {
-    const existing = lastActivityByDeal.get(a.deal_id);
-    if (!existing || a.created_at > existing) lastActivityByDeal.set(a.deal_id, a.created_at);
-  }
-  const staleCutoff = new Date();
-  staleCutoff.setDate(staleCutoff.getDate() - STALE_DAYS);
-  const staleDeals = openDeals.filter((d) => {
-    const lastTouch = lastActivityByDeal.get(d.id) ?? d.created_at;
-    return new Date(lastTouch) < staleCutoff;
-  });
-
-  // Activity & tasks
-  const weekCutoff = new Date();
-  weekCutoff.setDate(weekCutoff.getDate() - 7);
-  const recentActivities = allActivities.filter((a) => new Date(a.created_at) >= weekCutoff);
-  const activityByType: Partial<Record<ActivityType, number>> = {};
-  for (const a of recentActivities) {
-    activityByType[a.type] = (activityByType[a.type] ?? 0) + 1;
-  }
-  const activityBreakdown = (Object.entries(activityByType) as [ActivityType, number][])
-    .sort((a, b) => b[1] - a[1])
-    .map(([type, count]) => `${count} ${ACTIVITY_TYPE_LABELS[type]}`)
-    .join(" · ");
-
-  const openTasks = allTasks.filter((t) => t.status === "PENDING");
-  const overdueTasks = openTasks.filter((t) => t.due_date && new Date(t.due_date) < todayStart);
 
   // Clients
   const newClientsThisMonth = allClients.filter(
@@ -295,66 +233,6 @@ export default async function DashboardPage() {
         <SectionHeading emoji="🗂️" title="Pipeline By Stage" />
         <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
           <StageBarChart stageRows={stageRows} />
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <SectionHeading emoji="📅" title="This Month" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-          <StatTile
-            label="Deals Closing This Month"
-            value={String(dealsClosingThisMonth.length)}
-            sublabel={formatLKR(dealsClosingThisMonthValue)}
-          />
-          <StatTile
-            label="Revenue Won This Month"
-            value={formatLKR(revenueThisMonth)}
-            sublabel={
-              revenueDeltaPct != null
-                ? `${revenueDeltaPct >= 0 ? "+" : ""}${Math.round(revenueDeltaPct)}% vs last month`
-                : "No data for last month"
-            }
-            tone={revenueDeltaPct != null ? (revenueDeltaPct >= 0 ? "good" : "critical") : "default"}
-          />
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <SectionHeading emoji="⚠️" title="Needs Attention" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatTile
-            label="Overdue Deals"
-            value={String(overdueDeals.length)}
-            sublabel="Past expected close date"
-            tone={overdueDeals.length > 0 ? "critical" : "good"}
-          />
-          <StatTile
-            label="Stale Deals"
-            value={String(staleDeals.length)}
-            sublabel={`No activity in ${STALE_DAYS}+ days`}
-            tone={staleDeals.length > 0 ? "warning" : "good"}
-          />
-          <StatTile
-            label="Overdue Tasks"
-            value={String(overdueTasks.length)}
-            tone={overdueTasks.length > 0 ? "warning" : "good"}
-          />
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-3">
-        <SectionHeading emoji="📝" title="Activity & Tasks" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2">
-          <StatTile
-            label="Activity Logged (7 Days)"
-            value={String(recentActivities.length)}
-            sublabel={activityBreakdown || "Nothing logged this week"}
-          />
-          <StatTile
-            label="Open Tasks"
-            value={String(openTasks.length)}
-            sublabel={`${overdueTasks.length} overdue`}
-          />
         </div>
       </section>
 

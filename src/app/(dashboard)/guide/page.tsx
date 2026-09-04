@@ -7,7 +7,7 @@ const SECTIONS = [
     emoji: "📊",
     href: "/dashboard",
     body: [
-      "An at-a-glance overview of the whole pipeline: open pipeline value, win rate, average sales cycle, and deal size, a bar chart of open value by stage, this month's closing deals and won revenue (with the change vs last month), a Needs Attention section (overdue deals, deals with no activity in 14+ days, overdue tasks), recent activity, and client stats including your top clients by open pipeline value.",
+      "An at-a-glance overview of the whole pipeline: open and won pipeline value, open deal count, win/loss rate, average sales cycle, and deal size, a bar chart of open value by stage, and client stats including your top clients by open pipeline value.",
     ],
   },
   {
