@@ -35,7 +35,7 @@ const SECTIONS = [
     title: "Tasks",
     href: "/tasks",
     body: [
-      "The Tasks page pulls together every open task across all deals in one list, sorted by due date so nothing slips — overdue items are flagged in red.",
+      "The Tasks page pulls together every task across all deals as cards — client on top, deal on the side, task at the bottom — split into Open Tasks and Closed Tasks tabs, sorted by due date so nothing slips. Overdue open tasks are flagged in red.",
     ],
   },
   {
