@@ -73,11 +73,6 @@ export default async function ClientsPage({
                 className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:shadow dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
               >
                 <h2 className="font-medium text-zinc-900 dark:text-zinc-50">{client.name}</h2>
-                {client.industry && (
-                  <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                    {client.industry}
-                  </p>
-                )}
                 {client.tags && client.tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {client.tags.map((tag: string) => (
