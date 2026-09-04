@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { PaginationControls } from "@/app/(dashboard)/clients/pagination-controls";
 
-const DEFAULT_PAGE_SIZE = 100;
+const DEFAULT_PAGE_SIZE = 25;
 
 type LogEntry = {
   id: string;

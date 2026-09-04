@@ -43,7 +43,7 @@ const SECTIONS = [
     href: "/system-log",
     body: [
       "Every meaningful action anyone takes — signing in or out, creating or editing a client/contact/deal, moving a deal's stage, logging an activity, adding or completing a task — is recorded here with who did it, when, their IP address, and where that request came from.",
-      "It's append-only: nobody can edit or delete an entry by hand, so it stays a reliable record. Shown 100 entries per page, and a daily automated job keeps only the most recent 1000 entries overall.",
+      "It's append-only: nobody can edit or delete an entry by hand, so it stays a reliable record. Shown 25 entries per page by default (adjustable), and a daily automated job keeps only the most recent 1000 entries overall.",
     ],
   },
   {
