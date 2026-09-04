@@ -360,7 +360,7 @@ export function DealRow({
                       type="submit"
                       className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                     >
-                      Add
+                      Add New Task
                     </button>
                   </form>
 
