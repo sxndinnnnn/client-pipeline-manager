@@ -56,13 +56,7 @@ export default async function SystemLogPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">System Log</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          Every action taken in this workspace, with the IP address and location it came
-          from. Only the most recent 1000 entries are kept.
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">System Log</h1>
 
       {error && (
         <p className="text-sm text-red-600 dark:text-red-400">
