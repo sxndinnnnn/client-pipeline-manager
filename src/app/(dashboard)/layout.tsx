@@ -4,6 +4,7 @@ import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV_LINKS = [
+  { href: "/dashboard", label: "Dashboard" },
   { href: "/clients", label: "Clients" },
   { href: "/pipeline", label: "Pipeline" },
   { href: "/tasks", label: "Tasks" },
