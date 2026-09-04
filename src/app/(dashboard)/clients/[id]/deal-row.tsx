@@ -133,14 +133,6 @@ export function DealRow({
                 <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
                   {deal.title}
                 </h2>
-                <div className="mt-1 flex items-center gap-2">
-                  <span
-                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[deal.status]}`}
-                  >
-                    {deal.status}
-                  </span>
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">{stageName}</span>
-                </div>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -148,7 +140,7 @@ export function DealRow({
                   onClick={() => setEditing((v) => !v)}
                   className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
                 >
-                  {editing ? "Cancel" : "Edit deal"}
+                  {editing ? "Cancel" : "Edit Deal"}
                 </button>
                 <button
                   type="button"
@@ -158,7 +150,7 @@ export function DealRow({
                   }}
                   className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
                 >
-                  Delete deal
+                  Delete Deal
                 </button>
                 <button
                   type="button"
@@ -245,13 +237,13 @@ export function DealRow({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-zinc-500 dark:text-zinc-400">Expected close</dt>
+                  <dt className="text-xs text-zinc-500 dark:text-zinc-400">Expected Close</dt>
                   <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
                     {deal.expected_close_date ?? "—"}
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-zinc-500 dark:text-zinc-400">Closed at</dt>
+                  <dt className="text-xs text-zinc-500 dark:text-zinc-400">Closed At</dt>
                   <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
                     {deal.closed_at ? formatDateTime(deal.closed_at) : "—"}
                   </dd>
@@ -307,7 +299,7 @@ export function DealRow({
                         type="submit"
                         className="ml-auto rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                       >
-                        Log activity
+                        Log Activity
                       </button>
                     </div>
                     <textarea

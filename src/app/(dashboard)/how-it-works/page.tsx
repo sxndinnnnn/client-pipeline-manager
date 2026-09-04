@@ -9,7 +9,7 @@ const SECTIONS = [
       "From the Clients page, use \"+ Add Client\" to create one. Opening a client shows a header card (logo or initials, contact/deal counts, open pipeline value) and three tabs — Details (an always-editable Basic Details panel), Contacts, and Deals.",
       "Click Upload under the avatar to set a client's logo, or Change / Remove once one's set.",
       "The Contacts tab lists contacts in a table — click the pencil icon to edit one, or + Add Contact to open the add form as a modal.",
-      "The Deals tab works the same way — a table of the client's deals, and + Add Deal opens the create form as a modal. Click the View icon on a row to open the deal's full detail (value, source, dates, Activity and Tasks as tabs) in a large modal, with Edit deal and Delete deal buttons right there — no need to leave the client page.",
+      "The Deals tab works the same way — a table of the client's deals, and + Add Deal opens the create form as a modal. Click the View icon on a row to open the deal's full detail (value, source, dates, Activity and Tasks as tabs) in a large modal, with Edit Deal and Delete Deal buttons right there — no need to leave the client page.",
       "Deal values are shown in LKR throughout the app.",
     ],
   },
