@@ -348,7 +348,7 @@ export function DealRow({
                     <input
                       name="title"
                       required
-                      placeholder="New task..."
+                      placeholder="New Task"
                       className="flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                     />
                     <input
