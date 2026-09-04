@@ -22,7 +22,7 @@ function TaskGrid({ tasks, done }: { tasks: TaskWithDeal[]; done: boolean }) {
   if (tasks.length === 0) {
     return (
       <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
-        {done ? "No closed tasks yet." : "Nothing open right now — nice work."}
+        {done ? "No closed tasks yet." : "No open tasks yet."}
       </div>
     );
   }
