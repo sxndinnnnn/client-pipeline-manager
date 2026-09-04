@@ -27,6 +27,21 @@ function numericValues(deals: Deal[]) {
   return deals.map((d) => d.value).filter((v): v is number => v != null).map(Number);
 }
 
+// Rounds `maxValue` up to a "nice" number and returns evenly spaced ticks
+// from 0 to that nice max, for a chart y-axis.
+function niceTicks(maxValue: number, targetCount = 4) {
+  if (maxValue <= 0) return [0];
+  const rawStep = maxValue / targetCount;
+  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
+  const residual = rawStep / magnitude;
+  const niceStep =
+    (residual > 5 ? 10 : residual > 2 ? 5 : residual > 1 ? 2 : 1) * magnitude;
+  const niceMax = Math.ceil(maxValue / niceStep) * niceStep;
+  const ticks: number[] = [];
+  for (let v = 0; v <= niceMax + niceStep / 2; v += niceStep) ticks.push(Math.round(v));
+  return ticks;
+}
+
 const toneText: Record<string, string> = {
   default: "text-zinc-900 dark:text-zinc-50",
   good: "text-green-600 dark:text-green-400",
@@ -64,6 +79,68 @@ function SectionHeading({ emoji, title }: { emoji: string; title: string }) {
       </span>
       {title}
     </h2>
+  );
+}
+
+export function StageBarChart({
+  stageRows,
+}: {
+  stageRows: { name: string; count: number; value: number }[];
+}) {
+  if (stageRows.every((r) => r.count === 0)) {
+    return <p className="text-sm text-zinc-500 dark:text-zinc-400">No open deals yet.</p>;
+  }
+
+  const ticks = niceTicks(Math.max(...stageRows.map((r) => r.value)));
+  const chartMax = Math.max(1, ticks[ticks.length - 1]);
+
+  return (
+    <>
+      <div className="mt-3 flex h-56">
+        <div className="relative w-20 shrink-0">
+          {ticks.map((tick) => (
+            <span
+              key={tick}
+              className="absolute right-2 -translate-y-1/2 whitespace-nowrap text-xs text-zinc-400 dark:text-zinc-500"
+              style={{ bottom: `${(tick / chartMax) * 100}%` }}
+            >
+              {formatLKR(tick)}
+            </span>
+          ))}
+        </div>
+        <div className="relative flex-1">
+          {ticks.map((tick) => (
+            <div
+              key={tick}
+              className="absolute inset-x-0 border-t border-zinc-100 dark:border-zinc-800"
+              style={{ bottom: `${(tick / chartMax) * 100}%` }}
+            />
+          ))}
+          <div className="absolute inset-0 flex items-end gap-3">
+            {stageRows.map((row) => (
+              <div key={row.name} className="flex h-full flex-1 flex-col items-center justify-end">
+                {row.value > 0 && (
+                  <span className="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                    {formatLKR(row.value)}
+                  </span>
+                )}
+                <div
+                  className="w-full rounded-t bg-blue-600 dark:bg-blue-500"
+                  style={{ height: `${(row.value / chartMax) * 100}%` }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="mt-2 flex gap-3 pl-20">
+        {stageRows.map((row) => (
+          <span key={row.name} className="flex-1 text-center text-xs text-zinc-500 dark:text-zinc-400">
+            {row.name}
+          </span>
+        ))}
+      </div>
+    </>
   );
 }
 
@@ -117,7 +194,6 @@ export default async function DashboardPage() {
     const list = dealsByStage.get(s.id) ?? [];
     return { name: s.name, count: list.length, value: numericValues(list).reduce((sum, v) => sum + v, 0) };
   });
-  const maxStageValue = Math.max(1, ...stageRows.map((r) => r.value));
 
   // This month
   const dealsClosingThisMonth = openDeals.filter(
@@ -218,28 +294,7 @@ export default async function DashboardPage() {
       <section className="flex flex-col gap-3">
         <SectionHeading emoji="🗂️" title="Pipeline By Stage" />
         <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-          {stageRows.every((r) => r.count === 0) ? (
-            <p className="text-sm text-zinc-500 dark:text-zinc-400">No open deals yet.</p>
-          ) : (
-            <div className="flex flex-col gap-3">
-              {stageRows.map((row) => (
-                <div key={row.name} className="flex items-center gap-3">
-                  <span className="w-24 shrink-0 text-sm text-zinc-600 dark:text-zinc-400">
-                    {row.name}
-                  </span>
-                  <div className="h-5 flex-1 overflow-hidden rounded bg-zinc-100 dark:bg-zinc-800">
-                    <div
-                      className="h-full rounded bg-blue-600 dark:bg-blue-500"
-                      style={{ width: `${(row.value / maxStageValue) * 100}%` }}
-                    />
-                  </div>
-                  <span className="w-40 shrink-0 text-right text-sm text-zinc-600 dark:text-zinc-400">
-                    {row.count} deal{row.count === 1 ? "" : "s"} &middot; {formatLKR(row.value)}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
+          <StageBarChart stageRows={stageRows} />
         </div>
       </section>
 
