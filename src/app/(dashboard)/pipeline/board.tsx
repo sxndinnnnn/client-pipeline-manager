@@ -87,7 +87,7 @@ function Column({
         ))}
         {deals.length === 0 && (
           <p className="rounded-md border border-dashed border-zinc-300 p-3 text-center text-xs text-zinc-400 dark:border-zinc-700 dark:text-zinc-500">
-            No deals
+            No Deals
           </p>
         )}
       </div>
