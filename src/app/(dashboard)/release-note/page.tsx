@@ -23,7 +23,7 @@ function groupByDate(entries: ChangelogEntry[]) {
   return Array.from(groups.entries());
 }
 
-export default async function ChangelogPage() {
+export default async function ReleaseNotePage() {
   const supabase = await createClient();
 
   const { data: entries, error } = await supabase

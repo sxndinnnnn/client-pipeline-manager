@@ -75,8 +75,8 @@ ships:
 1. Add a row to `changelog_entries` via a new numbered migration in
    `supabase/migrations/` (title, short description, category: `feature`/`fix`/
    `improvement`). This is what shows on the in-app **Release Note** page
-   (`/changelog` route — renamed from "Changelog" to "Release Note" in the UI, table/
-   route names unchanged).
+   (`/release-note` route — the `changelog_entries` table name is unchanged, only the
+   UI label and route have moved away from "changelog").
 2. If the change affects how a user would understand or use the app, also update
    **Guide** (`/how-it-works` route, file `src/app/(dashboard)/how-it-works/page.tsx`).
    Purely internal/invisible changes (refactors, CSS-only fixes with no behavior change)
@@ -116,7 +116,7 @@ Key schema pieces beyond the original build plan's tables (`clients`, `contacts`
 ## Feature list (everything built beyond the original Phase 1 spec)
 
 - System audit log (`/system-log`) — IP + geolocation, append-only.
-- Release Note (`/changelog`) — in-app changelog, no longer user-editable (the "+ Add
+- Release Note (`/release-note`) — in-app changelog, no longer user-editable (the "+ Add
   entry" form was removed; entries only come from migrations now).
 - Guide (`/how-it-works`) — static walkthrough of the app.
 - Dark mode — toggle in the header, defaults to system preference on first visit,
