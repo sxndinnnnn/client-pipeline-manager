@@ -50,7 +50,7 @@ const SECTIONS = [
     title: "Release Note",
     href: "/release-note",
     body: [
-      "A running list of what's changed in the tool itself — new features, fixes, improvements — grouped by date, so the team can see what's new without having to ask.",
+      "A running timeline of what's changed in the tool itself, grouped by date with an emoji and color-coded tag per entry (✨ feature, 🛠️ improvement, 🐛 fix), so the team can see what's new without having to ask.",
     ],
   },
   {
