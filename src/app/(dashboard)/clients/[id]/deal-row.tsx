@@ -107,7 +107,7 @@ export function DealRow({
           {deal.status}
         </span>
       </td>
-      <td className="px-4 py-3">
+      <td className="px-4 py-3 text-center">
         <button
           type="button"
           onClick={openView}
