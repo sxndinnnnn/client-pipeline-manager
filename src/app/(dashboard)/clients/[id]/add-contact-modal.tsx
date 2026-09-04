@@ -32,7 +32,7 @@ export function AddContactModal({
         onClick={open}
         className="rounded-md bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
       >
-        + Add Contact
+        + Create Contact
       </button>
 
       <dialog
@@ -44,7 +44,7 @@ export function AddContactModal({
       >
         <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
           <div className="flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
-            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Add Contact</h2>
+            <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">Create Contact</h2>
             <button
               type="button"
               onClick={close}
@@ -104,7 +104,7 @@ export function AddContactModal({
               type="submit"
               className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
-              Add Contact
+              Create Contact
             </button>
           </form>
         </div>
