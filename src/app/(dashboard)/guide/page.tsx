@@ -1,8 +1,10 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 
 const SECTIONS = [
   {
     title: "Clients & Contacts",
+    emoji: "👥",
     href: "/clients",
     body: [
       "A Client is a company or account you're selling to. Each client can have any number of Contacts - the people there you actually talk to.",
@@ -14,7 +16,8 @@ const SECTIONS = [
     ],
   },
   {
-    title: "The Pipeline board",
+    title: "The Pipeline Board",
+    emoji: "🗂️",
     href: "/pipeline",
     body: [
       "Every deal moves through a set of stages - Lead, Contacted, Qualified, Proposal, Negotiation, Trial, Legal, Won, Lost - shown as columns on the Pipeline board.",
@@ -23,7 +26,8 @@ const SECTIONS = [
     ],
   },
   {
-    title: "Deal details, activity, and tasks",
+    title: "Deal Details, Activity, And Tasks",
+    emoji: "📋",
     href: undefined,
     body: [
       "Open any deal (from its card on the Pipeline board, or from the client page) to edit its value, source, and expected close date.",
@@ -33,6 +37,7 @@ const SECTIONS = [
   },
   {
     title: "Tasks",
+    emoji: "✅",
     href: "/tasks",
     body: [
       "The Tasks page pulls together every task across all deals as cards - client on top, deal on the side, task at the bottom - split into Open Tasks and Closed Tasks tabs, sorted by due date so nothing slips. Overdue open tasks are flagged in red.",
@@ -40,6 +45,7 @@ const SECTIONS = [
   },
   {
     title: "System Log",
+    emoji: "📜",
     href: "/system-log",
     body: [
       "Every meaningful action anyone takes - signing in or out, creating or editing a client/contact/deal, moving a deal's stage, logging an activity, adding or completing a task - is recorded here with who did it, when, their IP address, and where that request came from.",
@@ -48,13 +54,15 @@ const SECTIONS = [
   },
   {
     title: "Release Note",
+    emoji: "📣",
     href: "/release-note",
     body: [
       "A running timeline of what's changed in the tool itself, grouped by date with an emoji and color-coded tag per entry (✨ feature, 🛠️ improvement, 🐛 fix), so the team can see what's new without having to ask.",
     ],
   },
   {
-    title: "Dark mode",
+    title: "Dark Mode",
+    emoji: "🌙",
     href: undefined,
     body: [
       "Use the sun/moon button in the top-right corner of the header to switch between light and dark mode. It defaults to your system's setting the first time you visit, and remembers whatever you pick after that on this device.",
@@ -62,19 +70,62 @@ const SECTIONS = [
   },
 ];
 
+const FLOW_STEPS = [
+  "Add the client, and a contact there you're talking to.",
+  "Create a deal for that client - it starts in the Lead stage.",
+  "Drag it across the Pipeline board as it progresses.",
+  "Log calls/emails/meetings and set follow-up tasks on the deal as you go.",
+  "Drop it in Won or Lost when it closes - that's the end of the trail.",
+];
+
+function FlowArrow() {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={2}
+      className="h-4 w-4 shrink-0 rotate-90 text-zinc-400 sm:rotate-0 dark:text-zinc-600"
+    >
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+function flowNodes() {
+  const nodes: ReactNode[] = [];
+  FLOW_STEPS.forEach((step, i) => {
+    nodes.push(
+      <div
+        key={`step-${i}`}
+        className="flex flex-1 items-center gap-3 rounded-lg border border-zinc-200 bg-white p-3 text-left dark:border-zinc-800 dark:bg-zinc-950 sm:min-w-[9rem] sm:flex-col sm:items-center sm:text-center"
+      >
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white dark:bg-zinc-100 dark:text-zinc-900">
+          {i + 1}
+        </span>
+        <p className="text-xs text-zinc-600 dark:text-zinc-400">{step}</p>
+      </div>
+    );
+    if (i < FLOW_STEPS.length - 1) {
+      nodes.push(
+        <div key={`arrow-${i}`} className="flex justify-center">
+          <FlowArrow />
+        </div>
+      );
+    }
+  });
+  return nodes;
+}
+
 export default function GuidePage() {
   return (
     <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Guide
-        </h1>
-        <p className="mt-1 max-w-2xl text-sm text-zinc-500 dark:text-zinc-400">
-          A quick tour of each part of the tool and how they fit together. This is an
-          internal pipeline tracker for the team - everyone who&apos;s signed in has full
-          access to everything below.
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+        <span aria-hidden className="mr-2">
+          🧭
+        </span>
+        Guide
+      </h1>
 
       <div className="flex flex-col gap-6">
         {SECTIONS.map((section) => (
@@ -84,6 +135,9 @@ export default function GuidePage() {
           >
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+                <span aria-hidden className="mr-1.5">
+                  {section.emoji}
+                </span>
                 {section.title}
               </h2>
               {section.href && (
@@ -91,7 +145,7 @@ export default function GuidePage() {
                   href={section.href}
                   className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
                 >
-                  Go there →
+                  Go There →
                 </Link>
               )}
             </div>
@@ -108,15 +162,14 @@ export default function GuidePage() {
 
       <section className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-900">
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
-          A typical flow, start to finish
+          <span aria-hidden className="mr-1.5">
+            🚀
+          </span>
+          A Typical Flow, Start To Finish
         </h2>
-        <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-400">
-          <li>Add the client, and a contact there you&apos;re talking to.</li>
-          <li>Create a deal for that client - it starts in the Lead stage.</li>
-          <li>Drag it across the Pipeline board as it progresses.</li>
-          <li>Log calls/emails/meetings and set follow-up tasks on the deal as you go.</li>
-          <li>Drop it in Won or Lost when it closes - that&apos;s the end of the trail.</li>
-        </ol>
+        <div className="mt-4 flex flex-col items-stretch gap-2 sm:flex-row sm:items-start sm:gap-2">
+          {flowNodes()}
+        </div>
       </section>
     </div>
   );
