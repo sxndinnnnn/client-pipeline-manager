@@ -78,7 +78,7 @@ export function ReleaseNoteTimeline({
           />
           {grouped.map(([date, dateEntries]) => (
             <div key={date} className="relative flex flex-col gap-4 sm:flex-row sm:gap-8">
-              <div className="flex items-center gap-3 sm:w-40 sm:shrink-0 sm:flex-col sm:items-start sm:gap-1.5 sm:pt-0.5 sm:pr-6">
+              <div className="flex items-center gap-2 sm:w-40 sm:shrink-0 sm:pt-0.5 sm:pr-6">
                 <span className="relative z-10 h-2.5 w-2.5 shrink-0 rounded-full bg-zinc-900 ring-4 ring-white dark:bg-zinc-100 dark:ring-zinc-950" />
                 <span className="text-sm font-semibold whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                   {formatDate(date)}
