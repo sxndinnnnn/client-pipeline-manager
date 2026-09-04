@@ -8,6 +8,11 @@ const nextConfig: NextConfig = {
         destination: "/release-note",
         permanent: true,
       },
+      {
+        source: "/how-it-works",
+        destination: "/guide",
+        permanent: true,
+      },
     ];
   },
 };

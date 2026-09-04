@@ -62,7 +62,7 @@ const SECTIONS = [
   },
 ];
 
-export default function HowItWorksPage() {
+export default function GuidePage() {
   return (
     <div className="flex flex-col gap-8">
       <div>

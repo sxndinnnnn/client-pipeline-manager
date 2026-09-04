@@ -39,7 +39,7 @@ function GuideIcon() {
 const FOOTER_LINKS = [
   { href: "/system-log", label: "System Log", Icon: SystemLogIcon },
   { href: "/release-note", label: "Release Note", Icon: ReleaseNoteIcon },
-  { href: "/how-it-works", label: "Guide", Icon: GuideIcon },
+  { href: "/guide", label: "Guide", Icon: GuideIcon },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
