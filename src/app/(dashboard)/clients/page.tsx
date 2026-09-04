@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { AddClientModal } from "./add-client-modal";
 import { PaginationControls } from "./pagination-controls";
 
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 50;
 
 export default async function ClientsPage({
   searchParams,
