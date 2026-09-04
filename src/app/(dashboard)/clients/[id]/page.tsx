@@ -6,6 +6,7 @@ import { formatLKR } from "@/lib/currency";
 import {
   addContact,
   createDeal,
+  deleteClient,
   deleteContact,
   updateClientRecord,
   updateContact,
@@ -13,7 +14,9 @@ import {
 import {
   addActivity,
   addTask,
+  deleteActivity,
   deleteDeal,
+  deleteTask,
   setTaskStatus,
   updateDeal,
 } from "../../deals/[id]/actions";
@@ -23,6 +26,7 @@ import { ClientLogo } from "./client-logo";
 import { AddContactModal } from "./add-contact-modal";
 import { AddDealModal } from "./add-deal-modal";
 import { DealRow } from "./deal-row";
+import { DeleteClientButton } from "./delete-client-button";
 import type { Activity, Deal, Task } from "@/types/database";
 
 function initials(name: string) {
@@ -136,6 +140,11 @@ export default async function ClientDetailPage({
   async function saveClient(formData: FormData) {
     "use server";
     await updateClientRecord(id, formData);
+  }
+
+  async function deleteClientAction() {
+    "use server";
+    await deleteClient(id, client.name);
   }
 
   async function addContactAction(formData: FormData) {
@@ -317,9 +326,27 @@ export default async function ClientDetailPage({
                 await addActivity(deal.id, formData);
                 revalidatePath(`/clients/${id}`);
               }
+              async function deleteActivityAction(
+                dealId: string,
+                activityId: string,
+                type: Activity["type"]
+              ) {
+                "use server";
+                await deleteActivity(dealId, activityId, type);
+                revalidatePath(`/clients/${id}`);
+              }
               async function addTaskAction(formData: FormData) {
                 "use server";
                 await addTask(deal.id, formData);
+                revalidatePath(`/clients/${id}`);
+              }
+              async function deleteTaskAction(
+                dealId: string,
+                taskId: string,
+                taskTitle: string
+              ) {
+                "use server";
+                await deleteTask(dealId, taskId, taskTitle);
                 revalidatePath(`/clients/${id}`);
               }
               async function setTaskStatusAction(
@@ -342,7 +369,9 @@ export default async function ClientDetailPage({
                   onUpdate={updateAction}
                   onDelete={deleteAction}
                   onAddActivity={addActivityAction}
+                  onDeleteActivity={deleteActivityAction}
                   onAddTask={addTaskAction}
+                  onDeleteTask={deleteTaskAction}
                   onSetTaskStatus={setTaskStatusAction}
                 />
               );
@@ -372,6 +401,7 @@ export default async function ClientDetailPage({
               </h1>
             </div>
           </div>
+          <DeleteClientButton clientName={client.name} onDelete={deleteClientAction} />
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -39,6 +39,18 @@ function EyeIcon() {
   );
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"
+      />
+    </svg>
+  );
+}
+
 type DealWithStage = Deal & { pipeline_stages: { name: string } | null };
 type DetailTab = "activity" | "tasks";
 
@@ -49,7 +61,9 @@ export function DealRow({
   onUpdate,
   onDelete,
   onAddActivity,
+  onDeleteActivity,
   onAddTask,
+  onDeleteTask,
   onSetTaskStatus,
 }: {
   deal: DealWithStage;
@@ -58,7 +72,9 @@ export function DealRow({
   onUpdate: (formData: FormData) => Promise<void>;
   onDelete: () => Promise<void>;
   onAddActivity: (formData: FormData) => Promise<void>;
+  onDeleteActivity: (dealId: string, activityId: string, type: Activity["type"]) => Promise<void>;
   onAddTask: (formData: FormData) => Promise<void>;
+  onDeleteTask: (dealId: string, taskId: string, taskTitle: string) => Promise<void>;
   onSetTaskStatus: (dealId: string, taskId: string, done: boolean) => Promise<void>;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -326,9 +342,19 @@ export function DealRow({
                           <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
                             {activity.type}
                           </span>
-                          <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                            {formatDateTime(activity.created_at)}
-                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                              {formatDateTime(activity.created_at)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => onDeleteActivity(deal.id, activity.id, activity.type)}
+                              aria-label="Delete activity"
+                              className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
                         </div>
                         <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
                           {activity.content}
@@ -371,7 +397,7 @@ export function DealRow({
                       </p>
                     )}
                     {tasks.map((task) => (
-                      <label
+                      <div
                         key={task.id}
                         className="flex items-center gap-3 rounded-md border border-zinc-200 p-3 dark:border-zinc-800"
                       >
@@ -395,7 +421,15 @@ export function DealRow({
                             {task.due_date}
                           </span>
                         )}
-                      </label>
+                        <button
+                          type="button"
+                          onClick={() => onDeleteTask(deal.id, task.id, task.title)}
+                          aria-label="Delete task"
+                          className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </div>

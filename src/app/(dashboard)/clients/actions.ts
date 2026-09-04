@@ -158,6 +158,23 @@ export async function updateClientRecord(clientId: string, formData: FormData) {
   revalidatePath("/clients");
 }
 
+export async function deleteClient(clientId: string, clientName: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("clients").delete().eq("id", clientId);
+  if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "client.delete",
+    description: `Deleted client "${clientName}"`,
+    entityType: "client",
+    entityId: clientId,
+  });
+
+  revalidatePath("/clients");
+  redirect("/clients");
+}
+
 export async function addContact(clientId: string, formData: FormData) {
   const supabase = await createClient();
 

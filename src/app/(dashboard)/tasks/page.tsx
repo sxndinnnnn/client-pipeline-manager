@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { TaskCheckbox } from "@/components/task-checkbox";
 import { ClientTabs } from "@/app/(dashboard)/clients/[id]/client-tabs";
-import { setTaskStatus } from "../deals/[id]/actions";
+import { deleteTask, setTaskStatus } from "../deals/[id]/actions";
 
 type TaskWithDeal = {
   id: string;
@@ -18,6 +18,18 @@ function isOverdue(dueDate: string | null) {
   return new Date(dueDate) < new Date(new Date().toDateString());
 }
 
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"
+      />
+    </svg>
+  );
+}
+
 function TaskGrid({ tasks, done }: { tasks: TaskWithDeal[]; done: boolean }) {
   if (tasks.length === 0) {
     return (
@@ -29,63 +41,78 @@ function TaskGrid({ tasks, done }: { tasks: TaskWithDeal[]; done: boolean }) {
 
   return (
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-      {tasks.map((task) => (
-        <div
-          key={task.id}
-          className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
-        >
-          <div className="flex items-start justify-between gap-2">
-            {task.deals?.clients ? (
+      {tasks.map((task) => {
+        async function deleteTaskAction() {
+          "use server";
+          await deleteTask(task.deal_id, task.id, task.title);
+        }
+        return (
+          <div
+            key={task.id}
+            className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+          >
+            <div className="flex items-start justify-between gap-2">
+              {task.deals?.clients ? (
+                <Link
+                  href={`/clients/${task.deals.clients.id}`}
+                  className="text-xs font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                >
+                  {task.deals.clients.name}
+                </Link>
+              ) : (
+                <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
+                  -
+                </span>
+              )}
               <Link
-                href={`/clients/${task.deals.clients.id}`}
-                className="text-xs font-semibold uppercase tracking-wide text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                href={`/deals/${task.deal_id}`}
+                className="shrink-0 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
               >
-                {task.deals.clients.name}
+                {task.deals?.title}
               </Link>
-            ) : (
-              <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                -
+            </div>
+
+            <div className="flex items-start gap-3">
+              <TaskCheckbox
+                taskId={task.id}
+                dealId={task.deal_id}
+                initialDone={done}
+                onToggle={setTaskStatus}
+              />
+              <p
+                className={`flex-1 text-sm ${
+                  done
+                    ? "text-zinc-400 line-through dark:text-zinc-500"
+                    : "text-zinc-800 dark:text-zinc-200"
+                }`}
+              >
+                {task.title}
+              </p>
+              <form action={deleteTaskAction}>
+                <button
+                  type="submit"
+                  aria-label="Delete task"
+                  className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                >
+                  <TrashIcon />
+                </button>
+              </form>
+            </div>
+
+            {task.due_date && (
+              <span
+                className={`text-xs font-medium ${
+                  !done && isOverdue(task.due_date)
+                    ? "text-red-600 dark:text-red-400"
+                    : "text-zinc-500 dark:text-zinc-400"
+                }`}
+              >
+                {task.due_date}
               </span>
             )}
-            <Link
-              href={`/deals/${task.deal_id}`}
-              className="shrink-0 text-xs text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
-            >
-              {task.deals?.title}
-            </Link>
           </div>
-
-          <div className="flex items-start gap-3">
-            <TaskCheckbox
-              taskId={task.id}
-              dealId={task.deal_id}
-              initialDone={done}
-              onToggle={setTaskStatus}
-            />
-            <p
-              className={`flex-1 text-sm ${
-                done
-                  ? "text-zinc-400 line-through dark:text-zinc-500"
-                  : "text-zinc-800 dark:text-zinc-200"
-              }`}
-            >
-              {task.title}
-            </p>
-          </div>
-
-          {task.due_date && (
-            <span
-              className={`text-xs font-medium ${
-                !done && isOverdue(task.due_date)
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-zinc-500 dark:text-zinc-400"
-              }`}
-            >
-              {task.due_date}
-            </span>
-          )}
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }

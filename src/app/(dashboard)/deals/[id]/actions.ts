@@ -84,6 +84,22 @@ export async function addActivity(dealId: string, formData: FormData) {
   revalidatePath(`/deals/${dealId}`);
 }
 
+export async function deleteActivity(dealId: string, activityId: string, type: ActivityType) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("activities").delete().eq("id", activityId);
+  if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "deal.activity_delete",
+    description: `Deleted a ${type} log from a deal`,
+    entityType: "activity",
+    entityId: activityId,
+  });
+
+  revalidatePath(`/deals/${dealId}`);
+}
+
 export async function addTask(dealId: string, formData: FormData) {
   const supabase = await createClient();
 
@@ -112,6 +128,23 @@ export async function addTask(dealId: string, formData: FormData) {
     description: `Added task "${title}"`,
     entityType: "task",
     entityId: data.id,
+  });
+
+  revalidatePath(`/deals/${dealId}`);
+  revalidatePath("/tasks");
+}
+
+export async function deleteTask(dealId: string, taskId: string, taskTitle: string) {
+  const supabase = await createClient();
+
+  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
+  if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: "task.delete",
+    description: `Deleted task "${taskTitle}"`,
+    entityType: "task",
+    entityId: taskId,
   });
 
   revalidatePath(`/deals/${dealId}`);

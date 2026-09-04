@@ -3,7 +3,14 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TaskCheckbox } from "@/components/task-checkbox";
 import { formatLKR } from "@/lib/currency";
-import { addActivity, addTask, setTaskStatus, updateDeal } from "./actions";
+import {
+  addActivity,
+  addTask,
+  deleteActivity,
+  deleteTask,
+  setTaskStatus,
+  updateDeal,
+} from "./actions";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -18,6 +25,18 @@ function formatDateTime(iso: string) {
     dateStyle: "medium",
     timeStyle: "short",
   });
+}
+
+function TrashIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"
+      />
+    </svg>
+  );
 }
 
 export default async function DealDetailPage({
@@ -230,22 +249,41 @@ export default async function DealDetailPage({
             {(!activities || activities.length === 0) && (
               <p className="text-sm text-zinc-500 dark:text-zinc-400">No activity logged yet.</p>
             )}
-            {activities?.map((activity) => (
-              <div
-                key={activity.id}
-                className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-                    {activity.type}
-                  </span>
-                  <span className="text-xs text-zinc-400 dark:text-zinc-500">
-                    {formatDateTime(activity.created_at)}
-                  </span>
+            {activities?.map((activity) => {
+              async function deleteActivityAction() {
+                "use server";
+                await deleteActivity(id, activity.id, activity.type);
+              }
+              return (
+                <div
+                  key={activity.id}
+                  className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                      {activity.type}
+                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                        {formatDateTime(activity.created_at)}
+                      </span>
+                      <form action={deleteActivityAction}>
+                        <button
+                          type="submit"
+                          aria-label="Delete activity"
+                          className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                        >
+                          <TrashIcon />
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
+                    {activity.content}
+                  </p>
                 </div>
-                <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">{activity.content}</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
 
@@ -279,33 +317,48 @@ export default async function DealDetailPage({
             {(!tasks || tasks.length === 0) && (
               <p className="text-sm text-zinc-500 dark:text-zinc-400">No tasks for this deal.</p>
             )}
-            {tasks?.map((task) => (
-              <label
-                key={task.id}
-                className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
-              >
-                <TaskCheckbox
-                  taskId={task.id}
-                  dealId={id}
-                  initialDone={task.status === "DONE"}
-                  onToggle={setTaskStatus}
-                />
-                <span
-                  className={`flex-1 text-sm ${
-                    task.status === "DONE"
-                      ? "text-zinc-400 line-through dark:text-zinc-500"
-                      : "text-zinc-800 dark:text-zinc-200"
-                  }`}
+            {tasks?.map((task) => {
+              async function deleteTaskAction() {
+                "use server";
+                await deleteTask(id, task.id, task.title);
+              }
+              return (
+                <div
+                  key={task.id}
+                  className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
                 >
-                  {task.title}
-                </span>
-                {task.due_date && (
-                  <span className="text-xs text-zinc-500 dark:text-zinc-400">
-                    {task.due_date}
+                  <TaskCheckbox
+                    taskId={task.id}
+                    dealId={id}
+                    initialDone={task.status === "DONE"}
+                    onToggle={setTaskStatus}
+                  />
+                  <span
+                    className={`flex-1 text-sm ${
+                      task.status === "DONE"
+                        ? "text-zinc-400 line-through dark:text-zinc-500"
+                        : "text-zinc-800 dark:text-zinc-200"
+                    }`}
+                  >
+                    {task.title}
                   </span>
-                )}
-              </label>
-            ))}
+                  {task.due_date && (
+                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                      {task.due_date}
+                    </span>
+                  )}
+                  <form action={deleteTaskAction}>
+                    <button
+                      type="submit"
+                      aria-label="Delete task"
+                      className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </form>
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>

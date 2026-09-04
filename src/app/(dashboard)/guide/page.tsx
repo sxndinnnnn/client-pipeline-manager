@@ -13,6 +13,7 @@ const SECTIONS = [
       "The Contacts tab lists contacts in a table - click the pencil icon to edit one, or + Add Contact to open the add form as a modal.",
       "The Deals tab works the same way - a table of the client's deals, and + Add Deal opens the create form as a modal. Click the View icon on a row to open the deal's full detail (value, source, dates, Activity and Tasks as tabs) in a large modal, with Edit Deal and Delete Deal buttons right there - no need to leave the client page.",
       "Deal values are shown in LKR throughout the app.",
+      "Delete Client, in the client's header, permanently deletes the client and everything under it (contacts, deals, activity, tasks) - you'll be asked to confirm first since it can't be undone.",
     ],
   },
   {
@@ -31,8 +32,8 @@ const SECTIONS = [
     href: undefined,
     body: [
       "Open any deal (from its card on the Pipeline board, or from the client page) to edit its value, source, and expected close date.",
-      "Log calls, emails, meetings, or notes in the Activity feed - it's a running history of everything that's happened on that deal, newest first.",
-      "Add follow-up Tasks scoped to that deal, with an optional due date. Check them off as they're done.",
+      "Log calls, emails, meetings, or notes in the Activity feed - it's a running history of everything that's happened on that deal, newest first. Click the trash icon on an entry to delete it.",
+      "Add follow-up Tasks scoped to that deal, with an optional due date. Check them off as they're done, or click the trash icon to delete one.",
     ],
   },
   {
