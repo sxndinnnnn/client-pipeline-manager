@@ -79,7 +79,7 @@ export function StageBarChart({
   stageRows: { name: string; count: number; value: number }[];
 }) {
   if (stageRows.every((r) => r.count === 0)) {
-    return <p className="text-sm text-zinc-500 dark:text-zinc-400">No open deals yet.</p>;
+    return <p className="text-sm text-zinc-500 dark:text-zinc-400">No deals yet.</p>;
   }
 
   const ticks = niceTicks(Math.max(...stageRows.map((r) => r.value)));
@@ -109,7 +109,16 @@ export function StageBarChart({
           ))}
           <div className="absolute inset-0 flex items-end gap-3">
             {stageRows.map((row) => (
-              <div key={row.name} className="flex h-full flex-1 flex-col items-center justify-end">
+              <div
+                key={row.name}
+                className="group relative flex h-full flex-1 flex-col items-center justify-end"
+              >
+                <div
+                  className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-zinc-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 dark:bg-zinc-100 dark:text-zinc-900"
+                  style={{ bottom: `calc(${(row.value / chartMax) * 100}% + 2rem)` }}
+                >
+                  {row.count} deal{row.count === 1 ? "" : "s"}
+                </div>
                 {row.value > 0 && (
                   <span className="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
                     {formatLKR(row.value)}
@@ -167,14 +176,13 @@ export default async function DashboardPage() {
   const avgOpenSize = avg(numericValues(openDeals));
   const avgWonSize = avg(numericValues(wonDeals));
 
-  // Pipeline by stage (open deals only - Won/Lost aren't "in" the pipeline anymore)
-  const openStages = (stages ?? []).filter((s) => s.name !== "Won" && s.name !== "Lost");
+  // Pipeline by stage - every stage, including the terminal Won/Lost columns
   const dealsByStage = new Map<string, Deal[]>();
-  for (const d of openDeals) {
+  for (const d of allDeals) {
     const key = d.stage_id ?? "none";
     dealsByStage.set(key, [...(dealsByStage.get(key) ?? []), d]);
   }
-  const stageRows = openStages.map((s) => {
+  const stageRows = (stages ?? []).map((s) => {
     const list = dealsByStage.get(s.id) ?? [];
     return { name: s.name, count: list.length, value: numericValues(list).reduce((sum, v) => sum + v, 0) };
   });

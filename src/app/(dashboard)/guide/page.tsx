@@ -7,7 +7,7 @@ const SECTIONS = [
     emoji: "📊",
     href: "/dashboard",
     body: [
-      "An at-a-glance overview of the whole pipeline: open and won pipeline value, open deal count, win/loss rate, average sales cycle, and deal size, a bar chart of open value by stage, and client stats including your top clients by open pipeline value.",
+      "An at-a-glance overview of the whole pipeline: open and won pipeline value, open deal count, win/loss rate, average sales cycle, and deal size, a bar chart of value by stage (including Won and Lost - hover a bar to see its deal count), and client stats including your top clients by open pipeline value.",
     ],
   },
   {
