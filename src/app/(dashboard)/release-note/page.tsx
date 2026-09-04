@@ -13,12 +13,25 @@ const categoryStyles: Record<ChangelogCategory, string> = {
   improvement: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
 };
 
+const categoryLabel: Record<ChangelogCategory, string> = {
+  feature: "Feature",
+  fix: "Fix",
+  improvement: "Improvement",
+};
+
 function formatDate(dateStr: string) {
   return new Date(`${dateStr}T00:00:00`).toLocaleDateString(undefined, {
     month: "long",
     day: "numeric",
     year: "numeric",
   });
+}
+
+function titleCase(str: string) {
+  return str
+    .split(" ")
+    .map((word) => (word ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+    .join(" ");
 }
 
 function groupByDate(entries: ChangelogEntry[]) {
@@ -61,11 +74,11 @@ export function ReleaseNoteTimeline({
         <div className="relative flex flex-col gap-12">
           <div
             aria-hidden
-            className="absolute top-2 bottom-2 left-[5px] w-px bg-zinc-200 sm:left-[7.5rem] dark:bg-zinc-800"
+            className="absolute top-2 bottom-2 left-[5px] w-px bg-zinc-200 sm:left-40 dark:bg-zinc-800"
           />
           {grouped.map(([date, dateEntries]) => (
             <div key={date} className="relative flex flex-col gap-4 sm:flex-row sm:gap-8">
-              <div className="flex items-center gap-3 sm:w-28 sm:shrink-0 sm:flex-col sm:items-start sm:gap-1.5 sm:pt-0.5">
+              <div className="flex items-center gap-3 sm:w-40 sm:shrink-0 sm:flex-col sm:items-start sm:gap-1.5 sm:pt-0.5 sm:pr-6">
                 <span className="relative z-10 h-2.5 w-2.5 shrink-0 rounded-full bg-zinc-900 ring-4 ring-white dark:bg-zinc-100 dark:ring-zinc-950" />
                 <span className="text-sm font-semibold whitespace-nowrap text-zinc-500 dark:text-zinc-400">
                   {formatDate(date)}
@@ -80,16 +93,16 @@ export function ReleaseNoteTimeline({
                         <span aria-hidden className="mr-1.5">
                           {categoryEmoji[entry.category]}
                         </span>
-                        {entry.title}
+                        {titleCase(entry.title)}
                       </h2>
                       <span
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${categoryStyles[entry.category]}`}
                       >
-                        {entry.category}
+                        {categoryLabel[entry.category]}
                       </span>
                     </div>
                     {entry.description && (
-                      <p className="mt-1.5 max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
+                      <p className="mt-1.5 text-sm text-zinc-600 dark:text-zinc-400">
                         {entry.description}
                       </p>
                     )}
