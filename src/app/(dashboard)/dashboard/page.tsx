@@ -2,10 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/currency";
 import type { Client, Deal } from "@/types/database";
 
-function monthKey(d: Date) {
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-}
-
 function daysBetween(a: string, b: string) {
   return Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
 }
@@ -117,7 +113,7 @@ export function StageBarChart({
                   className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-zinc-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 dark:bg-zinc-100 dark:text-zinc-900"
                   style={{ bottom: `calc(${(row.value / chartMax) * 100}% + 2rem)` }}
                 >
-                  {row.count} deal{row.count === 1 ? "" : "s"}
+                  {row.count} Deal{row.count === 1 ? "" : "s"}
                 </div>
                 {row.value > 0 && (
                   <span className="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
@@ -150,14 +146,11 @@ export default async function DashboardPage() {
   const [{ data: deals }, { data: stages }, { data: clients }] = await Promise.all([
     supabase.from("deals").select("*"),
     supabase.from("pipeline_stages").select("*").order("sort_order", { ascending: true }),
-    supabase.from("clients").select("id, name, created_at"),
+    supabase.from("clients").select("id, name"),
   ]);
 
   const allDeals = (deals ?? []) as Deal[];
-  const allClients = (clients ?? []) as Pick<Client, "id" | "name" | "created_at">[];
-
-  const now = new Date();
-  const thisMonthKey = monthKey(now);
+  const allClients = (clients ?? []) as Pick<Client, "id" | "name">[];
 
   const openDeals = allDeals.filter((d) => d.status === "OPEN");
   const wonDeals = allDeals.filter((d) => d.status === "WON");
@@ -188,9 +181,6 @@ export default async function DashboardPage() {
   });
 
   // Clients
-  const newClientsThisMonth = allClients.filter(
-    (c) => monthKey(new Date(c.created_at)) === thisMonthKey
-  ).length;
   const openDealsByClient = new Map<string, Deal[]>();
   for (const d of openDeals) {
     openDealsByClient.set(d.client_id, [...(openDealsByClient.get(d.client_id) ?? []), d]);
@@ -247,15 +237,10 @@ export default async function DashboardPage() {
       <section className="flex flex-col gap-3">
         <SectionHeading emoji="👥" title="Clients" />
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <StatTile
-            label="Total Clients"
-            value={String(allClients.length)}
-            sublabel={`${newClientsThisMonth} new this month`}
-          />
+          <StatTile label="Total Clients" value={String(allClients.length)} />
           <StatTile
             label="Clients With No Open Deals"
             value={String(clientsWithNoOpenDeals)}
-            sublabel="May need follow-up"
             tone={clientsWithNoOpenDeals > 0 ? "warning" : "good"}
           />
           <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
