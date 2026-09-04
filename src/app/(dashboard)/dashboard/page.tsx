@@ -95,8 +95,10 @@ export default async function DashboardPage() {
 
   // Pipeline overview
   const totalOpenValue = numericValues(openDeals).reduce((sum, v) => sum + v, 0);
+  const totalWonValue = numericValues(wonDeals).reduce((sum, v) => sum + v, 0);
   const decidedCount = wonDeals.length + lostDeals.length;
   const winRate = decidedCount > 0 ? (wonDeals.length / decidedCount) * 100 : null;
+  const lostRate = decidedCount > 0 ? (lostDeals.length / decidedCount) * 100 : null;
   const cycleDays = wonDeals
     .filter((d) => d.closed_at)
     .map((d) => daysBetween(d.created_at, d.closed_at as string));
@@ -186,21 +188,21 @@ export default async function DashboardPage() {
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3">
         <SectionHeading emoji="📈" title="Pipeline Overview" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          <StatTile
-            label="Open Pipeline Value"
-            value={formatLKR(totalOpenValue)}
-            sublabel={`${openDeals.length} open deals`}
-          />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile label="Open Pipeline Value" value={formatLKR(totalOpenValue)} />
+          <StatTile label="Open Deals" value={String(openDeals.length)} />
+          <StatTile label="Won Pipeline Value" value={formatLKR(totalWonValue)} />
           <StatTile
             label="Win Rate"
             value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
-            sublabel={`${wonDeals.length} won, ${lostDeals.length} lost`}
+          />
+          <StatTile
+            label="Lost Rate"
+            value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
           />
           <StatTile
             label="Avg Sales Cycle"
-            value={avgCycle != null ? `${Math.round(avgCycle)} days` : "N/A"}
-            sublabel="Won deals, lead to close"
+            value={avgCycle != null ? `${Math.round(avgCycle)} Days` : "N/A"}
           />
           <StatTile
             label="Avg Open Deal Size"
