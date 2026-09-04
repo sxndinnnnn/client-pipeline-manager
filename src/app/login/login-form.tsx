@@ -31,7 +31,7 @@ function EyeOffIcon() {
 
 export function LoginForm() {
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirectTo") ?? "/clients";
+  const redirectTo = searchParams.get("redirectTo") ?? "/dashboard";
   const [state, formAction, pending] = useActionState<{ error: string | null }, FormData>(
     signIn,
     { error: null }

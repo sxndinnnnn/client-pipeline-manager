@@ -10,10 +10,10 @@ import { logAudit } from "@/lib/audit-log";
 // browser off to an external phishing page right after real credentials
 // were entered.
 function safeRedirectPath(path: string | null): string {
-  if (!path) return "/clients";
-  if (!path.startsWith("/")) return "/clients";
-  if (path.startsWith("//") || path.startsWith("/\\")) return "/clients";
-  if (path.includes("://")) return "/clients";
+  if (!path) return "/dashboard";
+  if (!path.startsWith("/")) return "/dashboard";
+  if (path.startsWith("//") || path.startsWith("/\\")) return "/dashboard";
+  if (path.includes("://")) return "/dashboard";
   return path;
 }
 
