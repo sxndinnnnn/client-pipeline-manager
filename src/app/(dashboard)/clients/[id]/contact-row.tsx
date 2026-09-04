@@ -76,14 +76,14 @@ export function ContactRow({
             {contact.role}
           </span>
         ) : (
-          <span className="text-sm text-zinc-400 dark:text-zinc-500">—</span>
+          <span className="text-sm text-zinc-400 dark:text-zinc-500">-</span>
         )}
       </td>
       <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
-        {contact.email || "—"}
+        {contact.email || "-"}
       </td>
       <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
-        {contact.phone || "—"}
+        {contact.phone || "-"}
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-3">

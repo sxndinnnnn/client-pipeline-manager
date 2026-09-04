@@ -29,7 +29,7 @@ export function ThemeToggle() {
 
   useEffect(() => {
     // Reads the class the anti-flash script in the root layout already set
-    // before hydration — there's no external event to subscribe to instead.
+    // before hydration - there's no external event to subscribe to instead.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setIsDark(document.documentElement.classList.contains("dark"));
   }, []);
@@ -40,7 +40,7 @@ export function ThemeToggle() {
     try {
       localStorage.setItem("theme", next ? "dark" : "light");
     } catch {
-      // localStorage unavailable (private mode etc.) — theme just won't persist
+      // localStorage unavailable (private mode etc.) - theme just won't persist
     }
     setIsDark(next);
   }

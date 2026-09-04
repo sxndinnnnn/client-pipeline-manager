@@ -78,7 +78,7 @@ export function DealRow({
     // viewed earlier and the browser/router reuses this component instance
     // across a navigation (back/forward cache, router cache) instead of a
     // fresh mount, force the dialog closed rather than trust inherited
-    // `open` state — it should only ever open from an explicit click.
+    // `open` state - it should only ever open from an explicit click.
     if (mounted) {
       dialogRef.current?.close();
     }
@@ -98,7 +98,7 @@ export function DealRow({
       </td>
       <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">{stageName}</td>
       <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
-        {deal.value != null ? formatLKR(Number(deal.value)) : "—"}
+        {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
       </td>
       <td className="px-4 py-3">
         <span
@@ -227,25 +227,25 @@ export function DealRow({
                 <div>
                   <dt className="text-xs text-zinc-500 dark:text-zinc-400">Value</dt>
                   <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    {deal.value != null ? formatLKR(Number(deal.value)) : "—"}
+                    {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-zinc-500 dark:text-zinc-400">Source</dt>
                   <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    {deal.source ?? "—"}
+                    {deal.source ?? "-"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-zinc-500 dark:text-zinc-400">Expected Close</dt>
                   <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    {deal.expected_close_date ?? "—"}
+                    {deal.expected_close_date ?? "-"}
                   </dd>
                 </div>
                 <div>
                   <dt className="text-xs text-zinc-500 dark:text-zinc-400">Closed At</dt>
                   <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-                    {deal.closed_at ? formatDateTime(deal.closed_at) : "—"}
+                    {deal.closed_at ? formatDateTime(deal.closed_at) : "-"}
                   </dd>
                 </div>
               </dl>

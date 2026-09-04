@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* Dark mode is opt-in via a `.dark` class on <html>, toggled explicitly by
-   the user (see ThemeToggle) — never automatic from OS preference alone.
+   the user (see ThemeToggle) - never automatic from OS preference alone.
    That's deliberate: an earlier bug came from styles silently flipping with
    prefers-color-scheme while components weren't dark-aware. */
 @custom-variant dark (&:where(.dark, .dark *));

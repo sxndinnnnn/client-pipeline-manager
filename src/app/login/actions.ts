@@ -6,7 +6,7 @@ import { logAudit } from "@/lib/audit-log";
 
 // Only ever redirect within the app after login. redirectTo comes from a
 // client-controlled query param, so an unvalidated value here would be an
-// open redirect — an attacker's link could bounce a freshly-authenticated
+// open redirect - an attacker's link could bounce a freshly-authenticated
 // browser off to an external phishing page right after real credentials
 // were entered.
 function safeRedirectPath(path: string | null): string {

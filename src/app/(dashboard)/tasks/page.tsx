@@ -44,7 +44,7 @@ function TaskGrid({ tasks, done }: { tasks: TaskWithDeal[]; done: boolean }) {
               </Link>
             ) : (
               <span className="text-xs font-semibold uppercase tracking-wide text-zinc-500">
-                —
+                -
               </span>
             )}
             <Link

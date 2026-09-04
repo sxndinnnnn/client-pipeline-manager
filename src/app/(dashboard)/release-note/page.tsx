@@ -55,12 +55,7 @@ export function ReleaseNoteTimeline({
 
   return (
     <div className="flex flex-col gap-10">
-      <div>
-        <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Release Note</h1>
-        <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-          What&apos;s shipped in this tool over time.
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">Release Note</h1>
 
       {error && <p className="text-sm text-red-600 dark:text-red-400">Failed to load changelog: {error}</p>}
 
@@ -85,9 +80,9 @@ export function ReleaseNoteTimeline({
                 </span>
               </div>
 
-              <div className="flex flex-1 flex-col gap-6 pl-[1.375rem] sm:pl-0">
+              <div className="flex flex-1 flex-col divide-y divide-zinc-200 pl-[1.375rem] sm:pl-0 dark:divide-zinc-800">
                 {dateEntries.map((entry) => (
-                  <div key={entry.id}>
+                  <div key={entry.id} className="py-5 first:pt-0 last:pb-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
                         <span aria-hidden className="mr-1.5">

@@ -164,25 +164,25 @@ export default async function DealDetailPage({
           <div>
             <dt className="text-xs text-zinc-500 dark:text-zinc-400">Value</dt>
             <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              {deal.value != null ? formatLKR(Number(deal.value)) : "—"}
+              {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
             </dd>
           </div>
           <div>
             <dt className="text-xs text-zinc-500 dark:text-zinc-400">Source</dt>
             <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              {deal.source ?? "—"}
+              {deal.source ?? "-"}
             </dd>
           </div>
           <div>
             <dt className="text-xs text-zinc-500 dark:text-zinc-400">Expected close</dt>
             <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              {deal.expected_close_date ?? "—"}
+              {deal.expected_close_date ?? "-"}
             </dd>
           </div>
           <div>
             <dt className="text-xs text-zinc-500 dark:text-zinc-400">Closed at</dt>
             <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
-              {deal.closed_at ? formatDateTime(deal.closed_at) : "—"}
+              {deal.closed_at ? formatDateTime(deal.closed_at) : "-"}
             </dd>
           </div>
         </dl>
