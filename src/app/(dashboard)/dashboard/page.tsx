@@ -14,10 +14,6 @@ function numericValues(deals: Deal[]) {
   return deals.map((d) => d.value).filter((v): v is number => v != null).map(Number);
 }
 
-function isWithinDays(dateStr: string, days: number) {
-  return Date.now() - new Date(dateStr).getTime() <= days * 86400000;
-}
-
 // Rounds `maxValue` up to a "nice" number and returns evenly spaced ticks
 // from 0 to that nice max, for a chart y-axis.
 function niceTicks(maxValue: number, targetCount = 4) {
@@ -148,14 +144,12 @@ const badgeTone: Record<string, string> = {
 function StatTile({
   label,
   value,
-  sublabel,
   icon,
   badgeToneKey = "accent",
   valueTone = "default",
 }: {
   label: string;
   value: string;
-  sublabel?: string;
   icon: React.ReactNode;
   badgeToneKey?: keyof typeof badgeTone;
   valueTone?: keyof typeof toneText;
@@ -168,7 +162,6 @@ function StatTile({
       <div>
         <p className={`text-2xl font-bold ${toneText[valueTone]}`}>{value}</p>
         <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{label}</p>
-        {sublabel && <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">{sublabel}</p>}
       </div>
     </div>
   );
@@ -178,12 +171,10 @@ function HeroTile({
   label,
   value,
   icon,
-  chip,
 }: {
   label: string;
   value: string;
   icon: React.ReactNode;
-  chip?: React.ReactNode;
 }) {
   return (
     <div className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
@@ -194,7 +185,6 @@ function HeroTile({
         {label}
       </span>
       <p className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{value}</p>
-      {chip}
     </div>
   );
 }
@@ -352,8 +342,6 @@ export default async function DashboardPage() {
   const avgCycle = avg(cycleDays);
   const avgOpenSize = avg(numericValues(openDeals));
   const avgWonSize = avg(numericValues(wonDeals));
-  const activeStageCount = new Set(openDeals.map((d) => d.stage_id).filter(Boolean)).size;
-  const newOpenDeals = openDeals.filter((d) => isWithinDays(d.created_at, 30));
 
   // Pipeline by stage - every stage, including the terminal Won/Lost columns
   const dealsByStage = new Map<string, Deal[]>();
@@ -390,30 +378,16 @@ export default async function DashboardPage() {
           label="Open Pipeline Value"
           value={formatLKR(totalOpenValue)}
           icon={<TrendingUpIcon className="h-3.5 w-3.5" />}
-          chip={
-            newOpenDeals.length > 0 ? (
-              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-600 dark:bg-green-900/30 dark:text-green-400">
-                <TrendingUpIcon className="h-3 w-3" />
-                {newOpenDeals.length} new in the last 30 days
-              </span>
-            ) : undefined
-          }
         />
         <StatTile
           label="Open Deals"
           value={String(openDeals.length)}
-          sublabel={
-            activeStageCount > 0
-              ? `across ${activeStageCount} active stage${activeStageCount === 1 ? "" : "s"}`
-              : undefined
-          }
           icon={<BriefcaseIcon />}
           badgeToneKey="accent"
         />
         <StatTile
           label="Win Rate"
           value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
-          sublabel={lostRate != null ? `${Math.round(lostRate)}% lost` : undefined}
           icon={<TargetIcon />}
           badgeToneKey="good"
         />
