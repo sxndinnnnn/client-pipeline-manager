@@ -154,20 +154,6 @@ function StatTile({
   );
 }
 
-function RowLabel({ children, tone }: { children: React.ReactNode; tone: "accent" | "good" | "critical" }) {
-  const dot: Record<string, string> = {
-    accent: "bg-blue-500",
-    good: "bg-green-500",
-    critical: "bg-red-500",
-  };
-  return (
-    <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-      <span className={`h-1.5 w-1.5 rounded-full ${dot[tone]}`} />
-      {children}
-    </div>
-  );
-}
-
 function Panel({
   title,
   icon,
@@ -350,90 +336,81 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Open */}
-      <div className="flex flex-col gap-3">
-        <RowLabel tone="accent">Open</RowLabel>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-          <StatTile
-            label="Open Pipeline Value"
-            value={formatLKR(totalOpenValue)}
-            icon={<TrendingUpIcon />}
-            badgeToneKey="accent"
-          />
-          <StatTile
-            label="Open Deals"
-            value={String(openDeals.length)}
-            icon={<BriefcaseIcon />}
-            badgeToneKey="accent"
-          />
-          <StatTile
-            label="Avg Open Deal Size"
-            value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
-            icon={<TagIcon />}
-            badgeToneKey="accent"
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <StatTile
+          label="Open Pipeline Value"
+          value={formatLKR(totalOpenValue)}
+          icon={<TrendingUpIcon />}
+          badgeToneKey="accent"
+        />
+        <StatTile
+          label="Open Deals"
+          value={String(openDeals.length)}
+          icon={<BriefcaseIcon />}
+          badgeToneKey="accent"
+        />
+        <StatTile
+          label="Avg Open Deal Size"
+          value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
+          icon={<TagIcon />}
+          badgeToneKey="accent"
+        />
       </div>
 
       {/* Won */}
-      <div className="flex flex-col gap-3">
-        <RowLabel tone="good">Won</RowLabel>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile
-            label="Won Pipeline Value"
-            value={formatLKR(totalWonValue)}
-            icon={<CheckCircleIcon />}
-            badgeToneKey="good"
-          />
-          <StatTile
-            label="Won Deals"
-            value={String(wonDeals.length)}
-            icon={<BriefcaseIcon />}
-            badgeToneKey="good"
-          />
-          <StatTile
-            label="Win Rate"
-            value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
-            icon={<TargetIcon />}
-            badgeToneKey="good"
-          />
-          <StatTile
-            label="Avg Won Deal Size"
-            value={avgWonSize != null ? formatLKR(avgWonSize) : "N/A"}
-            icon={<TagIcon />}
-            badgeToneKey="good"
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile
+          label="Won Pipeline Value"
+          value={formatLKR(totalWonValue)}
+          icon={<CheckCircleIcon />}
+          badgeToneKey="good"
+        />
+        <StatTile
+          label="Won Deals"
+          value={String(wonDeals.length)}
+          icon={<BriefcaseIcon />}
+          badgeToneKey="good"
+        />
+        <StatTile
+          label="Win Rate"
+          value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
+          icon={<TargetIcon />}
+          badgeToneKey="good"
+        />
+        <StatTile
+          label="Avg Won Deal Size"
+          value={avgWonSize != null ? formatLKR(avgWonSize) : "N/A"}
+          icon={<TagIcon />}
+          badgeToneKey="good"
+        />
       </div>
 
       {/* Lost */}
-      <div className="flex flex-col gap-3">
-        <RowLabel tone="critical">Lost</RowLabel>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile
-            label="Lost Pipeline Value"
-            value={formatLKR(totalLostValue)}
-            icon={<TrendingDownIcon />}
-            badgeToneKey="critical"
-          />
-          <StatTile
-            label="Lost Deals"
-            value={String(lostDeals.length)}
-            icon={<BriefcaseIcon />}
-            badgeToneKey="critical"
-          />
-          <StatTile
-            label="Lost Rate"
-            value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
-            icon={<TargetIcon />}
-            badgeToneKey="critical"
-          />
-          <StatTile
-            label="Avg Lost Deal Size"
-            value={avgLostSize != null ? formatLKR(avgLostSize) : "N/A"}
-            icon={<TagIcon />}
-            badgeToneKey="critical"
-          />
-        </div>
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <StatTile
+          label="Lost Pipeline Value"
+          value={formatLKR(totalLostValue)}
+          icon={<TrendingDownIcon />}
+          badgeToneKey="critical"
+        />
+        <StatTile
+          label="Lost Deals"
+          value={String(lostDeals.length)}
+          icon={<BriefcaseIcon />}
+          badgeToneKey="critical"
+        />
+        <StatTile
+          label="Lost Rate"
+          value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
+          icon={<TargetIcon />}
+          badgeToneKey="critical"
+        />
+        <StatTile
+          label="Avg Lost Deal Size"
+          value={avgLostSize != null ? formatLKR(avgLostSize) : "N/A"}
+          icon={<TagIcon />}
+          badgeToneKey="critical"
+        />
       </div>
 
       {/* Pipeline By Stage + Clients, side by side on wide screens */}
