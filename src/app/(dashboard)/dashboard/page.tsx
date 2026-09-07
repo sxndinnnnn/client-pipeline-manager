@@ -2,10 +2,6 @@ import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/currency";
 import type { Client, Deal } from "@/types/database";
 
-function daysBetween(a: string, b: string) {
-  return Math.round((new Date(b).getTime() - new Date(a).getTime()) / 86400000);
-}
-
 function avg(nums: number[]) {
   return nums.length ? nums.reduce((sum, n) => sum + n, 0) / nums.length : null;
 }
@@ -74,15 +70,6 @@ function TrendingDownIcon({ className = "h-4 w-4" }: { className?: string }) {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M3 7l6 6 4-4 8 8" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M21 10v7h-7" />
-    </svg>
-  );
-}
-
-function ClockIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
-      <circle cx="12" cy="12" r="9" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.2v5l3.6 2.1" />
     </svg>
   );
 }
@@ -167,24 +154,16 @@ function StatTile({
   );
 }
 
-function HeroTile({
-  label,
-  value,
-  icon,
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-}) {
+function RowLabel({ children, tone }: { children: React.ReactNode; tone: "accent" | "good" | "critical" }) {
+  const dot: Record<string, string> = {
+    accent: "bg-blue-500",
+    good: "bg-green-500",
+    critical: "bg-red-500",
+  };
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
-      <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
-          {icon}
-        </span>
-        {label}
-      </span>
-      <p className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{value}</p>
+    <div className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+      <span className={`h-1.5 w-1.5 rounded-full ${dot[tone]}`} />
+      {children}
     </div>
   );
 }
@@ -333,15 +312,13 @@ export default async function DashboardPage() {
   // Pipeline overview
   const totalOpenValue = numericValues(openDeals).reduce((sum, v) => sum + v, 0);
   const totalWonValue = numericValues(wonDeals).reduce((sum, v) => sum + v, 0);
+  const totalLostValue = numericValues(lostDeals).reduce((sum, v) => sum + v, 0);
   const decidedCount = wonDeals.length + lostDeals.length;
   const winRate = decidedCount > 0 ? (wonDeals.length / decidedCount) * 100 : null;
   const lostRate = decidedCount > 0 ? (lostDeals.length / decidedCount) * 100 : null;
-  const cycleDays = wonDeals
-    .filter((d) => d.closed_at)
-    .map((d) => daysBetween(d.created_at, d.closed_at as string));
-  const avgCycle = avg(cycleDays);
   const avgOpenSize = avg(numericValues(openDeals));
   const avgWonSize = avg(numericValues(wonDeals));
+  const avgLostSize = avg(numericValues(lostDeals));
 
   // Pipeline by stage - every stage, including the terminal Won/Lost columns
   const dealsByStage = new Map<string, Deal[]>();
@@ -372,60 +349,91 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Hero: Open Pipeline Value, with Open Deals and Win Rate as companions */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-[1.6fr_1fr_1fr]">
-        <HeroTile
-          label="Open Pipeline Value"
-          value={formatLKR(totalOpenValue)}
-          icon={<TrendingUpIcon className="h-3.5 w-3.5" />}
-        />
-        <StatTile
-          label="Open Deals"
-          value={String(openDeals.length)}
-          icon={<BriefcaseIcon />}
-          badgeToneKey="accent"
-        />
-        <StatTile
-          label="Win Rate"
-          value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
-          icon={<TargetIcon />}
-          badgeToneKey="good"
-        />
+      {/* Open */}
+      <div className="flex flex-col gap-3">
+        <RowLabel tone="accent">Open</RowLabel>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <StatTile
+            label="Open Pipeline Value"
+            value={formatLKR(totalOpenValue)}
+            icon={<TrendingUpIcon />}
+            badgeToneKey="accent"
+          />
+          <StatTile
+            label="Open Deals"
+            value={String(openDeals.length)}
+            icon={<BriefcaseIcon />}
+            badgeToneKey="accent"
+          />
+          <StatTile
+            label="Avg Open Deal Size"
+            value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
+            icon={<TagIcon />}
+            badgeToneKey="accent"
+          />
+        </div>
       </div>
 
-      {/* Secondary stats */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StatTile
-          label="Won Pipeline Value"
-          value={formatLKR(totalWonValue)}
-          icon={<CheckCircleIcon />}
-          badgeToneKey="good"
-        />
-        <StatTile
-          label="Lost Rate"
-          value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
-          icon={<TrendingDownIcon />}
-          badgeToneKey={lostRate ? "critical" : "good"}
-          valueTone={lostRate ? "critical" : "default"}
-        />
-        <StatTile
-          label="Avg Sales Cycle"
-          value={avgCycle != null ? `${Math.round(avgCycle)} Days` : "N/A"}
-          icon={<ClockIcon />}
-          badgeToneKey="accent"
-        />
-        <StatTile
-          label="Avg Open Deal Size"
-          value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
-          icon={<TagIcon />}
-          badgeToneKey="accent"
-        />
-        <StatTile
-          label="Avg Won Deal Size"
-          value={avgWonSize != null ? formatLKR(avgWonSize) : "N/A"}
-          icon={<TagIcon />}
-          badgeToneKey="good"
-        />
+      {/* Won */}
+      <div className="flex flex-col gap-3">
+        <RowLabel tone="good">Won</RowLabel>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile
+            label="Won Pipeline Value"
+            value={formatLKR(totalWonValue)}
+            icon={<CheckCircleIcon />}
+            badgeToneKey="good"
+          />
+          <StatTile
+            label="Won Deals"
+            value={String(wonDeals.length)}
+            icon={<BriefcaseIcon />}
+            badgeToneKey="good"
+          />
+          <StatTile
+            label="Win Rate"
+            value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
+            icon={<TargetIcon />}
+            badgeToneKey="good"
+          />
+          <StatTile
+            label="Avg Won Deal Size"
+            value={avgWonSize != null ? formatLKR(avgWonSize) : "N/A"}
+            icon={<TagIcon />}
+            badgeToneKey="good"
+          />
+        </div>
+      </div>
+
+      {/* Lost */}
+      <div className="flex flex-col gap-3">
+        <RowLabel tone="critical">Lost</RowLabel>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <StatTile
+            label="Lost Pipeline Value"
+            value={formatLKR(totalLostValue)}
+            icon={<TrendingDownIcon />}
+            badgeToneKey="critical"
+          />
+          <StatTile
+            label="Lost Deals"
+            value={String(lostDeals.length)}
+            icon={<BriefcaseIcon />}
+            badgeToneKey="critical"
+          />
+          <StatTile
+            label="Lost Rate"
+            value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
+            icon={<TargetIcon />}
+            badgeToneKey="critical"
+          />
+          <StatTile
+            label="Avg Lost Deal Size"
+            value={avgLostSize != null ? formatLKR(avgLostSize) : "N/A"}
+            icon={<TagIcon />}
+            badgeToneKey="critical"
+          />
+        </div>
       </div>
 
       {/* Pipeline By Stage + Clients, side by side on wide screens */}
