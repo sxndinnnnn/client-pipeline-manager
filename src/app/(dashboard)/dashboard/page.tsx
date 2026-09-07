@@ -14,6 +14,10 @@ function numericValues(deals: Deal[]) {
   return deals.map((d) => d.value).filter((v): v is number => v != null).map(Number);
 }
 
+function isWithinDays(dateStr: string, days: number) {
+  return Date.now() - new Date(dateStr).getTime() <= days * 86400000;
+}
+
 // Rounds `maxValue` up to a "nice" number and returns evenly spaced ticks
 // from 0 to that nice max, for a chart y-axis.
 function niceTicks(maxValue: number, targetCount = 4) {
@@ -29,6 +33,103 @@ function niceTicks(maxValue: number, targetCount = 4) {
   return ticks;
 }
 
+/* ---------------------------- Icons ---------------------------- */
+
+function TrendingUpIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 17l6-6 4 4 8-8" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M14 7h7v7" />
+    </svg>
+  );
+}
+
+function BriefcaseIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <rect x="2.5" y="7" width="19" height="13.5" rx="2" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 20.5V5.5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v15" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.5 12.5h19" />
+    </svg>
+  );
+}
+
+function CheckCircleIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M8.3 12.3l2.6 2.6 5-5.2" />
+    </svg>
+  );
+}
+
+function TargetIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <circle cx="12" cy="12" r="5" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function TrendingDownIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3 7l6 6 4-4 8 8" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 10v7h-7" />
+    </svg>
+  );
+}
+
+function ClockIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <circle cx="12" cy="12" r="9" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 7.2v5l3.6 2.1" />
+    </svg>
+  );
+}
+
+function TagIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M20.5 12.7L12.3 21 3 11.7V3h8.7z" />
+      <circle cx="7.5" cy="7.5" r="1.4" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
+function UsersIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <circle cx="9" cy="7.8" r="3.3" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2.3 20.2a6.7 6.7 0 0 1 13.4 0" />
+      <circle cx="17.3" cy="8.6" r="2.7" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M15.6 12.9a5.3 5.3 0 0 1 6.1 5.2" />
+    </svg>
+  );
+}
+
+function BarChartIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M5 21V10M12 21V4M19 21v-7" />
+    </svg>
+  );
+}
+
+function CrownIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.5 18.5l-1.5-9 5.2 3.8L12 6l4.8 7.3 5.2-3.8-1.5 9z" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M3.5 18.5h17" />
+    </svg>
+  );
+}
+
+/* ------------------------- Building blocks ------------------------- */
+
 const toneText: Record<string, string> = {
   default: "text-zinc-900 dark:text-zinc-50",
   good: "text-green-600 dark:text-green-400",
@@ -36,36 +137,106 @@ const toneText: Record<string, string> = {
   critical: "text-red-600 dark:text-red-400",
 };
 
+const badgeTone: Record<string, string> = {
+  default: "bg-zinc-100 text-zinc-500 dark:bg-zinc-800 dark:text-zinc-400",
+  accent: "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400",
+  good: "bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400",
+  warning: "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400",
+  critical: "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400",
+};
+
 function StatTile({
   label,
   value,
   sublabel,
-  tone = "default",
+  icon,
+  badgeToneKey = "accent",
+  valueTone = "default",
 }: {
   label: string;
   value: string;
   sublabel?: string;
-  tone?: "default" | "good" | "warning" | "critical";
+  icon: React.ReactNode;
+  badgeToneKey?: keyof typeof badgeTone;
+  valueTone?: keyof typeof toneText;
 }) {
   return (
-    <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-      <p className={`text-2xl font-bold ${toneText[tone]}`}>{value}</p>
-      <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{label}</p>
-      {sublabel && (
-        <p className="mt-1 text-xs text-zinc-400 dark:text-zinc-500">{sublabel}</p>
-      )}
+    <div className="flex flex-col gap-2.5 rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md dark:border-zinc-800 dark:bg-zinc-900">
+      <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${badgeTone[badgeToneKey]}`}>
+        {icon}
+      </span>
+      <div>
+        <p className={`text-2xl font-bold ${toneText[valueTone]}`}>{value}</p>
+        <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">{label}</p>
+        {sublabel && <p className="mt-0.5 text-xs text-zinc-400 dark:text-zinc-500">{sublabel}</p>}
+      </div>
     </div>
   );
 }
 
-function SectionHeading({ emoji, title }: { emoji: string; title: string }) {
+function HeroTile({
+  label,
+  value,
+  icon,
+  chip,
+}: {
+  label: string;
+  value: string;
+  icon: React.ReactNode;
+  chip?: React.ReactNode;
+}) {
   return (
-    <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
-      <span aria-hidden className="mr-1.5">
-        {emoji}
+    <div className="flex flex-col gap-3 rounded-lg border border-zinc-200 bg-white p-5 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+          {icon}
+        </span>
+        {label}
       </span>
-      {title}
-    </h2>
+      <p className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{value}</p>
+      {chip}
+    </div>
+  );
+}
+
+function Panel({
+  title,
+  icon,
+  children,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="mb-3 flex items-center gap-2">
+        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+          {icon}
+        </span>
+        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function MiniStat({
+  label,
+  value,
+  tone = "default",
+}: {
+  label: string;
+  value: string;
+  tone?: keyof typeof toneText;
+}) {
+  return (
+    <div className="rounded-md bg-zinc-50 p-3 dark:bg-zinc-800/60">
+      <p className={`text-xl font-bold ${toneText[tone]}`}>{value}</p>
+      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+        {label}
+      </p>
+    </div>
   );
 }
 
@@ -151,6 +322,8 @@ export function StageBarChart({
   );
 }
 
+/* ------------------------------ Page ------------------------------ */
+
 export default async function DashboardPage() {
   const supabase = await createClient();
 
@@ -179,6 +352,8 @@ export default async function DashboardPage() {
   const avgCycle = avg(cycleDays);
   const avgOpenSize = avg(numericValues(openDeals));
   const avgWonSize = avg(numericValues(wonDeals));
+  const activeStageCount = new Set(openDeals.map((d) => d.stage_id).filter(Boolean)).size;
+  const newOpenDeals = openDeals.filter((d) => isWithinDays(d.created_at, 30));
 
   // Pipeline by stage - every stage, including the terminal Won/Lost columns
   const dealsByStage = new Map<string, Deal[]>();
@@ -208,75 +383,118 @@ export default async function DashboardPage() {
     .slice(0, 5);
 
   return (
-    <div className="flex flex-col gap-8">
-      <section className="flex flex-col gap-3">
-        <SectionHeading emoji="📈" title="Pipeline Overview" />
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatTile label="Open Pipeline Value" value={formatLKR(totalOpenValue)} />
-          <StatTile label="Open Deals" value={String(openDeals.length)} />
-          <StatTile label="Won Pipeline Value" value={formatLKR(totalWonValue)} />
-          <StatTile
-            label="Win Rate"
-            value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
-          />
-          <StatTile
-            label="Lost Rate"
-            value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
-          />
-          <StatTile
-            label="Avg Sales Cycle"
-            value={avgCycle != null ? `${Math.round(avgCycle)} Days` : "N/A"}
-          />
-          <StatTile
-            label="Avg Open Deal Size"
-            value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
-          />
-          <StatTile
-            label="Avg Won Deal Size"
-            value={avgWonSize != null ? formatLKR(avgWonSize) : "N/A"}
-          />
-        </div>
-      </section>
+    <div className="flex flex-col gap-6">
+      {/* Hero: Open Pipeline Value, with Open Deals and Win Rate as companions */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 lg:grid-cols-[1.6fr_1fr_1fr]">
+        <HeroTile
+          label="Open Pipeline Value"
+          value={formatLKR(totalOpenValue)}
+          icon={<TrendingUpIcon className="h-3.5 w-3.5" />}
+          chip={
+            newOpenDeals.length > 0 ? (
+              <span className="inline-flex w-fit items-center gap-1 rounded-full bg-green-50 px-2.5 py-1 text-xs font-semibold text-green-600 dark:bg-green-900/30 dark:text-green-400">
+                <TrendingUpIcon className="h-3 w-3" />
+                {newOpenDeals.length} new in the last 30 days
+              </span>
+            ) : undefined
+          }
+        />
+        <StatTile
+          label="Open Deals"
+          value={String(openDeals.length)}
+          sublabel={
+            activeStageCount > 0
+              ? `across ${activeStageCount} active stage${activeStageCount === 1 ? "" : "s"}`
+              : undefined
+          }
+          icon={<BriefcaseIcon />}
+          badgeToneKey="accent"
+        />
+        <StatTile
+          label="Win Rate"
+          value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
+          sublabel={lostRate != null ? `${Math.round(lostRate)}% lost` : undefined}
+          icon={<TargetIcon />}
+          badgeToneKey="good"
+        />
+      </div>
 
-      <section className="flex flex-col gap-3">
-        <SectionHeading emoji="👥" title="Clients" />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <StatTile label="Total Clients" value={String(allClients.length)} />
-          <StatTile
-            label="Clients With No Open Deals"
-            value={String(clientsWithNoOpenDeals)}
-            tone={clientsWithNoOpenDeals > 0 ? "warning" : "good"}
-          />
-          <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-            <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-              Top Clients By Open Pipeline Value
-            </p>
-            {topClients.length === 0 ? (
-              <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">No open deals yet.</p>
-            ) : (
-              <ol className="mt-2 flex flex-col gap-1.5">
-                {topClients.map((c, i) => (
-                  <li key={c.id} className="flex items-center justify-between text-sm">
-                    <span className="text-zinc-700 dark:text-zinc-300">
-                      {i + 1}. {c.name}
-                    </span>
-                    <span className="font-medium text-zinc-900 dark:text-zinc-50">
-                      {formatLKR(c.value)}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </div>
-        </div>
-      </section>
+      {/* Secondary stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        <StatTile
+          label="Won Pipeline Value"
+          value={formatLKR(totalWonValue)}
+          icon={<CheckCircleIcon />}
+          badgeToneKey="good"
+        />
+        <StatTile
+          label="Lost Rate"
+          value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
+          icon={<TrendingDownIcon />}
+          badgeToneKey={lostRate ? "critical" : "good"}
+          valueTone={lostRate ? "critical" : "default"}
+        />
+        <StatTile
+          label="Avg Sales Cycle"
+          value={avgCycle != null ? `${Math.round(avgCycle)} Days` : "N/A"}
+          icon={<ClockIcon />}
+          badgeToneKey="accent"
+        />
+        <StatTile
+          label="Avg Open Deal Size"
+          value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
+          icon={<TagIcon />}
+          badgeToneKey="accent"
+        />
+        <StatTile
+          label="Avg Won Deal Size"
+          value={avgWonSize != null ? formatLKR(avgWonSize) : "N/A"}
+          icon={<TagIcon />}
+          badgeToneKey="good"
+        />
+      </div>
 
-      <section className="flex flex-col gap-3">
-        <SectionHeading emoji="🗂️" title="Pipeline By Stage" />
-        <div className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+      {/* Pipeline By Stage + Clients, side by side on wide screens */}
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
+        <Panel title="Pipeline By Stage" icon={<BarChartIcon />}>
           <StageBarChart stageRows={stageRows} />
-        </div>
-      </section>
+        </Panel>
+
+        <Panel title="Clients" icon={<UsersIcon />}>
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <MiniStat label="Total Clients" value={String(allClients.length)} />
+            <MiniStat
+              label="No Open Deals"
+              value={String(clientsWithNoOpenDeals)}
+              tone={clientsWithNoOpenDeals > 0 ? "warning" : "good"}
+            />
+          </div>
+          <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-zinc-400 dark:text-zinc-500">
+            <CrownIcon className="h-3 w-3" />
+            Top Clients By Open Pipeline Value
+          </div>
+          {topClients.length === 0 ? (
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">No open deals yet.</p>
+          ) : (
+            <ol className="flex flex-col">
+              {topClients.map((c, i) => (
+                <li
+                  key={c.id}
+                  className="flex items-center gap-2.5 border-t border-zinc-100 py-2 text-sm first:border-t-0 dark:border-zinc-800"
+                >
+                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-blue-50 text-[11px] font-bold text-blue-600 dark:bg-blue-900/30 dark:text-blue-400">
+                    {i + 1}
+                  </span>
+                  <span className="flex-1 text-zinc-700 dark:text-zinc-300">{c.name}</span>
+                  <span className="font-medium text-zinc-900 dark:text-zinc-50">
+                    {formatLKR(c.value)}
+                  </span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </Panel>
+      </div>
     </div>
   );
 }
