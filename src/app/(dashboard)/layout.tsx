@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { MobileNav } from "@/components/mobile-nav";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -51,13 +52,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   return (
     <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
-      <header className="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="flex items-center justify-between px-6 py-3">
+      <header className="relative border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="flex items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-6">
             <span className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
               Pipeline Manager
             </span>
-            <nav className="flex gap-4">
+            <nav className="hidden gap-4 lg:flex">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
@@ -70,9 +71,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             </nav>
           </div>
           <div className="flex items-center gap-3">
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">{user?.email}</span>
+            <span className="hidden text-sm text-zinc-500 dark:text-zinc-400 lg:block">
+              {user?.email}
+            </span>
             <ThemeToggle />
-            <form action={signOut}>
+            <form action={signOut} className="hidden lg:block">
               <button
                 type="submit"
                 className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
@@ -80,12 +83,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
                 Log Out
               </button>
             </form>
+            <MobileNav links={NAV_LINKS} userEmail={user?.email} signOutAction={signOut} />
           </div>
         </div>
       </header>
-      <main className="w-full flex-1 px-6 py-8 pb-20">{children}</main>
+      <main className="w-full flex-1 px-4 py-8 pb-20 sm:px-6">{children}</main>
       <footer className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div className="flex items-center justify-center gap-8 px-6 py-3">
+        <div className="flex items-center justify-center gap-4 px-2 py-3 sm:gap-8 sm:px-6">
           {FOOTER_LINKS.map(({ href, label, Icon }) => (
             <Link
               key={href}

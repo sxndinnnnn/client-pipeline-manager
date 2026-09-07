@@ -92,7 +92,7 @@ function TaskGrid({ tasks, done }: { tasks: TaskWithDeal[]; done: boolean }) {
                 <button
                   type="submit"
                   aria-label="Delete task"
-                  className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                  className="p-3.5 text-zinc-400 hover:text-red-600 lg:p-0 dark:text-zinc-500 dark:hover:text-red-400"
                 >
                   <TrashIcon />
                 </button>

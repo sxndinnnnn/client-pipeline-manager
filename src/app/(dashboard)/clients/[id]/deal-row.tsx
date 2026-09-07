@@ -128,7 +128,7 @@ export function DealRow({
           type="button"
           onClick={openView}
           aria-label="View deal"
-          className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+          className="p-3.5 text-zinc-500 hover:text-zinc-900 lg:p-0 dark:text-zinc-400 dark:hover:text-zinc-50"
         >
           <EyeIcon />
         </button>
@@ -143,10 +143,10 @@ export function DealRow({
             }}
             className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
           >
-          <div className="flex max-h-[92vh] w-[95vw] max-w-5xl flex-col overflow-y-auto rounded-lg border border-zinc-200 bg-white p-6 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-            <div className="flex items-start justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
-              <div>
-                <h2 className="text-xl font-bold text-zinc-900 dark:text-zinc-50">
+          <div className="flex max-h-[92vh] w-[95vw] max-w-5xl flex-col overflow-y-auto rounded-lg border border-zinc-200 bg-white p-4 shadow-lg sm:p-6 dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="flex flex-wrap items-start justify-between gap-3 border-b border-zinc-200 pb-3 dark:border-zinc-800">
+              <div className="min-w-0">
+                <h2 className="break-words text-xl font-bold text-zinc-900 dark:text-zinc-50">
                   {deal.title}
                 </h2>
               </div>
@@ -172,7 +172,7 @@ export function DealRow({
                   type="button"
                   onClick={() => dialogRef.current?.close()}
                   aria-label="Close"
-                  className="text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200"
+                  className="p-3.5 text-zinc-400 hover:text-zinc-700 lg:p-0 dark:text-zinc-500 dark:hover:text-zinc-200"
                 >
                   <XIcon />
                 </button>
@@ -350,7 +350,7 @@ export function DealRow({
                               type="button"
                               onClick={() => onDeleteActivity(deal.id, activity.id, activity.type)}
                               aria-label="Delete activity"
-                              className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                              className="p-3.5 text-zinc-400 hover:text-red-600 lg:p-0 dark:text-zinc-500 dark:hover:text-red-400"
                             >
                               <TrashIcon />
                             </button>
@@ -369,22 +369,22 @@ export function DealRow({
                 <div className="pt-4">
                   <form
                     action={onAddTask}
-                    className="flex gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-950"
+                    className="flex flex-col gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3 sm:flex-row dark:border-zinc-800 dark:bg-zinc-950"
                   >
                     <input
                       name="title"
                       required
                       placeholder="New Task"
-                      className="flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                      className="w-full flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                     />
                     <input
                       name="due_date"
                       type="date"
-                      className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                      className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm sm:w-auto dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
                     />
                     <button
                       type="submit"
-                      className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                      className="w-full rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 sm:w-auto dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
                     >
                       Add New Task
                     </button>
@@ -425,7 +425,7 @@ export function DealRow({
                           type="button"
                           onClick={() => onDeleteTask(deal.id, task.id, task.title)}
                           aria-label="Delete task"
-                          className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                          className="p-3.5 text-zinc-400 hover:text-red-600 lg:p-0 dark:text-zinc-500 dark:hover:text-red-400"
                         >
                           <TrashIcon />
                         </button>

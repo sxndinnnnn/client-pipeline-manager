@@ -210,7 +210,7 @@ export default async function ClientDetailPage({
 
   const contactsPanel = (
     <section>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Contacts</h2>
         <AddContactModal addContactAction={addContactAction} />
       </div>
@@ -273,7 +273,7 @@ export default async function ClientDetailPage({
 
   const dealsPanel = (
     <section>
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Deals</h2>
         <AddDealModal createDealAction={createDealAction} />
       </div>

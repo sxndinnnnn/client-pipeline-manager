@@ -46,7 +46,7 @@ export function AddClientModal() {
               type="button"
               onClick={close}
               aria-label="Close"
-              className="text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200"
+              className="p-3.5 text-zinc-400 hover:text-zinc-700 lg:p-0 dark:text-zinc-500 dark:hover:text-zinc-200"
             >
               <XIcon />
             </button>

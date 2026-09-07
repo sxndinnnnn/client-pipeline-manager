@@ -91,7 +91,7 @@ export function ContactRow({
             type="button"
             onClick={() => dialogRef.current?.showModal()}
             aria-label="Edit contact"
-            className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+            className="p-3.5 text-zinc-500 hover:text-zinc-900 lg:p-0 dark:text-zinc-400 dark:hover:text-zinc-50"
           >
             <PencilIcon />
           </button>
@@ -99,7 +99,7 @@ export function ContactRow({
             type="button"
             onClick={() => onDelete()}
             aria-label="Delete contact"
-            className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+            className="p-3.5 text-red-600 hover:text-red-800 lg:p-0 dark:text-red-400 dark:hover:text-red-300"
           >
             <TrashIcon />
           </button>
@@ -124,7 +124,7 @@ export function ContactRow({
                   type="button"
                   onClick={() => dialogRef.current?.close()}
                   aria-label="Close"
-                  className="text-zinc-400 hover:text-zinc-700 dark:text-zinc-500 dark:hover:text-zinc-200"
+                  className="p-3.5 text-zinc-400 hover:text-zinc-700 lg:p-0 dark:text-zinc-500 dark:hover:text-zinc-200"
                 >
                   <XIcon />
                 </button>

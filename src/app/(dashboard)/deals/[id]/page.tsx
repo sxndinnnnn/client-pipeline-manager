@@ -97,9 +97,9 @@ export default async function DealDetailPage({
             ← {client.name}
           </Link>
         )}
-        <div className="mt-2 flex items-start justify-between">
-          <div>
-            <h1 className="text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+        <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
+          <div className="min-w-0">
+            <h1 className="break-words text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
               {deal.title}
             </h1>
             <div className="mt-1 flex items-center gap-2">
@@ -123,7 +123,7 @@ export default async function DealDetailPage({
             <summary className="cursor-pointer list-none rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
               Edit deal
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-80 rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="absolute right-0 z-10 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
               <form action={saveDeal} className="flex flex-col gap-3">
                 <div>
                   <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
@@ -271,7 +271,7 @@ export default async function DealDetailPage({
                         <button
                           type="submit"
                           aria-label="Delete activity"
-                          className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                          className="p-3.5 text-zinc-400 hover:text-red-600 lg:p-0 dark:text-zinc-500 dark:hover:text-red-400"
                         >
                           <TrashIcon />
                         </button>
@@ -292,22 +292,22 @@ export default async function DealDetailPage({
 
           <form
             action={addTaskAction}
-            className="mt-3 flex gap-2 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+            className="mt-3 flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-3 sm:flex-row dark:border-zinc-800 dark:bg-zinc-900"
           >
             <input
               name="title"
               required
               placeholder="New task..."
-              className="flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="w-full flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             <input
               name="due_date"
               type="date"
-              className="rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm sm:w-auto dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
             />
             <button
               type="submit"
-              className="rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              className="w-full rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 sm:w-auto dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
             >
               Add
             </button>
@@ -351,7 +351,7 @@ export default async function DealDetailPage({
                     <button
                       type="submit"
                       aria-label="Delete task"
-                      className="text-zinc-400 hover:text-red-600 dark:text-zinc-500 dark:hover:text-red-400"
+                      className="p-3.5 text-zinc-400 hover:text-red-600 lg:p-0 dark:text-zinc-500 dark:hover:text-red-400"
                     >
                       <TrashIcon />
                     </button>

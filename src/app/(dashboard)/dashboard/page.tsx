@@ -81,62 +81,73 @@ export function StageBarChart({
   const ticks = niceTicks(Math.max(...stageRows.map((r) => r.value)));
   const chartMax = Math.max(1, ticks[ticks.length - 1]);
 
+  // Below this many px the bar columns get too thin to read (value labels
+  // collide, hover targets shrink) - horizontal-scroll the chart instead of
+  // squeezing bars forever. Desktop content is always wider than this, so
+  // it never triggers there - the chart renders identically to before.
+  const chartMinWidth = 80 + stageRows.length * 90;
+
   return (
-    <>
-      <div className="mt-3 flex h-56">
-        <div className="relative w-20 shrink-0">
-          {ticks.map((tick) => (
+    <div className="overflow-x-auto">
+      <div style={{ minWidth: `${chartMinWidth}px` }}>
+        <div className="mt-3 flex h-56">
+          <div className="relative w-20 shrink-0">
+            {ticks.map((tick) => (
+              <span
+                key={tick}
+                className="absolute right-2 -translate-y-1/2 whitespace-nowrap text-xs text-zinc-400 dark:text-zinc-500"
+                style={{ bottom: `${(tick / chartMax) * 100}%` }}
+              >
+                {formatLKR(tick)}
+              </span>
+            ))}
+          </div>
+          <div className="relative flex-1">
+            {ticks.map((tick) => (
+              <div
+                key={tick}
+                className="absolute inset-x-0 border-t border-zinc-100 dark:border-zinc-800"
+                style={{ bottom: `${(tick / chartMax) * 100}%` }}
+              />
+            ))}
+            <div className="absolute inset-0 flex items-end gap-3">
+              {stageRows.map((row) => (
+                <div
+                  key={row.name}
+                  className="group relative flex h-full flex-1 flex-col items-center justify-end"
+                >
+                  <div
+                    className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-zinc-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 dark:bg-zinc-100 dark:text-zinc-900"
+                    style={{ bottom: `calc(${(row.value / chartMax) * 100}% + 2rem)` }}
+                  >
+                    {row.count} Deal{row.count === 1 ? "" : "s"}
+                  </div>
+                  {row.value > 0 && (
+                    <span className="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                      {formatLKR(row.value)}
+                    </span>
+                  )}
+                  <div
+                    className="w-full rounded-t bg-blue-600 dark:bg-blue-500"
+                    style={{ height: `${(row.value / chartMax) * 100}%` }}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="mt-2 flex gap-3 pl-20">
+          {stageRows.map((row) => (
             <span
-              key={tick}
-              className="absolute right-2 -translate-y-1/2 whitespace-nowrap text-xs text-zinc-400 dark:text-zinc-500"
-              style={{ bottom: `${(tick / chartMax) * 100}%` }}
+              key={row.name}
+              className="flex-1 text-center text-xs text-zinc-500 dark:text-zinc-400"
             >
-              {formatLKR(tick)}
+              {row.name}
             </span>
           ))}
         </div>
-        <div className="relative flex-1">
-          {ticks.map((tick) => (
-            <div
-              key={tick}
-              className="absolute inset-x-0 border-t border-zinc-100 dark:border-zinc-800"
-              style={{ bottom: `${(tick / chartMax) * 100}%` }}
-            />
-          ))}
-          <div className="absolute inset-0 flex items-end gap-3">
-            {stageRows.map((row) => (
-              <div
-                key={row.name}
-                className="group relative flex h-full flex-1 flex-col items-center justify-end"
-              >
-                <div
-                  className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-zinc-900 px-2 py-1 text-xs font-medium text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100 dark:bg-zinc-100 dark:text-zinc-900"
-                  style={{ bottom: `calc(${(row.value / chartMax) * 100}% + 2rem)` }}
-                >
-                  {row.count} Deal{row.count === 1 ? "" : "s"}
-                </div>
-                {row.value > 0 && (
-                  <span className="mb-1 text-xs font-medium text-zinc-700 dark:text-zinc-300">
-                    {formatLKR(row.value)}
-                  </span>
-                )}
-                <div
-                  className="w-full rounded-t bg-blue-600 dark:bg-blue-500"
-                  style={{ height: `${(row.value / chartMax) * 100}%` }}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
-      <div className="mt-2 flex gap-3 pl-20">
-        {stageRows.map((row) => (
-          <span key={row.name} className="flex-1 text-center text-xs text-zinc-500 dark:text-zinc-400">
-            {row.name}
-          </span>
-        ))}
-      </div>
-    </>
+    </div>
   );
 }
 

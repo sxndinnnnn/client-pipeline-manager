@@ -29,8 +29,8 @@ export default async function ClientsPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between gap-2">
-        <form method="get" className="flex gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <form method="get" className="flex min-w-0 flex-1 gap-2 sm:flex-initial">
           <input type="hidden" name="pageSize" value={pageSize} />
           <input
             type="search"
