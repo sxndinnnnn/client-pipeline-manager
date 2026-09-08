@@ -9,9 +9,16 @@ export default function LoginPage() {
         <div className="absolute right-4 top-4">
           <ThemeToggle />
         </div>
-        <h1 className="text-center text-xl font-semibold text-zinc-900 dark:text-zinc-50">
-          Client Pipeline Manager
-        </h1>
+        <div className="flex justify-center">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/branding/logo-dark.webp" alt="Logistix360" className="h-10 w-auto dark:hidden" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/branding/logo-light.webp"
+            alt="Logistix360"
+            className="hidden h-10 w-auto dark:block"
+          />
+        </div>
 
         <Suspense fallback={null}>
           <LoginForm />
