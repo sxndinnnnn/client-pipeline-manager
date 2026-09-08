@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { TaskCheckbox } from "@/components/task-checkbox";
 import { formatLKR } from "@/lib/currency";
+import { formatDateTime } from "@/lib/datetime";
 import {
   addActivity,
   addTask,
@@ -19,13 +20,6 @@ const statusStyles: Record<string, string> = {
 };
 
 const ACTIVITY_TYPES = ["note", "call", "email", "meeting"] as const;
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 function TrashIcon() {
   return (

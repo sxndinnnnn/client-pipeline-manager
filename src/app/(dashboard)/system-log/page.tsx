@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { PaginationControls } from "@/app/(dashboard)/clients/pagination-controls";
+import { formatDateTime } from "@/lib/datetime";
 
 const DEFAULT_PAGE_SIZE = 25;
 
@@ -14,13 +15,6 @@ type LogEntry = {
   country: string | null;
   created_at: string;
 };
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
-}
 
 function formatLocation(entry: LogEntry) {
   const parts = [entry.city, entry.region, entry.country].filter(Boolean);

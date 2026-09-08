@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatLKR } from "@/lib/currency";
+import { formatDateTime } from "@/lib/datetime";
 import { TaskCheckbox } from "@/components/task-checkbox";
 import type { Activity, Deal, Task } from "@/types/database";
 
@@ -13,10 +14,6 @@ const statusStyles: Record<string, string> = {
 };
 
 const ACTIVITY_TYPES = ["note", "call", "email", "meeting"] as const;
-
-function formatDateTime(iso: string) {
-  return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
-}
 
 function XIcon() {
   return (

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/currency";
+import { formatDateTime as formatDate } from "@/lib/datetime";
 import {
   addContact,
   createDeal,
@@ -33,10 +34,6 @@ function initials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
   const letters = words.slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "");
   return letters.join("") || "?";
-}
-
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
 }
 
 function ChevronIcon() {
