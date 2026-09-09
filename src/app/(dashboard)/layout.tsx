@@ -29,6 +29,16 @@ function ReleaseNoteIcon() {
   );
 }
 
+function LogOutIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M16 17l5-5-5-5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12H9" />
+    </svg>
+  );
+}
+
 function GuideIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
@@ -78,9 +88,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <form action={signOut} className="hidden lg:block">
               <button
                 type="submit"
-                className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+                aria-label="Log out"
+                title="Log out"
+                className="flex h-[34px] w-[34px] items-center justify-center rounded-md border border-zinc-300 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
               >
-                Log Out
+                <LogOutIcon />
               </button>
             </form>
             <MobileNav links={NAV_LINKS} userEmail={user?.email} signOutAction={signOut} />
