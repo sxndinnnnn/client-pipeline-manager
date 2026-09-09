@@ -83,21 +83,6 @@ function TagIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
-function TagOffIcon({ className = "h-4 w-4" }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M20.5 12.7L12.3 21 3 11.7V3h8.7z"
-        opacity={0.4}
-      />
-      <circle cx="7.5" cy="7.5" r="1.4" fill="currentColor" stroke="none" opacity={0.4} />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M2 2l20 20" />
-    </svg>
-  );
-}
-
 function UsersIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
@@ -187,6 +172,86 @@ function Panel({
         <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">{title}</h2>
       </div>
       {children}
+    </div>
+  );
+}
+
+export function OpenDealsDonut({
+  total,
+  withValue,
+  withoutValue,
+}: {
+  total: number;
+  withValue: number;
+  withoutValue: number;
+}) {
+  const r = 70;
+  const strokeWidth = 18;
+  const circumference = 2 * Math.PI * r;
+  const withValueLen = total > 0 ? (withValue / total) * circumference : 0;
+  const withoutValueLen = total > 0 ? (withoutValue / total) * circumference : 0;
+
+  return (
+    <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-lg border border-zinc-200 bg-white p-5 shadow-sm sm:flex-row dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="relative h-44 w-44 shrink-0">
+        <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
+          <circle
+            cx="100"
+            cy="100"
+            r={r}
+            fill="none"
+            strokeWidth={strokeWidth}
+            className="stroke-zinc-100 dark:stroke-zinc-800"
+          />
+          {total > 0 && (
+            <>
+              <circle
+                cx="100"
+                cy="100"
+                r={r}
+                fill="none"
+                strokeWidth={strokeWidth}
+                strokeDasharray={`${withValueLen} ${circumference - withValueLen}`}
+                className="stroke-blue-600 dark:stroke-blue-400"
+              />
+              <circle
+                cx="100"
+                cy="100"
+                r={r}
+                fill="none"
+                strokeWidth={strokeWidth}
+                strokeDasharray={`${withoutValueLen} ${circumference - withoutValueLen}`}
+                strokeDashoffset={-withValueLen}
+                className="stroke-amber-500 dark:stroke-amber-400"
+              />
+            </>
+          )}
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-2xl font-bold leading-tight text-zinc-900 dark:text-zinc-50">
+            {total}
+          </span>
+          <span className="text-[10px] font-semibold uppercase text-zinc-500 dark:text-zinc-400">
+            Open Deals
+          </span>
+        </div>
+      </div>
+      <div className="flex w-full max-w-[220px] flex-col gap-3">
+        <div className="flex items-center gap-2.5">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-blue-600 dark:bg-blue-400" />
+          <span className="flex-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Open Deals With Value
+          </span>
+          <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{withValue}</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-amber-500 dark:bg-amber-400" />
+          <span className="flex-1 text-sm text-zinc-600 dark:text-zinc-400">
+            Open Deals Without Value
+          </span>
+          <span className="text-sm font-bold text-zinc-900 dark:text-zinc-50">{withoutValue}</span>
+        </div>
+      </div>
     </div>
   );
 }
@@ -358,37 +423,26 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Open */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        <StatTile
-          label="Open Deals"
-          value={String(openDeals.length)}
-          icon={<BriefcaseIcon />}
-          badgeToneKey="accent"
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
+        <OpenDealsDonut
+          total={openDeals.length}
+          withValue={openDealsWithValue}
+          withoutValue={openDealsWithoutValue}
         />
-        <StatTile
-          label="Open Deals With Value"
-          value={String(openDealsWithValue)}
-          icon={<TagIcon />}
-          badgeToneKey="accent"
-        />
-        <StatTile
-          label="Open Deals Without Value"
-          value={String(openDealsWithoutValue)}
-          icon={<TagOffIcon />}
-          badgeToneKey="warning"
-        />
-        <StatTile
-          label="Open Pipeline Value"
-          value={formatLKR(totalOpenValue)}
-          icon={<TrendingUpIcon />}
-          badgeToneKey="accent"
-        />
-        <StatTile
-          label="Avg Open Deal Size"
-          value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
-          icon={<TagIcon />}
-          badgeToneKey="accent"
-        />
+        <div className="flex flex-col gap-3">
+          <StatTile
+            label="Open Pipeline Value"
+            value={formatLKR(totalOpenValue)}
+            icon={<TrendingUpIcon />}
+            badgeToneKey="accent"
+          />
+          <StatTile
+            label="Avg Open Deal Size"
+            value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
+            icon={<TagIcon />}
+            badgeToneKey="accent"
+          />
+        </div>
       </div>
 
       {/* Won */}
