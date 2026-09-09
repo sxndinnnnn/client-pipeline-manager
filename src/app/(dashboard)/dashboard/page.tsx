@@ -83,6 +83,21 @@ function TagIcon({ className = "h-4 w-4" }: { className?: string }) {
   );
 }
 
+function TagOffIcon({ className = "h-4 w-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M20.5 12.7L12.3 21 3 11.7V3h8.7z"
+        opacity={0.4}
+      />
+      <circle cx="7.5" cy="7.5" r="1.4" fill="currentColor" stroke="none" opacity={0.4} />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M2 2l20 20" />
+    </svg>
+  );
+}
+
 function UsersIcon({ className = "h-4 w-4" }: { className?: string }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
@@ -207,17 +222,22 @@ export function StageBarChart({
   const ticks = niceTicks(Math.max(...stageRows.map((r) => r.value)));
   const chartMax = Math.max(1, ticks[ticks.length - 1]);
 
+  // Sized off the longest tick label so it never gets clipped by the
+  // horizontal-scroll container to its right (was previously a fixed w-20,
+  // which truncated once values grew past ~6 figures).
+  const axisWidth = Math.max(64, formatLKR(chartMax).length * 7 + 16);
+
   // Below this many px the bar columns get too thin to read (value labels
   // collide, hover targets shrink) - horizontal-scroll the chart instead of
   // squeezing bars forever. Desktop content is always wider than this, so
   // it never triggers there - the chart renders identically to before.
-  const chartMinWidth = 80 + stageRows.length * 90;
+  const chartMinWidth = axisWidth + stageRows.length * 90;
 
   return (
     <div className="overflow-x-auto">
       <div style={{ minWidth: `${chartMinWidth}px` }}>
-        <div className="mt-3 flex h-56">
-          <div className="relative w-20 shrink-0">
+        <div className="mt-6 flex h-56">
+          <div className="relative shrink-0" style={{ width: `${axisWidth}px` }}>
             {ticks.map((tick) => (
               <span
                 key={tick}
@@ -262,7 +282,7 @@ export function StageBarChart({
             </div>
           </div>
         </div>
-        <div className="mt-2 flex gap-3 pl-20">
+        <div className="mt-2 flex gap-3" style={{ paddingLeft: `${axisWidth}px` }}>
           {stageRows.map((row) => (
             <span
               key={row.name}
@@ -303,6 +323,8 @@ export default async function DashboardPage() {
   const winRate = decidedCount > 0 ? (wonDeals.length / decidedCount) * 100 : null;
   const lostRate = decidedCount > 0 ? (lostDeals.length / decidedCount) * 100 : null;
   const avgOpenSize = avg(numericValues(openDeals));
+  const openDealsWithValue = openDeals.filter((d) => d.value != null).length;
+  const openDealsWithoutValue = openDeals.length - openDealsWithValue;
   const avgWonSize = avg(numericValues(wonDeals));
   const avgLostSize = avg(numericValues(lostDeals));
 
@@ -336,17 +358,29 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       {/* Open */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <StatTile
-          label="Open Pipeline Value"
-          value={formatLKR(totalOpenValue)}
-          icon={<TrendingUpIcon />}
-          badgeToneKey="accent"
-        />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
         <StatTile
           label="Open Deals"
           value={String(openDeals.length)}
           icon={<BriefcaseIcon />}
+          badgeToneKey="accent"
+        />
+        <StatTile
+          label="Open Deals With Value"
+          value={String(openDealsWithValue)}
+          icon={<TagIcon />}
+          badgeToneKey="accent"
+        />
+        <StatTile
+          label="Open Deals Without Value"
+          value={String(openDealsWithoutValue)}
+          icon={<TagOffIcon />}
+          badgeToneKey="warning"
+        />
+        <StatTile
+          label="Open Pipeline Value"
+          value={formatLKR(totalOpenValue)}
+          icon={<TrendingUpIcon />}
           badgeToneKey="accent"
         />
         <StatTile
@@ -360,12 +394,6 @@ export default async function DashboardPage() {
       {/* Won */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile
-          label="Won Pipeline Value"
-          value={formatLKR(totalWonValue)}
-          icon={<CheckCircleIcon />}
-          badgeToneKey="good"
-        />
-        <StatTile
           label="Won Deals"
           value={String(wonDeals.length)}
           icon={<BriefcaseIcon />}
@@ -375,6 +403,12 @@ export default async function DashboardPage() {
           label="Win Rate"
           value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
           icon={<TargetIcon />}
+          badgeToneKey="good"
+        />
+        <StatTile
+          label="Won Pipeline Value"
+          value={formatLKR(totalWonValue)}
+          icon={<CheckCircleIcon />}
           badgeToneKey="good"
         />
         <StatTile
@@ -388,12 +422,6 @@ export default async function DashboardPage() {
       {/* Lost */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile
-          label="Lost Pipeline Value"
-          value={formatLKR(totalLostValue)}
-          icon={<TrendingDownIcon />}
-          badgeToneKey="critical"
-        />
-        <StatTile
           label="Lost Deals"
           value={String(lostDeals.length)}
           icon={<BriefcaseIcon />}
@@ -403,6 +431,12 @@ export default async function DashboardPage() {
           label="Lost Rate"
           value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
           icon={<TargetIcon />}
+          badgeToneKey="critical"
+        />
+        <StatTile
+          label="Lost Pipeline Value"
+          value={formatLKR(totalLostValue)}
+          icon={<TrendingDownIcon />}
           badgeToneKey="critical"
         />
         <StatTile
