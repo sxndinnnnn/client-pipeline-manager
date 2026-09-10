@@ -47,13 +47,13 @@ export function PaginationControls({
 
   return (
     <div className="flex flex-wrap items-center justify-between gap-4">
-      <div className="flex items-center gap-3 text-sm text-zinc-600 dark:text-zinc-400">
+      <div className="flex items-center gap-3 text-sm text-muted">
         <label className="flex items-center gap-2">
-          <span className="font-medium text-zinc-900 dark:text-zinc-50">Rows Per Page</span>
+          <span className="font-medium text-foreground">Rows Per Page</span>
           <select
             value={pageSize}
             onChange={handlePageSizeChange}
-            className="rounded-md border border-zinc-300 bg-white px-2 py-1 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className="rounded-md border border-border-strong bg-surface px-2 py-1 text-sm text-foreground"
           >
             {PAGE_SIZE_OPTIONS.map((size) => (
               <option key={size} value={size}>
@@ -72,7 +72,7 @@ export function PaginationControls({
           {page > 1 && (
             <Link
               href={hrefForPage(page - 1)}
-              className="rounded-md px-2 py-1 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="rounded-md px-2 py-1 text-sm font-medium text-muted hover:bg-surface-sunken"
             >
               Previous
             </Link>
@@ -83,8 +83,8 @@ export function PaginationControls({
               href={hrefForPage(n)}
               className={
                 n === page
-                  ? "rounded-md bg-zinc-900 px-3 py-1 text-sm font-medium text-white dark:bg-zinc-100 dark:text-zinc-900"
-                  : "rounded-md px-3 py-1 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+                  ? "rounded-md bg-primary px-3 py-1 text-sm font-medium text-primary-foreground"
+                  : "rounded-md px-3 py-1 text-sm font-medium text-muted hover:bg-surface-sunken"
               }
             >
               {n}
@@ -93,7 +93,7 @@ export function PaginationControls({
           {page < totalPages && (
             <Link
               href={hrefForPage(page + 1)}
-              className="rounded-md px-2 py-1 text-sm font-medium text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800"
+              className="rounded-md px-2 py-1 text-sm font-medium text-muted hover:bg-surface-sunken"
             >
               Next
             </Link>

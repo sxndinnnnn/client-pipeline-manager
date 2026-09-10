@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { FlowArrowIcon } from "@/components/icons";
 
 const SECTIONS = [
   {
@@ -87,38 +88,24 @@ const FLOW_STEPS = [
   "Drop it in Won or Lost when it closes - that's the end of the trail.",
 ];
 
-function FlowArrow() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      className="h-4 w-4 shrink-0 rotate-90 text-zinc-400 sm:rotate-0 dark:text-zinc-600"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M13 6l6 6-6 6" />
-    </svg>
-  );
-}
-
 function flowNodes() {
   const nodes: ReactNode[] = [];
   FLOW_STEPS.forEach((step, i) => {
     nodes.push(
       <div
         key={`step-${i}`}
-        className="flex flex-1 items-center gap-3 rounded-lg border border-zinc-200 bg-white p-3 text-left dark:border-zinc-800 dark:bg-zinc-950 sm:min-w-[9rem] sm:flex-col sm:items-center sm:text-center"
+        className="flex flex-1 items-center gap-3 rounded-lg border border-border bg-surface p-3 text-left sm:min-w-[9rem] sm:flex-col sm:items-center sm:text-center"
       >
-        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-xs font-bold text-white dark:bg-zinc-100 dark:text-zinc-900">
+        <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
           {i + 1}
         </span>
-        <p className="text-xs text-zinc-600 dark:text-zinc-400">{step}</p>
+        <p className="text-xs text-muted">{step}</p>
       </div>
     );
     if (i < FLOW_STEPS.length - 1) {
       nodes.push(
         <div key={`arrow-${i}`} className="flex justify-center">
-          <FlowArrow />
+          <FlowArrowIcon className="h-4 w-4 shrink-0 rotate-90 text-subtle sm:rotate-0" />
         </div>
       );
     }
@@ -133,10 +120,10 @@ export default function GuidePage() {
         {SECTIONS.map((section) => (
           <section
             key={section.title}
-            className="rounded-lg border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900"
+            className="rounded-lg border border-border bg-surface p-5 shadow-resting"
           >
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">
+              <h2 className="text-lg font-semibold text-foreground">
                 <span aria-hidden className="mr-1.5">
                   {section.emoji}
                 </span>
@@ -145,7 +132,7 @@ export default function GuidePage() {
               {section.href && (
                 <Link
                   href={section.href}
-                  className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+                  className="text-xs font-medium text-subtle hover:text-foreground"
                 >
                   Go There →
                 </Link>
@@ -153,7 +140,7 @@ export default function GuidePage() {
             </div>
             <div className="mt-2 flex flex-col gap-2">
               {section.body.map((paragraph, i) => (
-                <p key={i} className="text-sm text-zinc-600 dark:text-zinc-400">
+                <p key={i} className="text-sm text-muted">
                   {paragraph}
                 </p>
               ))}
@@ -162,8 +149,8 @@ export default function GuidePage() {
         ))}
       </div>
 
-      <section className="rounded-lg border border-dashed border-zinc-300 bg-zinc-50 p-5 dark:border-zinc-700 dark:bg-zinc-900">
-        <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+      <section className="rounded-lg border border-dashed border-border-strong bg-surface-sunken p-5">
+        <h2 className="text-sm font-semibold text-foreground">
           <span aria-hidden className="mr-1.5">
             🚀
           </span>

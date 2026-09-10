@@ -15,7 +15,7 @@ export function ClientTabs({ tabs, defaultTab }: { tabs: Tab[]; defaultTab?: str
 
   return (
     <div>
-      <div className="flex gap-6 border-b border-zinc-200 dark:border-zinc-800">
+      <div className="flex gap-6 border-b border-border">
         {tabs.map((tab) => (
           <button
             key={tab.key}
@@ -23,13 +23,13 @@ export function ClientTabs({ tabs, defaultTab }: { tabs: Tab[]; defaultTab?: str
             onClick={() => setActive(tab.key)}
             className={`flex items-center gap-2 border-b-2 px-1 pb-3 text-sm font-medium transition-colors ${
               active === tab.key
-                ? "border-zinc-900 text-zinc-900 dark:border-zinc-100 dark:text-zinc-50"
-                : "border-transparent text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+                ? "border-foreground text-foreground"
+                : "border-transparent text-subtle hover:text-foreground"
             }`}
           >
             {tab.label}
             {tab.count !== undefined && (
-              <span className="rounded-full bg-zinc-100 px-1.5 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+              <span className="rounded-full bg-border px-1.5 py-0.5 text-xs text-muted">
                 {tab.count}
               </span>
             )}

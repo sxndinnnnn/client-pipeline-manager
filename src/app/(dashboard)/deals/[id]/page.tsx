@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TaskCheckbox } from "@/components/task-checkbox";
 import { formatLKR } from "@/lib/currency";
 import { formatDateTime } from "@/lib/datetime";
+import { TrashIcon } from "@/components/icons";
 import {
   addActivity,
   addTask,
@@ -14,24 +15,12 @@ import {
 } from "./actions";
 
 const statusStyles: Record<string, string> = {
-  OPEN: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  WON: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
-  LOST: "bg-zinc-200 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  OPEN: "bg-primary/15 text-primary",
+  WON: "bg-success/15 text-success",
+  LOST: "bg-border text-muted",
 };
 
 const ACTIVITY_TYPES = ["note", "call", "email", "meeting"] as const;
-
-function TrashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"
-      />
-    </svg>
-  );
-}
 
 export default async function DealDetailPage({
   params,
@@ -86,14 +75,14 @@ export default async function DealDetailPage({
         {client && (
           <Link
             href={`/clients/${client.id}`}
-            className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+            className="text-sm text-subtle hover:text-foreground"
           >
             ← {client.name}
           </Link>
         )}
         <div className="mt-2 flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="break-words text-2xl font-semibold text-zinc-900 dark:text-zinc-50">
+            <h1 className="break-words text-2xl font-semibold text-foreground">
               {deal.title}
             </h1>
             <div className="mt-1 flex items-center gap-2">
@@ -102,36 +91,36 @@ export default async function DealDetailPage({
               >
                 {deal.status}
               </span>
-              <span className="text-xs text-zinc-500 dark:text-zinc-400">
+              <span className="text-xs text-subtle">
                 {stage?.name ?? "No stage"}
               </span>
               <Link
                 href="/pipeline"
-                className="text-xs text-zinc-400 hover:text-zinc-600 dark:text-zinc-500 dark:hover:text-zinc-300"
+                className="text-xs text-subtle hover:text-foreground"
               >
                 (change stage on Pipeline board)
               </Link>
             </div>
           </div>
           <details className="relative">
-            <summary className="cursor-pointer list-none rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800">
+            <summary className="cursor-pointer list-none rounded-md border border-border-strong px-3 py-1.5 text-sm font-medium text-muted hover:bg-surface-sunken">
               Edit deal
             </summary>
-            <div className="absolute right-0 z-10 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
+            <div className="absolute right-0 z-10 mt-2 w-80 max-w-[calc(100vw-2rem)] rounded-lg border border-border bg-surface p-4 shadow-floating">
               <form action={saveDeal} className="flex flex-col gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Title *
                   </label>
                   <input
                     name="title"
                     defaultValue={deal.title}
                     required
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Value (LKR)
                   </label>
                   <input
@@ -139,33 +128,33 @@ export default async function DealDetailPage({
                     type="number"
                     step="0.01"
                     defaultValue={deal.value ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Source
                   </label>
                   <input
                     name="source"
                     defaultValue={deal.source ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Expected close date
                   </label>
                   <input
                     name="expected_close_date"
                     type="date"
                     defaultValue={deal.expected_close_date ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                  className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
                 >
                   Save changes
                 </button>
@@ -175,26 +164,26 @@ export default async function DealDetailPage({
         </div>
         <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
-            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Value</dt>
-            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            <dt className="text-xs text-subtle">Value</dt>
+            <dd className="text-sm font-medium text-foreground">
               {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Source</dt>
-            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            <dt className="text-xs text-subtle">Source</dt>
+            <dd className="text-sm font-medium text-foreground">
               {deal.source ?? "-"}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Expected close</dt>
-            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            <dt className="text-xs text-subtle">Expected close</dt>
+            <dd className="text-sm font-medium text-foreground">
               {deal.expected_close_date ?? "-"}
             </dd>
           </div>
           <div>
-            <dt className="text-xs text-zinc-500 dark:text-zinc-400">Closed at</dt>
-            <dd className="text-sm font-medium text-zinc-900 dark:text-zinc-50">
+            <dt className="text-xs text-subtle">Closed at</dt>
+            <dd className="text-sm font-medium text-foreground">
               {deal.closed_at ? formatDateTime(deal.closed_at) : "-"}
             </dd>
           </div>
@@ -204,18 +193,18 @@ export default async function DealDetailPage({
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
         <section>
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Activity</h2>
+            <h2 className="text-lg font-semibold text-foreground">Activity</h2>
           </div>
 
           <form
             action={addActivityAction}
-            className="mt-3 flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+            className="mt-3 flex flex-col gap-2 rounded-lg border border-border bg-surface p-3"
           >
             <div className="flex gap-2">
               <select
                 name="type"
                 defaultValue="note"
-                className="rounded-md border border-zinc-300 px-2 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-foreground"
               >
                 {ACTIVITY_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -225,7 +214,7 @@ export default async function DealDetailPage({
               </select>
               <button
                 type="submit"
-                className="ml-auto rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
               >
                 Log activity
               </button>
@@ -235,13 +224,13 @@ export default async function DealDetailPage({
               required
               rows={2}
               placeholder="What happened?"
-              className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
             />
           </form>
 
           <div className="mt-3 flex flex-col gap-2">
             {(!activities || activities.length === 0) && (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">No activity logged yet.</p>
+              <p className="text-sm text-subtle">No activity logged yet.</p>
             )}
             {activities?.map((activity) => {
               async function deleteActivityAction() {
@@ -251,28 +240,28 @@ export default async function DealDetailPage({
               return (
                 <div
                   key={activity.id}
-                  className="rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+                  className="rounded-md border border-border bg-surface p-3"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+                    <span className="text-xs font-medium uppercase tracking-wide text-subtle">
                       {activity.type}
                     </span>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs text-zinc-400 dark:text-zinc-500">
+                      <span className="text-xs text-subtle">
                         {formatDateTime(activity.created_at)}
                       </span>
                       <form action={deleteActivityAction}>
                         <button
                           type="submit"
                           aria-label="Delete activity"
-                          className="p-3.5 text-zinc-400 hover:text-red-600 lg:p-0 dark:text-zinc-500 dark:hover:text-red-400"
+                          className="p-3.5 text-subtle hover:text-error lg:p-0"
                         >
                           <TrashIcon />
                         </button>
                       </form>
                     </div>
                   </div>
-                  <p className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
+                  <p className="mt-1 text-sm text-muted">
                     {activity.content}
                   </p>
                 </div>
@@ -282,26 +271,26 @@ export default async function DealDetailPage({
         </section>
 
         <section>
-          <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Tasks</h2>
+          <h2 className="text-lg font-semibold text-foreground">Tasks</h2>
 
           <form
             action={addTaskAction}
-            className="mt-3 flex flex-col gap-2 rounded-lg border border-zinc-200 bg-white p-3 sm:flex-row dark:border-zinc-800 dark:bg-zinc-900"
+            className="mt-3 flex flex-col gap-2 rounded-lg border border-border bg-surface p-3 sm:flex-row"
           >
             <input
               name="title"
               required
               placeholder="New task..."
-              className="w-full flex-1 rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="w-full flex-1 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
             />
             <input
               name="due_date"
               type="date"
-              className="w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm sm:w-auto dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm sm:w-auto text-foreground"
             />
             <button
               type="submit"
-              className="w-full rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 sm:w-auto dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+              className="w-full rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 sm:w-auto"
             >
               Add
             </button>
@@ -309,7 +298,7 @@ export default async function DealDetailPage({
 
           <div className="mt-3 flex flex-col gap-2">
             {(!tasks || tasks.length === 0) && (
-              <p className="text-sm text-zinc-500 dark:text-zinc-400">No tasks for this deal.</p>
+              <p className="text-sm text-subtle">No tasks for this deal.</p>
             )}
             {tasks?.map((task) => {
               async function deleteTaskAction() {
@@ -319,7 +308,7 @@ export default async function DealDetailPage({
               return (
                 <div
                   key={task.id}
-                  className="flex items-center gap-3 rounded-md border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900"
+                  className="flex items-center gap-3 rounded-md border border-border bg-surface p-3"
                 >
                   <TaskCheckbox
                     taskId={task.id}
@@ -329,15 +318,13 @@ export default async function DealDetailPage({
                   />
                   <span
                     className={`flex-1 text-sm ${
-                      task.status === "DONE"
-                        ? "text-zinc-400 line-through dark:text-zinc-500"
-                        : "text-zinc-800 dark:text-zinc-200"
+                      task.status === "DONE" ? "text-subtle line-through" : "text-foreground"
                     }`}
                   >
                     {task.title}
                   </span>
                   {task.due_date && (
-                    <span className="text-xs text-zinc-500 dark:text-zinc-400">
+                    <span className="text-xs text-subtle">
                       {task.due_date}
                     </span>
                   )}
@@ -345,7 +332,7 @@ export default async function DealDetailPage({
                     <button
                       type="submit"
                       aria-label="Delete task"
-                      className="p-3.5 text-zinc-400 hover:text-red-600 lg:p-0 dark:text-zinc-500 dark:hover:text-red-400"
+                      className="p-3.5 text-subtle hover:text-error lg:p-0"
                     >
                       <TrashIcon />
                     </button>

@@ -4,6 +4,7 @@ import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
+import { GuideIcon, ReleaseNoteIcon, SystemLogIcon } from "@/components/icons";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -11,33 +12,6 @@ const NAV_LINKS = [
   { href: "/pipeline", label: "Pipeline" },
   { href: "/tasks", label: "Tasks" },
 ];
-
-function SystemLogIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <rect x="5" y="4" width="14" height="17" rx="2" />
-      <path strokeLinecap="round" d="M9 3.5h6M9 10h6M9 14h4" />
-    </svg>
-  );
-}
-
-function ReleaseNoteIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0-4-4m4 4 4-4" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-    </svg>
-  );
-}
-
-function GuideIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M4 5.5A2.5 2.5 0 0 1 6.5 3H12v18H6.5A2.5 2.5 0 0 1 4 18.5v-13Z" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M20 5.5A2.5 2.5 0 0 0 17.5 3H12v18h5.5a2.5 2.5 0 0 0 2.5-2.5v-13Z" />
-    </svg>
-  );
-}
 
 const FOOTER_LINKS = [
   { href: "/system-log", label: "System Log", Icon: SystemLogIcon },
@@ -52,16 +26,27 @@ export default async function DashboardLayout({ children }: { children: React.Re
   } = await supabase.auth.getUser();
 
   return (
-    <div className="flex min-h-screen flex-col bg-zinc-50 dark:bg-zinc-950">
-      <header className="relative border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+    <div className="flex min-h-screen flex-col bg-surface-sunken">
+      <header className="relative border-b border-border bg-surface">
         <div className="flex items-center px-4 py-3 sm:px-6">
-          <div className="flex flex-1 items-center" />
+          <div className="flex flex-1 items-center">
+            <Link href="/dashboard" className="flex items-center gap-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src="/branding/logo-dark.webp" alt="Logistix360" className="h-7 w-auto dark:hidden" />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/branding/logo-light.webp"
+                alt="Logistix360"
+                className="hidden h-7 w-auto dark:block"
+              />
+            </Link>
+          </div>
           <nav className="hidden gap-1 lg:flex">
             {NAV_LINKS.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="rounded-full px-4 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50"
+                className="rounded-full px-4 py-2 text-sm font-medium text-muted transition-colors hover:bg-surface-sunken hover:text-foreground"
               >
                 {link.label}
               </Link>
@@ -77,13 +62,13 @@ export default async function DashboardLayout({ children }: { children: React.Re
         </div>
       </header>
       <main className="w-full flex-1 px-4 py-8 pb-20 sm:px-6">{children}</main>
-      <footer className="fixed inset-x-0 bottom-0 z-10 border-t border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
+      <footer className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface">
         <div className="flex items-center justify-center gap-4 px-2 py-3 sm:gap-8 sm:px-6">
           {FOOTER_LINKS.map(({ href, label, Icon }) => (
             <Link
               key={href}
               href={href}
-              className="flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-50"
+              className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground"
             >
               <Icon />
               {label}

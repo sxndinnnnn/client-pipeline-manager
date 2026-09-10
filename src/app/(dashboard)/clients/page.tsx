@@ -37,11 +37,11 @@ export default async function ClientsPage({
             name="q"
             defaultValue={q}
             placeholder="Search Client"
-            className="w-full max-w-sm rounded-md border border-zinc-300 px-3 py-2 text-sm dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100"
+            className="w-full max-w-sm rounded-md border border-border-strong bg-surface px-3 py-2 text-sm text-foreground"
           />
           <button
             type="submit"
-            className="rounded-md border border-zinc-300 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
+            className="rounded-md border border-border-strong px-3 py-1.5 text-sm font-medium text-muted hover:bg-surface-sunken"
           >
             Search
           </button>
@@ -50,13 +50,13 @@ export default async function ClientsPage({
       </div>
 
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">
+        <p className="text-sm text-error">
           Failed to load clients: {error.message}
         </p>
       )}
 
       {!error && clients && clients.length === 0 && (
-        <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
+        <div className="rounded-lg border border-dashed border-border-strong bg-surface p-10 text-center text-sm text-subtle">
           {q ? `No clients match "${q}".` : "No clients yet. Add your first client to get started."}
         </div>
       )}
@@ -68,15 +68,15 @@ export default async function ClientsPage({
               <Link
                 key={client.id}
                 href={`/clients/${client.id}`}
-                className="rounded-lg border border-zinc-200 bg-white p-4 shadow-sm transition hover:border-zinc-300 hover:shadow dark:border-zinc-800 dark:bg-zinc-900 dark:hover:border-zinc-700"
+                className="rounded-lg border border-border bg-surface p-4 shadow-resting transition-all hover:-translate-y-0.5 hover:border-border-strong hover:shadow-raised"
               >
-                <h2 className="font-medium text-zinc-900 dark:text-zinc-50">{client.name}</h2>
+                <h2 className="font-medium text-foreground">{client.name}</h2>
                 {client.tags && client.tags.length > 0 && (
                   <div className="mt-3 flex flex-wrap gap-1.5">
                     {client.tags.map((tag: string) => (
                       <span
                         key={tag}
-                        className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                        className="rounded-full bg-border px-2 py-0.5 text-xs text-muted"
                       >
                         {tag}
                       </span>

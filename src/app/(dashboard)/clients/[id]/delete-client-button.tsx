@@ -22,7 +22,7 @@ export function DeleteClientButton({
     >
       <button
         type="submit"
-        className="rounded-md border border-red-300 px-3 py-1.5 text-sm font-medium text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"
+        className="rounded-md border border-error/40 px-3 py-1.5 text-sm font-medium text-error hover:bg-error/10"
       >
         Delete Client
       </button>

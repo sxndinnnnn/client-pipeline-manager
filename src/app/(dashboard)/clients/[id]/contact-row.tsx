@@ -3,38 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Contact } from "@/types/database";
-
-function XIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M18 6 6 18M6 6l12 12" />
-    </svg>
-  );
-}
-
-function PencilIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z"
-      />
-    </svg>
-  );
-}
-
-function TrashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2m3 0-1 13a1 1 0 0 1-1 1H8a1 1 0 0 1-1-1L6 7"
-      />
-    </svg>
-  );
-}
+import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 
 export function ContactRow({
   contact,
@@ -66,23 +35,23 @@ export function ContactRow({
   }, [mounted]);
 
   return (
-    <tr className="border-b border-zinc-100 last:border-0 dark:border-zinc-800">
-      <td className="px-4 py-3 text-sm font-medium text-zinc-900 dark:text-zinc-50">
+    <tr className="border-b border-border last:border-0">
+      <td className="px-4 py-3 text-sm font-medium text-foreground">
         {contact.name}
       </td>
       <td className="px-4 py-3">
         {contact.role ? (
-          <span className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400">
+          <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
             {contact.role}
           </span>
         ) : (
-          <span className="text-sm text-zinc-400 dark:text-zinc-500">-</span>
+          <span className="text-sm text-subtle">-</span>
         )}
       </td>
-      <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+      <td className="px-4 py-3 text-sm text-muted">
         {contact.email || "-"}
       </td>
-      <td className="px-4 py-3 text-sm text-zinc-600 dark:text-zinc-400">
+      <td className="px-4 py-3 text-sm text-muted">
         {contact.phone || "-"}
       </td>
       <td className="px-4 py-3">
@@ -91,7 +60,7 @@ export function ContactRow({
             type="button"
             onClick={() => dialogRef.current?.showModal()}
             aria-label="Edit contact"
-            className="p-3.5 text-zinc-500 hover:text-zinc-900 lg:p-0 dark:text-zinc-400 dark:hover:text-zinc-50"
+            className="p-3.5 text-subtle hover:text-foreground lg:p-0"
           >
             <PencilIcon />
           </button>
@@ -99,7 +68,7 @@ export function ContactRow({
             type="button"
             onClick={() => onDelete()}
             aria-label="Delete contact"
-            className="p-3.5 text-red-600 hover:text-red-800 lg:p-0 dark:text-red-400 dark:hover:text-red-300"
+            className="p-3.5 text-error hover:opacity-80 lg:p-0"
           >
             <TrashIcon />
           </button>
@@ -115,16 +84,16 @@ export function ContactRow({
             }}
             className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
           >
-            <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-zinc-200 bg-white p-4 shadow-lg dark:border-zinc-800 dark:bg-zinc-900">
-              <div className="flex items-center justify-between border-b border-zinc-200 pb-3 dark:border-zinc-800">
-                <h2 className="text-sm font-semibold text-zinc-900 dark:text-zinc-50">
+            <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
+              <div className="flex items-center justify-between border-b border-border pb-3">
+                <h2 className="text-sm font-semibold text-foreground">
                   Edit Contact
                 </h2>
                 <button
                   type="button"
                   onClick={() => dialogRef.current?.close()}
                   aria-label="Close"
-                  className="p-3.5 text-zinc-400 hover:text-zinc-700 lg:p-0 dark:text-zinc-500 dark:hover:text-zinc-200"
+                  className="p-3.5 text-subtle hover:text-foreground lg:p-0"
                 >
                   <XIcon />
                 </button>
@@ -137,50 +106,50 @@ export function ContactRow({
                 className="mt-3 flex flex-col gap-3"
               >
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Name *
                   </label>
                   <input
                     name="name"
                     defaultValue={contact.name}
                     required
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Role
                   </label>
                   <input
                     name="role"
                     defaultValue={contact.role ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Email
                   </label>
                   <input
                     name="email"
                     type="email"
                     defaultValue={contact.email ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                  <label className="block text-xs font-medium text-muted">
                     Phone
                   </label>
                   <input
                     name="phone"
                     defaultValue={contact.phone ?? ""}
-                    className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="mt-1 rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+                  className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
                 >
                   Save Changes
                 </button>

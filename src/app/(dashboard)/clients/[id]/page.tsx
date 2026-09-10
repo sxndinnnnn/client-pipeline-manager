@@ -29,52 +29,12 @@ import { AddDealModal } from "./add-deal-modal";
 import { DealRow } from "./deal-row";
 import { DeleteClientButton } from "./delete-client-button";
 import type { Activity, Deal, Task } from "@/types/database";
+import { BriefcaseIcon, ChevronDownIcon, ContactIcon, ValueIcon } from "@/components/icons";
 
 function initials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
   const letters = words.slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "");
   return letters.join("") || "?";
-}
-
-function ChevronIcon() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth={2}
-      className="h-4 w-4 transition-transform group-open:rotate-180"
-    >
-      <path strokeLinecap="round" strokeLinejoin="round" d="m6 9 6 6 6-6" />
-    </svg>
-  );
-}
-
-function ContactsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
-      <circle cx="12" cy="8" r="4" />
-      <path strokeLinecap="round" d="M4 20a8 8 0 0 1 16 0" />
-    </svg>
-  );
-}
-
-function DealsIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
-      <rect x="3" y="7" width="18" height="13" rx="2" />
-      <path strokeLinecap="round" d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
-    </svg>
-  );
-}
-
-function ValueIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-5 w-5">
-      <rect x="3" y="6" width="18" height="12" rx="2" />
-      <circle cx="12" cy="12" r="2.5" />
-    </svg>
-  );
 }
 
 export default async function ClientDetailPage({
@@ -155,49 +115,49 @@ export default async function ClientDetailPage({
   }
 
   const detailsPanel = (
-    <details open className="group rounded-lg border border-zinc-200 dark:border-zinc-800">
-      <summary className="flex cursor-pointer list-none items-center justify-between rounded-t-lg bg-zinc-50 px-4 py-2.5 text-sm font-semibold text-zinc-900 dark:bg-zinc-800/60 dark:text-zinc-50">
+    <details open className="group rounded-lg border border-border">
+      <summary className="flex cursor-pointer list-none items-center justify-between rounded-t-lg bg-surface-sunken px-4 py-2.5 text-sm font-semibold text-foreground">
         Basic Details
-        <ChevronIcon />
+        <ChevronDownIcon className="h-4 w-4 transition-transform group-open:rotate-180" />
       </summary>
       <form action={saveClient} className="flex flex-col gap-4 p-4">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div>
-            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+            <label className="block text-xs font-medium text-muted">
               Name *
             </label>
             <input
               name="name"
               defaultValue={client.name}
               required
-              className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+            <label className="block text-xs font-medium text-muted">
               Industry
             </label>
             <input
               name="industry"
               defaultValue={client.industry ?? ""}
-              className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+              className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
             />
           </div>
         </div>
         <div>
-          <label className="block text-xs font-medium text-zinc-600 dark:text-zinc-400">
+          <label className="block text-xs font-medium text-muted">
             Notes
           </label>
           <textarea
             name="notes"
             defaultValue={client.notes ?? ""}
             rows={3}
-            className="mt-1 w-full rounded-md border border-zinc-300 px-2.5 py-1.5 text-sm dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-100"
+            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
           />
         </div>
         <button
           type="submit"
-          className="self-start rounded-md bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-white"
+          className="self-start rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
         >
           Save Changes
         </button>
@@ -208,27 +168,27 @@ export default async function ClientDetailPage({
   const contactsPanel = (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Contacts</h2>
+        <h2 className="text-lg font-semibold text-foreground">Contacts</h2>
         <AddContactModal addContactAction={addContactAction} />
       </div>
 
-      <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-        <table className="min-w-full divide-y divide-zinc-200 text-sm dark:divide-zinc-800">
-          <thead className="bg-zinc-50 dark:bg-zinc-950">
+      <div className="mt-3 overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-surface-sunken">
             <tr>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Full Name
               </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Role
               </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Email
               </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Phone
               </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Action
               </th>
             </tr>
@@ -238,7 +198,7 @@ export default async function ClientDetailPage({
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                  className="px-4 py-8 text-center text-sm text-subtle"
                 >
                   No contacts yet.
                 </td>
@@ -271,27 +231,27 @@ export default async function ClientDetailPage({
   const dealsPanel = (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-50">Deals</h2>
+        <h2 className="text-lg font-semibold text-foreground">Deals</h2>
         <AddDealModal createDealAction={createDealAction} />
       </div>
 
-      <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
-        <table className="min-w-full divide-y divide-zinc-200 text-sm dark:divide-zinc-800">
-          <thead className="bg-zinc-50 dark:bg-zinc-950">
+      <div className="mt-3 overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-surface-sunken">
             <tr>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Title
               </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Stage
               </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Value
               </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Status
               </th>
-              <th className="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <th className="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-subtle">
                 Action
               </th>
             </tr>
@@ -301,7 +261,7 @@ export default async function ClientDetailPage({
               <tr>
                 <td
                   colSpan={5}
-                  className="px-4 py-8 text-center text-sm text-zinc-500 dark:text-zinc-400"
+                  className="px-4 py-8 text-center text-sm text-subtle"
                 >
                   No deals yet for this client.
                 </td>
@@ -383,17 +343,17 @@ export default async function ClientDetailPage({
     <div className="flex flex-col gap-6">
       <Link
         href="/clients"
-        className="text-sm text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200"
+        className="text-sm text-subtle hover:text-foreground"
       >
         ← All Clients
       </Link>
 
-      <div className="rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-900">
+      <div className="rounded-lg border border-border bg-surface p-6 shadow-resting">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
             <ClientLogo clientId={id} logoUrl={client.logo_url} initials={initials(client.name)} />
             <div>
-              <h1 className="text-2xl font-bold text-zinc-900 dark:text-zinc-50">
+              <h1 className="text-2xl font-bold text-foreground">
                 {client.name}
               </h1>
             </div>
@@ -402,44 +362,44 @@ export default async function ClientDetailPage({
         </div>
 
         <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-          <div className="flex items-center gap-3 rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-            <span className="text-zinc-400 dark:text-zinc-500">
-              <ContactsIcon />
+          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+            <span className="text-subtle">
+              <ContactIcon />
             </span>
             <div>
-              <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{contactCount}</p>
-              <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <p className="text-lg font-bold text-foreground">{contactCount}</p>
+              <p className="text-xs uppercase tracking-wide text-subtle">
                 Contacts
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-            <span className="text-zinc-400 dark:text-zinc-500">
-              <DealsIcon />
+          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+            <span className="text-subtle">
+              <BriefcaseIcon className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">{dealCount}</p>
-              <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <p className="text-lg font-bold text-foreground">{dealCount}</p>
+              <p className="text-xs uppercase tracking-wide text-subtle">
                 Deals
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-3 rounded-lg border border-zinc-200 px-4 py-3 dark:border-zinc-800">
-            <span className="text-zinc-400 dark:text-zinc-500">
+          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+            <span className="text-subtle">
               <ValueIcon />
             </span>
             <div>
-              <p className="text-lg font-bold text-zinc-900 dark:text-zinc-50">
+              <p className="text-lg font-bold text-foreground">
                 {formatLKR(openValue)}
               </p>
-              <p className="text-xs uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs uppercase tracking-wide text-subtle">
                 Open Pipeline Value
               </p>
             </div>
           </div>
         </div>
 
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-zinc-400 dark:text-zinc-500">
+        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-subtle">
           <span>Created: {formatDate(client.created_at)}</span>
           {client.created_by_email && <span>Created By: {client.created_by_email}</span>}
           <span>Updated: {formatDate(client.updated_at)}</span>

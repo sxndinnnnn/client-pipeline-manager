@@ -46,7 +46,7 @@ export function ClientLogo({
 
   return (
     <div className="flex flex-col items-center gap-1.5">
-      <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-zinc-100 text-xl font-bold text-zinc-700 dark:bg-zinc-800 dark:text-zinc-200">
+      <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-surface-sunken text-xl font-bold text-foreground">
         {logoUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={logoUrl} alt="" className="h-full w-full object-cover" />
@@ -59,7 +59,7 @@ export function ClientLogo({
           type="button"
           onClick={() => inputRef.current?.click()}
           disabled={pending}
-          className="text-zinc-500 hover:text-zinc-900 disabled:opacity-50 dark:text-zinc-400 dark:hover:text-zinc-50"
+          className="text-subtle hover:text-foreground disabled:opacity-50"
         >
           {logoUrl ? "Change" : "Upload"}
         </button>
@@ -68,13 +68,13 @@ export function ClientLogo({
             type="button"
             onClick={handleRemove}
             disabled={pending}
-            className="text-red-600 hover:text-red-800 disabled:opacity-50 dark:text-red-400 dark:hover:text-red-300"
+            className="text-error hover:opacity-80 disabled:opacity-50"
           >
             Remove
           </button>
         )}
       </div>
-      {error && <p className="max-w-[8rem] text-center text-xs text-red-600 dark:text-red-400">{error}</p>}
+      {error && <p className="max-w-[8rem] text-center text-xs text-error">{error}</p>}
       <input
         ref={inputRef}
         type="file"

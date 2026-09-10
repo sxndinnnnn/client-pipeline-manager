@@ -18,13 +18,13 @@ export default async function PipelinePage() {
   return (
     <div className="flex flex-col gap-6">
       {error && (
-        <p className="text-sm text-red-600 dark:text-red-400">
+        <p className="text-sm text-error">
           Failed to load pipeline: {error.message}
         </p>
       )}
 
       {!error && (!stages || stages.length === 0) && (
-        <div className="rounded-lg border border-dashed border-zinc-300 bg-white p-10 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
+        <div className="rounded-lg border border-dashed border-border-strong bg-surface p-10 text-center text-sm text-subtle">
           No pipeline stages configured yet. Run the seed migration to add default stages.
         </div>
       )}
