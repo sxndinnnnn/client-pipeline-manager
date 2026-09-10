@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "@/components/mobile-nav";
+import { UserMenu } from "@/components/user-menu";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -25,16 +26,6 @@ function ReleaseNoteIcon() {
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
       <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12m0 0-4-4m4 4 4-4" />
       <path strokeLinecap="round" strokeLinejoin="round" d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" />
-    </svg>
-  );
-}
-
-function LogOutIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className="h-4 w-4">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M16 17l5-5-5-5" />
-      <path strokeLinecap="round" strokeLinejoin="round" d="M21 12H9" />
     </svg>
   );
 }
@@ -77,20 +68,10 @@ export default async function DashboardLayout({ children }: { children: React.Re
             ))}
           </nav>
           <div className="flex flex-1 items-center justify-end gap-3">
-            <span className="hidden text-sm text-zinc-500 dark:text-zinc-400 lg:block">
-              {user?.email}
-            </span>
             <ThemeToggle />
-            <form action={signOut} className="hidden lg:block">
-              <button
-                type="submit"
-                aria-label="Log out"
-                title="Log out"
-                className="flex h-[34px] w-[34px] items-center justify-center rounded-md border border-zinc-300 text-zinc-600 hover:bg-zinc-100 dark:border-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-800"
-              >
-                <LogOutIcon />
-              </button>
-            </form>
+            <div className="hidden lg:block">
+              <UserMenu email={user?.email ?? ""} signOutAction={signOut} />
+            </div>
             <MobileNav links={NAV_LINKS} userEmail={user?.email} signOutAction={signOut} />
           </div>
         </div>
