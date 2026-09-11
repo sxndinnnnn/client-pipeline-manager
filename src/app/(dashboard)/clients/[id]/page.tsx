@@ -29,7 +29,14 @@ import { AddDealModal } from "./add-deal-modal";
 import { DealRow } from "./deal-row";
 import { DeleteClientButton } from "./delete-client-button";
 import type { Activity, Deal, Task } from "@/types/database";
-import { BriefcaseIcon, ChevronDownIcon, ContactIcon, ValueIcon } from "@/components/icons";
+import {
+  BriefcaseIcon,
+  CheckCircleIcon,
+  ChevronDownIcon,
+  ContactIcon,
+  TrendingDownIcon,
+  ValueIcon,
+} from "@/components/icons";
 
 function initials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
@@ -65,6 +72,12 @@ export default async function ClientDetailPage({
   const dealCount = deals?.length ?? 0;
   const openValue = (deals ?? [])
     .filter((d) => d.status === "OPEN")
+    .reduce((sum, d) => sum + (Number(d.value) || 0), 0);
+  const wonValue = (deals ?? [])
+    .filter((d) => d.status === "WON")
+    .reduce((sum, d) => sum + (Number(d.value) || 0), 0);
+  const lostValue = (deals ?? [])
+    .filter((d) => d.status === "LOST")
     .reduce((sum, d) => sum + (Number(d.value) || 0), 0);
 
   const dealIds = (deals ?? []).map((d) => d.id);
@@ -361,7 +374,7 @@ export default async function ClientDetailPage({
           <DeleteClientButton clientName={client.name} onDelete={deleteClientAction} />
         </div>
 
-        <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
             <span className="text-subtle">
               <ContactIcon />
@@ -394,6 +407,32 @@ export default async function ClientDetailPage({
               </p>
               <p className="text-xs uppercase tracking-wide text-subtle">
                 Open Pipeline Value
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+            <span className="text-success">
+              <CheckCircleIcon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-lg font-bold text-foreground">
+                {formatLKR(wonValue)}
+              </p>
+              <p className="text-xs uppercase tracking-wide text-subtle">
+                Won Pipeline Value
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+            <span className="text-error">
+              <TrendingDownIcon className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-lg font-bold text-foreground">
+                {formatLKR(lostValue)}
+              </p>
+              <p className="text-xs uppercase tracking-wide text-subtle">
+                Lost Pipeline Value
               </p>
             </div>
           </div>
