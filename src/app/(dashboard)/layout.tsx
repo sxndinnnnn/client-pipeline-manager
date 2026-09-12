@@ -4,7 +4,7 @@ import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
-import { GuideIcon, ReleaseNoteIcon, SystemLogIcon } from "@/components/icons";
+import { ReleaseNoteIcon, SystemLogIcon } from "@/components/icons";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -17,7 +17,6 @@ const NAV_LINKS = [
 const FOOTER_LINKS = [
   { href: "/system-log", label: "System Log", Icon: SystemLogIcon },
   { href: "/release-note", label: "Release Note", Icon: ReleaseNoteIcon },
-  { href: "/guide", label: "Guide", Icon: GuideIcon },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
