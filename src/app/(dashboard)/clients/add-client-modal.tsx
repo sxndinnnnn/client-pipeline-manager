@@ -66,7 +66,7 @@ export function AddClientModal({ industries }: { industries: Industry[] }) {
                 defaultValue=""
                 className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
               >
-                <option value="">Select an industry</option>
+                <option value="">Select An Industry</option>
                 {industries.map((industry) => (
                   <option key={industry.id} value={industry.name}>
                     {industry.name}
