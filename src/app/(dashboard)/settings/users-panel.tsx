@@ -2,10 +2,10 @@
 
 import { useRef, useState } from "react";
 import { formatDateTime } from "@/lib/datetime";
-import { TrashIcon, XIcon } from "@/components/icons";
-import { inviteUser, removeUser, type SettingsUser } from "./users-actions";
+import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
+import { removeUser, updateUserProfile, type SettingsUser } from "./users-actions";
 
-function InviteUserModal() {
+function EditProfileModal({ user }: { user: SettingsUser }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -14,9 +14,10 @@ function InviteUserModal() {
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+        aria-label="Edit profile"
+        className="p-3.5 text-subtle hover:text-foreground lg:p-0"
       >
-        + Invite User
+        <PencilIcon />
       </button>
       <dialog
         ref={dialogRef}
@@ -27,7 +28,7 @@ function InviteUserModal() {
       >
         <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-4 shadow-floating">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-sm font-semibold text-foreground">Invite User</h2>
+            <h2 className="text-sm font-semibold text-foreground">Edit Profile</h2>
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
@@ -41,32 +42,36 @@ function InviteUserModal() {
             action={async (formData) => {
               try {
                 setError(null);
-                await inviteUser(formData);
+                await updateUserProfile(user.id, formData);
                 dialogRef.current?.close();
               } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to invite user");
+                setError(err instanceof Error ? err.message : "Failed to update profile");
               }
             }}
             className="mt-3 flex flex-col gap-3"
           >
             <div>
-              <label className="block text-xs font-medium text-muted">Email *</label>
+              <label className="block text-xs font-medium text-muted">Name</label>
               <input
-                name="email"
-                type="email"
-                required
+                name="name"
+                defaultValue={user.name ?? ""}
                 className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
               />
             </div>
-            <p className="text-xs text-subtle">
-              Sends an email invite with a link to set a password and sign in.
-            </p>
+            <div>
+              <label className="block text-xs font-medium text-muted">Position</label>
+              <input
+                name="position"
+                defaultValue={user.position ?? ""}
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              />
+            </div>
             {error && <p className="text-xs text-error">{error}</p>}
             <button
               type="submit"
               className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Send Invite
+              Save Changes
             </button>
           </form>
         </div>
@@ -86,12 +91,8 @@ export function UsersPanel({
 }) {
   return (
     <section>
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <h2 className="text-lg font-semibold text-foreground">Users</h2>
-          <p className="text-sm text-subtle">Who can sign in to Pipeline Manager.</p>
-        </div>
-        {!error && <InviteUserModal />}
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Users</h2>
       </div>
 
       {error && (
@@ -105,6 +106,12 @@ export function UsersPanel({
           <table className="min-w-full divide-y divide-border text-sm">
             <thead className="bg-surface-sunken">
               <tr>
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                  Name
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                  Position
+                </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                   Email
                 </th>
@@ -122,7 +129,7 @@ export function UsersPanel({
             <tbody>
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="px-4 py-8 text-center text-sm text-subtle">
+                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-subtle">
                     No users yet.
                   </td>
                 </tr>
@@ -130,8 +137,10 @@ export function UsersPanel({
               {users.map((user) => (
                 <tr key={user.id} className="border-b border-border last:border-0">
                   <td className="px-4 py-3 text-sm font-medium text-foreground">
-                    {user.email ?? "-"}
+                    {user.name ?? "-"}
                   </td>
+                  <td className="px-4 py-3 text-sm text-muted">{user.position ?? "-"}</td>
+                  <td className="px-4 py-3 text-sm text-muted">{user.email ?? "-"}</td>
                   <td className="px-4 py-3 text-sm text-muted">
                     {formatDateTime(user.created_at)}
                   </td>
@@ -139,34 +148,35 @@ export function UsersPanel({
                     {user.last_sign_in_at ? formatDateTime(user.last_sign_in_at) : "Never"}
                   </td>
                   <td className="px-4 py-3">
-                    {user.id === currentUserId ? (
-                      <span className="text-xs text-subtle">You</span>
-                    ) : (
-                      <form
-                        action={async () => {
-                          if (
-                            !confirm(
-                              `Remove ${user.email ?? "this user"}? They will no longer be able to sign in.`
-                            )
-                          ) {
-                            return;
-                          }
-                          try {
-                            await removeUser(user.id, user.email ?? "unknown");
-                          } catch (err) {
-                            alert(err instanceof Error ? err.message : "Failed to remove user");
-                          }
-                        }}
-                      >
-                        <button
-                          type="submit"
-                          aria-label="Remove user"
-                          className="p-3.5 text-error hover:opacity-80 lg:p-0"
+                    <div className="flex gap-3">
+                      <EditProfileModal user={user} />
+                      {user.id !== currentUserId && (
+                        <form
+                          action={async () => {
+                            if (
+                              !confirm(
+                                `Remove ${user.email ?? "this user"}? They will no longer be able to sign in.`
+                              )
+                            ) {
+                              return;
+                            }
+                            try {
+                              await removeUser(user.id, user.email ?? "unknown");
+                            } catch (err) {
+                              alert(err instanceof Error ? err.message : "Failed to remove user");
+                            }
+                          }}
                         >
-                          <TrashIcon />
-                        </button>
-                      </form>
-                    )}
+                          <button
+                            type="submit"
+                            aria-label="Remove user"
+                            className="p-3.5 text-error hover:opacity-80 lg:p-0"
+                          >
+                            <TrashIcon />
+                          </button>
+                        </form>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))}

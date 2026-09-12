@@ -54,6 +54,14 @@ export interface Industry {
   created_at: string;
 }
 
+export interface UserProfile {
+  id: string;
+  name: string | null;
+  position: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface Deal {
   id: string;
   title: string;
@@ -122,6 +130,11 @@ export interface Database {
       };
       plans: { Row: Plan; Insert: Partial<Plan>; Update: Partial<Plan> };
       industries: { Row: Industry; Insert: Partial<Industry>; Update: Partial<Industry> };
+      user_profiles: {
+        Row: UserProfile;
+        Insert: Partial<UserProfile>;
+        Update: Partial<UserProfile>;
+      };
       deals: { Row: Deal; Insert: Partial<Deal>; Update: Partial<Deal> };
       activities: { Row: Activity; Insert: Partial<Activity>; Update: Partial<Activity> };
     };
