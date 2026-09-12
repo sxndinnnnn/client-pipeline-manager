@@ -72,6 +72,7 @@ export interface Deal {
   owner_id: string | null;
   plan_id: string | null;
   value: number | null;
+  value_usd: number | null;
   status: DealStatus;
   source: string | null;
   expected_close_date: string | null;

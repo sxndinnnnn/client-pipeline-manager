@@ -292,6 +292,7 @@ export async function createDeal(clientId: string, formData: FormData) {
   } = await supabase.auth.getUser();
 
   const valueRaw = formData.get("value") as string;
+  const valueUsdRaw = formData.get("value_usd") as string;
 
   const { data, error } = await supabase
     .from("deals")
@@ -302,6 +303,7 @@ export async function createDeal(clientId: string, formData: FormData) {
       owner_id: user?.id ?? null,
       plan_id: planId,
       value: valueRaw ? Number(valueRaw) : null,
+      value_usd: valueUsdRaw ? Number(valueUsdRaw) : null,
       source: (formData.get("source") as string) || null,
       expected_close_date: (formData.get("expected_close_date") as string) || null,
     })

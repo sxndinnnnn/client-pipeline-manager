@@ -14,6 +14,7 @@ export function AddDealModal({
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [value, setValue] = useState("");
+  const [usdValue, setUsdValue] = useState("");
 
   function open() {
     dialogRef.current?.showModal();
@@ -25,9 +26,8 @@ export function AddDealModal({
 
   function handlePlanChange(e: React.ChangeEvent<HTMLSelectElement>) {
     const plan = plans.find((p) => p.id === e.target.value);
-    if (plan?.amount_lkr != null) {
-      setValue(String(plan.amount_lkr));
-    }
+    setValue(plan?.amount_lkr != null ? String(plan.amount_lkr) : "");
+    setUsdValue(plan?.amount_usd != null ? String(plan.amount_usd) : "");
   }
 
   return (
@@ -85,40 +85,34 @@ export function AddDealModal({
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-subtle">The deal is named after its plan.</p>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-muted">
-                Value (LKR)
-              </label>
-              <input
-                name="value"
-                type="number"
-                step="0.01"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
-              <p className="mt-1 text-xs text-subtle">Autofills from the plan - editable.</p>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted">
-                Source
-              </label>
-              <input
-                name="source"
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted">
-                Expected Close Date
-              </label>
-              <input
-                name="expected_close_date"
-                type="date"
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-xs font-medium text-muted">
+                  Value (LKR)
+                </label>
+                <input
+                  name="value"
+                  type="number"
+                  step="0.01"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-muted">
+                  Value (USD)
+                </label>
+                <input
+                  name="value_usd"
+                  type="number"
+                  step="0.01"
+                  value={usdValue}
+                  onChange={(e) => setUsdValue(e.target.value)}
+                  className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                />
+              </div>
             </div>
             <button
               type="submit"
