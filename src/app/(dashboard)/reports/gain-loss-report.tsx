@@ -12,6 +12,7 @@ type CurrencyGainLoss = {
 export type GainLossRow = {
   id: string;
   customer: string;
+  stage: string;
   plan: string;
   lkr: CurrencyGainLoss;
   usd: CurrencyGainLoss;
@@ -24,6 +25,7 @@ export type RawWonDeal = {
   value_usd: number | null;
   closed_at: string | null;
   clients: { name: string } | null;
+  pipeline_stages: { name: string } | null;
   plans: { name: string; amount_lkr: number | null; amount_usd: number | null } | null;
 };
 
@@ -46,6 +48,7 @@ export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
   return deals.map((d) => ({
     id: d.id,
     customer: d.clients?.name ?? "-",
+    stage: d.pipeline_stages?.name ?? "-",
     plan: d.plans?.name ?? "-",
     lkr: computeGainLoss(d.plans?.amount_lkr ?? null, d.value != null ? Number(d.value) : null),
     usd: computeGainLoss(
@@ -98,6 +101,9 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
                   Customer
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                  Stage
+                </th>
+                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                   Plan
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
@@ -129,6 +135,7 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
                   <td className="px-4 py-3 text-sm font-medium text-foreground">
                     {row.customer}
                   </td>
+                  <td className="px-4 py-3 text-sm text-muted">{row.stage}</td>
                   <td className="px-4 py-3 text-sm text-muted">{row.plan}</td>
                   <td className="px-4 py-3 text-sm text-muted">
                     {row.lkr.planAmount != null ? formatLKR(row.lkr.planAmount) : "-"}
