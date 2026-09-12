@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logAudit } from "@/lib/audit-log";
+import { getUserDisplayName } from "@/lib/user-profile";
 
 export type SettingsUser = {
   id: string;
@@ -35,7 +36,7 @@ export async function listUsers(): Promise<SettingsUser[]> {
     .sort((a, b) => a.created_at.localeCompare(b.created_at));
 }
 
-export async function updateUserProfile(userId: string, formData: FormData) {
+export async function updateUserProfile(userId: string, email: string | null, formData: FormData) {
   const supabase = await createClient();
 
   const name = ((formData.get("name") as string) ?? "").trim() || null;
@@ -43,12 +44,12 @@ export async function updateUserProfile(userId: string, formData: FormData) {
 
   const { error } = await supabase
     .from("user_profiles")
-    .upsert({ id: userId, name, position, updated_at: new Date().toISOString() });
+    .upsert({ id: userId, email, name, position, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message);
 
   await logAudit({
     action: "user.profile_update",
-    description: `Updated profile for user ${userId}`,
+    description: `Updated profile for ${name ?? email ?? userId}`,
     entityType: "user_profile",
     entityId: userId,
   });
@@ -57,13 +58,15 @@ export async function updateUserProfile(userId: string, formData: FormData) {
 }
 
 export async function removeUser(userId: string, userEmail: string) {
+  const displayName = await getUserDisplayName(userId, userEmail);
+
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.deleteUser(userId);
   if (error) throw new Error(error.message);
 
   await logAudit({
     action: "user.remove",
-    description: `Removed user ${userEmail}`,
+    description: `Removed user ${displayName}`,
   });
 
   revalidatePath("/settings/users");

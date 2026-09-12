@@ -42,7 +42,7 @@ function EditProfileModal({ user }: { user: SettingsUser }) {
             action={async (formData) => {
               try {
                 setError(null);
-                await updateUserProfile(user.id, formData);
+                await updateUserProfile(user.id, user.email, formData);
                 dialogRef.current?.close();
               } catch (err) {
                 setError(err instanceof Error ? err.message : "Failed to update profile");

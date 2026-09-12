@@ -3,6 +3,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit-log";
+import { getUserDisplayName } from "@/lib/user-profile";
 
 // Only ever redirect within the app after login. redirectTo comes from a
 // client-controlled query param, so an unvalidated value here would be an
@@ -31,7 +32,7 @@ export async function signIn(_prevState: { error: string | null }, formData: For
 
   await logAudit({
     action: "login",
-    description: `${email} signed in`,
+    description: `${await getUserDisplayName(data.user?.id, data.user?.email ?? email)} signed in`,
     userId: data.user?.id ?? null,
     userEmail: data.user?.email ?? email,
   });
@@ -47,7 +48,7 @@ export async function signOut() {
 
   await logAudit({
     action: "logout",
-    description: `${user?.email ?? "A user"} signed out`,
+    description: `${await getUserDisplayName(user?.id, user?.email)} signed out`,
     userId: user?.id ?? null,
     userEmail: user?.email ?? null,
   });

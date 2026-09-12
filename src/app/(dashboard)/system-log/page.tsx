@@ -6,6 +6,7 @@ const DEFAULT_PAGE_SIZE = 25;
 
 type LogEntry = {
   id: string;
+  user_id: string | null;
   user_email: string | null;
   action: string;
   description: string;
@@ -40,13 +41,21 @@ export default async function SystemLogPage({
     count,
   } = await supabase
     .from("audit_log")
-    .select("id, user_email, action, description, ip_address, city, region, country, created_at", {
-      count: "exact",
-    })
+    .select(
+      "id, user_id, user_email, action, description, ip_address, city, region, country, created_at",
+      { count: "exact" }
+    )
     .order("created_at", { ascending: false })
     .range(from, to);
 
   const rows = (entries ?? []) as LogEntry[];
+
+  const { data: profiles } = await supabase.from("user_profiles").select("id, name");
+  const nameById = new Map((profiles ?? []).map((p) => [p.id, p.name]));
+
+  function displayName(entry: LogEntry) {
+    return (entry.user_id && nameById.get(entry.user_id)) || entry.user_email || "-";
+  }
 
   return (
     <div className="flex flex-col gap-6">
@@ -95,7 +104,7 @@ export default async function SystemLogPage({
                       {formatDateTime(entry.created_at)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2 text-foreground">
-                      {entry.user_email ?? "-"}
+                      {displayName(entry)}
                     </td>
                     <td className="whitespace-nowrap px-4 py-2">
                       <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">

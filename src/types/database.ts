@@ -56,6 +56,7 @@ export interface Industry {
 
 export interface UserProfile {
   id: string;
+  email: string | null;
   name: string | null;
   position: string | null;
   created_at: string;

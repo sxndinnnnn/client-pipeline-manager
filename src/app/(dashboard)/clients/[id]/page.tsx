@@ -59,6 +59,7 @@ export default async function ClientDetailPage({
     { data: deals },
     { data: plans },
     { data: industries },
+    { data: profiles },
   ] = await Promise.all([
     supabase.from("clients").select("*").eq("id", id).single(),
     supabase.from("contacts").select("*").eq("client_id", id).order("created_at"),
@@ -69,9 +70,17 @@ export default async function ClientDetailPage({
       .order("created_at", { ascending: false }),
     supabase.from("plans").select("*").order("name", { ascending: true }),
     supabase.from("industries").select("*").order("name", { ascending: true }),
+    supabase.from("user_profiles").select("email, name"),
   ]);
 
   if (clientError || !client) notFound();
+
+  const nameByEmail = new Map(
+    (profiles ?? []).filter((p) => p.email).map((p) => [p.email as string, p.name])
+  );
+  function displayName(email: string | null) {
+    return (email && nameByEmail.get(email)) || email;
+  }
 
   const contactCount = contacts?.length ?? 0;
   const dealCount = deals?.length ?? 0;
@@ -424,9 +433,13 @@ export default async function ClientDetailPage({
 
         <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-subtle">
           <span>Created: {formatDate(client.created_at)}</span>
-          {client.created_by_email && <span>Created By: {client.created_by_email}</span>}
+          {client.created_by_email && (
+            <span>Created By: {displayName(client.created_by_email)}</span>
+          )}
           <span>Updated: {formatDate(client.updated_at)}</span>
-          {client.updated_by_email && <span>Updated By: {client.updated_by_email}</span>}
+          {client.updated_by_email && (
+            <span>Updated By: {displayName(client.updated_by_email)}</span>
+          )}
         </div>
       </div>
 
