@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { XIcon } from "@/components/icons";
+import { isPlanActive } from "@/lib/plans";
 import type { Plan } from "@/types/database";
 
 export function AddDealModal({
@@ -87,7 +88,7 @@ export function AddDealModal({
                 className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
               >
                 <option value="">Select a plan</option>
-                {plans.map((plan) => (
+                {plans.filter((plan) => isPlanActive(plan)).map((plan) => (
                   <option key={plan.id} value={plan.id}>
                     {plan.name}
                   </option>

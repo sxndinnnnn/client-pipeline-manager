@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/currency";
 import { formatDateTime } from "@/lib/datetime";
 import { TrashIcon } from "@/components/icons";
+import { isPlanActive } from "@/lib/plans";
 import type { Plan } from "@/types/database";
 import { addActivity, deleteActivity, updateDeal } from "./actions";
 
@@ -116,11 +117,14 @@ export default async function DealDetailPage({
                     className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   >
                     <option value="">Select a plan</option>
-                    {plansList.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.name}
-                      </option>
-                    ))}
+                    {plansList
+                      .filter((p) => isPlanActive(p) || p.id === deal.plan_id)
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                          {!isPlanActive(p) ? " (Expired)" : ""}
+                        </option>
+                      ))}
                   </select>
                 </div>
                 <div>

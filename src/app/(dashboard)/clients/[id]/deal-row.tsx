@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { formatLKR } from "@/lib/currency";
 import { formatDateTime } from "@/lib/datetime";
 import { EyeIcon, TrashIcon, XIcon } from "@/components/icons";
+import { isPlanActive } from "@/lib/plans";
 import type { Activity, Deal, Plan } from "@/types/database";
 
 const statusStyles: Record<string, string> = {
@@ -167,11 +168,14 @@ export function DealRow({
                     className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   >
                     <option value="">Select a plan</option>
-                    {plans.map((plan) => (
-                      <option key={plan.id} value={plan.id}>
-                        {plan.name}
-                      </option>
-                    ))}
+                    {plans
+                      .filter((plan) => isPlanActive(plan) || plan.id === deal.plan_id)
+                      .map((plan) => (
+                        <option key={plan.id} value={plan.id}>
+                          {plan.name}
+                          {!isPlanActive(plan) ? " (Expired)" : ""}
+                        </option>
+                      ))}
                   </select>
                 </div>
                 <div>

@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import type { Plan, PlanPlatform } from "@/types/database";
 import { formatLKR } from "@/lib/currency";
+import { isPlanActive } from "@/lib/plans";
 import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { createPlan, deletePlan, updatePlan } from "./plans-actions";
 
@@ -208,6 +209,17 @@ function PlanRow({ plan }: { plan: Plan }) {
       <td className="px-4 py-3 text-sm text-muted">{formatCount(plan.shipment_count)}</td>
       <td className="px-4 py-3 text-sm text-muted">{formatValidity(plan)}</td>
       <td className="px-4 py-3">
+        {isPlanActive(plan) ? (
+          <span className="rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success">
+            Active
+          </span>
+        ) : (
+          <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
+            Expired
+          </span>
+        )}
+      </td>
+      <td className="px-4 py-3">
         <div className="flex gap-3">
           <button
             type="button"
@@ -319,6 +331,9 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
                 Validity
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Status
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Action
               </th>
             </tr>
@@ -326,7 +341,7 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
           <tbody>
             {plans.length === 0 && (
               <tr>
-                <td colSpan={8} className="px-4 py-8 text-center text-sm text-subtle">
+                <td colSpan={9} className="px-4 py-8 text-center text-sm text-subtle">
                   No plans yet.
                 </td>
               </tr>
