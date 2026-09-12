@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -26,6 +27,7 @@ import { DealRow } from "./deal-row";
 import { DeleteClientButton } from "./delete-client-button";
 import type { Activity, Deal, Industry, Plan } from "@/types/database";
 import {
+  ArrowLeftIcon,
   BriefcaseIcon,
   CheckCircleIcon,
   ChevronDownIcon,
@@ -339,6 +341,13 @@ export default async function ClientDetailPage({
       <div className="rounded-lg border border-border bg-surface p-6 shadow-resting">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
+            <Link
+              href="/clients"
+              aria-label="Back to all clients"
+              className="rounded-md p-1.5 text-subtle hover:bg-surface-sunken hover:text-foreground"
+            >
+              <ArrowLeftIcon className="h-5 w-5" />
+            </Link>
             <ClientLogo clientId={id} logoUrl={client.logo_url} initials={initials(client.name)} />
             <div>
               <h1 className="text-2xl font-bold text-foreground">
