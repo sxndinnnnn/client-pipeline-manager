@@ -26,7 +26,7 @@ function AddStageForm() {
       <input
         name="name"
         required
-        placeholder="New stage name"
+        placeholder="New Pipeline Stage Name"
         className="w-full max-w-xs rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
       />
       <button
@@ -155,7 +155,6 @@ export function StagesPanel({ stages }: { stages: PipelineStage[] }) {
     <section>
       <div>
         <h2 className="text-lg font-semibold text-foreground">Pipeline Stages</h2>
-        <p className="text-sm text-subtle">Order shown here matches the Pipeline board and Dashboard chart.</p>
       </div>
 
       <div className="mt-3">
