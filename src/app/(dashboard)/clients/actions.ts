@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit-log";
+import { getPlanName } from "@/lib/deals";
 
 function parseTags(raw: FormDataEntryValue | null): string[] {
   if (!raw || typeof raw !== "string") return [];
@@ -275,8 +276,9 @@ export async function deleteContact(clientId: string, contactId: string, contact
 export async function createDeal(clientId: string, formData: FormData) {
   const supabase = await createClient();
 
-  const title = (formData.get("title") as string)?.trim();
-  if (!title) throw new Error("Deal title is required");
+  const planId = (formData.get("plan_id") as string)?.trim();
+  if (!planId) throw new Error("Plan is required");
+  const title = await getPlanName(planId);
 
   const { data: leadStage } = await supabase
     .from("pipeline_stages")
@@ -290,7 +292,6 @@ export async function createDeal(clientId: string, formData: FormData) {
   } = await supabase.auth.getUser();
 
   const valueRaw = formData.get("value") as string;
-  const planIdRaw = formData.get("plan_id") as string;
 
   const { data, error } = await supabase
     .from("deals")
@@ -299,7 +300,7 @@ export async function createDeal(clientId: string, formData: FormData) {
       client_id: clientId,
       stage_id: leadStage?.id ?? null,
       owner_id: user?.id ?? null,
-      plan_id: planIdRaw || null,
+      plan_id: planId,
       value: valueRaw ? Number(valueRaw) : null,
       source: (formData.get("source") as string) || null,
       expected_close_date: (formData.get("expected_close_date") as string) || null,

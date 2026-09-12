@@ -149,25 +149,15 @@ export function DealRow({
               >
                 <div>
                   <label className="block text-xs font-medium text-muted">
-                    Title *
-                  </label>
-                  <input
-                    name="title"
-                    defaultValue={deal.title}
-                    required
-                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted">
-                    Plan
+                    Plan *
                   </label>
                   <select
                     name="plan_id"
+                    required
                     defaultValue={deal.plan_id ?? ""}
                     className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   >
-                    <option value="">Select a plan</option>
+                    <option value="" disabled>Select a plan</option>
                     {plans
                       .filter((plan) => isPlanActive(plan) || plan.id === deal.plan_id)
                       .map((plan) => (

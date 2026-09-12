@@ -69,31 +69,23 @@ export function AddDealModal({
           >
             <div>
               <label className="block text-xs font-medium text-muted">
-                Deal Title *
-              </label>
-              <input
-                name="title"
-                required
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted">
-                Plan
+                Plan *
               </label>
               <select
                 name="plan_id"
+                required
                 defaultValue=""
                 onChange={handlePlanChange}
                 className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
               >
-                <option value="">Select a plan</option>
+                <option value="" disabled>Select a plan</option>
                 {plans.filter((plan) => isPlanActive(plan)).map((plan) => (
                   <option key={plan.id} value={plan.id}>
                     {plan.name}
                   </option>
                 ))}
               </select>
+              <p className="mt-1 text-xs text-subtle">The deal is named after its plan.</p>
             </div>
             <div>
               <label className="block text-xs font-medium text-muted">
