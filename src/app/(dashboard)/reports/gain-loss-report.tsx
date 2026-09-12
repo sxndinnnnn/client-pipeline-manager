@@ -4,7 +4,6 @@ import { formatDate } from "@/lib/datetime";
 export type GainLossRow = {
   id: string;
   customer: string;
-  deal: string;
   plan: string;
   planAmount: number | null;
   actualAmount: number | null;
@@ -16,7 +15,6 @@ export type GainLossRow = {
 
 export type RawWonDeal = {
   id: string;
-  title: string;
   value: number | null;
   closed_at: string | null;
   clients: { name: string } | null;
@@ -42,7 +40,6 @@ export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
     return {
       id: d.id,
       customer: d.clients?.name ?? "-",
-      deal: d.title,
       plan: d.plans?.name ?? "-",
       planAmount,
       actualAmount,
@@ -58,10 +55,6 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
     <section>
       <div>
         <h2 className="text-lg font-semibold text-foreground">Gain / Loss Report</h2>
-        <p className="text-sm text-subtle">
-          Won deals compared against their plan&apos;s price - a deal that closed
-          below plan price shows the shortfall as a loss.
-        </p>
       </div>
 
       {rows.length === 0 ? (
@@ -75,9 +68,6 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
               <tr>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                   Customer
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Deal
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                   Plan
@@ -102,7 +92,6 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
                   <td className="px-4 py-3 text-sm font-medium text-foreground">
                     {row.customer}
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted">{row.deal}</td>
                   <td className="px-4 py-3 text-sm text-muted">{row.plan}</td>
                   <td className="px-4 py-3 text-sm text-muted">
                     {row.planAmount != null ? formatLKR(row.planAmount) : "-"}
