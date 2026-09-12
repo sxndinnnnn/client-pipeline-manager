@@ -366,16 +366,9 @@ export default async function ClientDetailPage({
             </Link>
             <ClientLogo clientId={id} logoUrl={client.logo_url} initials={initials(client.name)} />
             <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-2xl font-bold text-foreground">
-                  {client.name}
-                </h1>
-                {!client.is_active && (
-                  <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
-                    Inactive
-                  </span>
-                )}
-              </div>
+              <h1 className="text-2xl font-bold text-foreground">
+                {client.name}
+              </h1>
             </div>
           </div>
           <div className="flex gap-2">
