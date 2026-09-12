@@ -15,7 +15,7 @@ export default async function ReportsPage({
 
   const { data: wonDeals } = await supabase
     .from("deals")
-    .select("id, value, closed_at, clients(name), plans(name, amount_lkr)")
+    .select("id, value, value_usd, closed_at, clients(name), plans(name, amount_lkr, amount_usd)")
     .eq("status", "WON")
     .order("closed_at", { ascending: false });
 
