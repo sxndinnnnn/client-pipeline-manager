@@ -259,7 +259,6 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
           <h2 className="text-lg font-semibold text-foreground">Plans</h2>
-          <p className="text-sm text-subtle">Assigned to deals from the Add Deal form.</p>
         </div>
         <AddPlanModal />
       </div>
