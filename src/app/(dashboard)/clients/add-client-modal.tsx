@@ -74,16 +74,6 @@ export function AddClientModal({ industries }: { industries: Industry[] }) {
                 ))}
               </select>
             </div>
-            <div>
-              <label className="block text-xs font-medium text-muted">
-                Notes
-              </label>
-              <textarea
-                name="notes"
-                rows={2}
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
-            </div>
             <button
               type="submit"
               className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
