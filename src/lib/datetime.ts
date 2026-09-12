@@ -10,3 +10,10 @@ export function formatDateTime(iso: string) {
     timeZone: DISPLAY_TIME_ZONE,
   });
 }
+
+export function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString(undefined, {
+    dateStyle: "medium",
+    timeZone: DISPLAY_TIME_ZONE,
+  });
+}

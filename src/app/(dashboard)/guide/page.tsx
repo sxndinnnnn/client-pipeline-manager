@@ -54,6 +54,14 @@ const SECTIONS = [
     ],
   },
   {
+    title: "Reports",
+    emoji: "📈",
+    href: "/reports",
+    body: [
+      "A growing set of reports, one per tab - the first is Gain / Loss, which lists every Won deal against its plan's LKR price: customer, deal, plan, plan amount, actual (deal) amount, and the date it was won. A deal that closed at or above its plan price is a Gain; one that closed below it shows a Loss for the shortfall.",
+    ],
+  },
+  {
     title: "Settings",
     emoji: "⚙️",
     href: "/settings",
