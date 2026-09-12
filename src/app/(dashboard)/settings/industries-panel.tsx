@@ -125,7 +125,6 @@ export function IndustriesPanel({ industries }: { industries: Industry[] }) {
     <section>
       <div>
         <h2 className="text-lg font-semibold text-foreground">Industries</h2>
-        <p className="text-sm text-subtle">Populates the Industry dropdown on the Client form.</p>
       </div>
 
       <div className="mt-3">
