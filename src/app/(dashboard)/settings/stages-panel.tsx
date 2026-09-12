@@ -1,9 +1,23 @@
 "use client";
 
 import { useRef, useState } from "react";
-import type { PipelineStage } from "@/types/database";
+import type { PipelineStage, StageKind } from "@/types/database";
 import { ArrowDownIcon, ArrowUpIcon, PencilIcon, TrashIcon, XIcon } from "@/components/icons";
-import { createStage, deleteStage, moveStage, renameStage } from "./stages-actions";
+import { createStage, deleteStage, moveStage, updateStage } from "./stages-actions";
+
+const KIND_LABELS: Record<StageKind, string> = {
+  PENDING: "Pending",
+  IN_PROGRESS: "In Progress",
+  WON: "Won",
+  LOST: "Lost",
+};
+
+const KIND_BADGE_STYLES: Record<StageKind, string> = {
+  PENDING: "bg-border text-muted",
+  IN_PROGRESS: "bg-primary/15 text-primary",
+  WON: "bg-success/15 text-success",
+  LOST: "bg-error/15 text-error",
+};
 
 function AddStageForm() {
   const [error, setError] = useState<string | null>(null);
@@ -75,10 +89,15 @@ function StageRow({
         </button>
       </div>
       <span className="flex-1 text-foreground">{stage.name}</span>
+      <span
+        className={`rounded-full px-2 py-0.5 text-xs font-medium ${KIND_BADGE_STYLES[stage.kind]}`}
+      >
+        {KIND_LABELS[stage.kind]}
+      </span>
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        aria-label="Rename stage"
+        aria-label="Edit stage"
         className="p-3.5 text-subtle hover:text-foreground lg:p-0"
       >
         <PencilIcon />
@@ -106,7 +125,7 @@ function StageRow({
       >
         <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-4 shadow-floating">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-sm font-semibold text-foreground">Rename Stage</h2>
+            <h2 className="text-sm font-semibold text-foreground">Edit Stage</h2>
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
@@ -120,20 +139,41 @@ function StageRow({
             action={async (formData) => {
               try {
                 setError(null);
-                await renameStage(stage.id, formData);
+                await updateStage(stage.id, formData);
                 dialogRef.current?.close();
               } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to rename stage");
+                setError(err instanceof Error ? err.message : "Failed to update stage");
               }
             }}
             className="mt-3 flex flex-col gap-3"
           >
-            <input
-              name="name"
-              defaultValue={stage.name}
-              required
-              className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-            />
+            <div>
+              <label className="block text-xs font-medium text-muted">Stage Name</label>
+              <input
+                name="name"
+                defaultValue={stage.name}
+                required
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted">Status Type</label>
+              <select
+                name="kind"
+                defaultValue={stage.kind}
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              >
+                {(Object.keys(KIND_LABELS) as StageKind[]).map((kind) => (
+                  <option key={kind} value={kind}>
+                    {KIND_LABELS[kind]}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-subtle">
+                Won marks a deal moved here as won; Lost marks it lost. This drives the
+                Reports and Dashboard gain/loss figures.
+              </p>
+            </div>
             {error && <p className="text-xs text-error">{error}</p>}
             <button
               type="submit"

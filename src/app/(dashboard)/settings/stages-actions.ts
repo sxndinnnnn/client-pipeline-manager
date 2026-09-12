@@ -3,6 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit-log";
+import type { StageKind } from "@/types/database";
+
+const VALID_KINDS: StageKind[] = ["PENDING", "IN_PROGRESS", "WON", "LOST"];
+
+function parseKind(raw: FormDataEntryValue | null): StageKind {
+  return typeof raw === "string" && (VALID_KINDS as string[]).includes(raw)
+    ? (raw as StageKind)
+    : "IN_PROGRESS";
+}
 
 export async function createStage(formData: FormData) {
   const supabase = await createClient();
@@ -37,18 +46,22 @@ export async function createStage(formData: FormData) {
   revalidatePath("/settings");
 }
 
-export async function renameStage(stageId: string, formData: FormData) {
+export async function updateStage(stageId: string, formData: FormData) {
   const supabase = await createClient();
 
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Stage name is required");
+  const kind = parseKind(formData.get("kind"));
 
-  const { error } = await supabase.from("pipeline_stages").update({ name }).eq("id", stageId);
+  const { error } = await supabase
+    .from("pipeline_stages")
+    .update({ name, kind })
+    .eq("id", stageId);
   if (error) throw new Error(error.message);
 
   await logAudit({
     action: "stage.update",
-    description: `Renamed pipeline stage to "${name}"`,
+    description: `Updated pipeline stage "${name}" (${kind})`,
     entityType: "pipeline_stage",
     entityId: stageId,
   });

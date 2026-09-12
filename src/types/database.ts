@@ -1,4 +1,5 @@
 export type DealStatus = "OPEN" | "WON" | "LOST";
+export type StageKind = "PENDING" | "IN_PROGRESS" | "WON" | "LOST";
 export type ActivityType = "call" | "email" | "meeting" | "note";
 export type ChangelogCategory = "feature" | "fix" | "improvement";
 export type PlanPlatform = "GPS" | "TMS" | "DVR" | "HES" | "FMS";
@@ -30,6 +31,7 @@ export interface PipelineStage {
   id: string;
   name: string;
   sort_order: number;
+  kind: StageKind;
 }
 
 export interface Plan {
