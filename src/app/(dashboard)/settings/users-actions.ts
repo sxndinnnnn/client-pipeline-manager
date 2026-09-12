@@ -39,7 +39,7 @@ export async function inviteUser(formData: FormData) {
     description: `Invited user ${email}`,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/users");
 }
 
 export async function removeUser(userId: string, userEmail: string) {
@@ -52,5 +52,5 @@ export async function removeUser(userId: string, userEmail: string) {
     description: `Removed user ${userEmail}`,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/users");
 }

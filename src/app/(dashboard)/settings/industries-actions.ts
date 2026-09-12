@@ -25,7 +25,7 @@ export async function createIndustry(formData: FormData) {
     entityId: data.id,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/industries");
 }
 
 export async function renameIndustry(industryId: string, formData: FormData) {
@@ -44,7 +44,7 @@ export async function renameIndustry(industryId: string, formData: FormData) {
     entityId: industryId,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/industries");
 }
 
 export async function deleteIndustry(industryId: string, industryName: string) {
@@ -60,5 +60,5 @@ export async function deleteIndustry(industryId: string, industryName: string) {
     entityId: industryId,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/industries");
 }

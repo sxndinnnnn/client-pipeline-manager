@@ -43,7 +43,7 @@ export async function createStage(formData: FormData) {
     entityId: data.id,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/stages");
 }
 
 export async function updateStage(stageId: string, formData: FormData) {
@@ -66,7 +66,7 @@ export async function updateStage(stageId: string, formData: FormData) {
     entityId: stageId,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/stages");
 }
 
 export async function deleteStage(stageId: string, stageName: string) {
@@ -93,7 +93,7 @@ export async function deleteStage(stageId: string, stageName: string) {
     entityId: stageId,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/stages");
 }
 
 export async function moveStage(stageId: string, direction: "up" | "down") {
@@ -136,5 +136,5 @@ export async function moveStage(stageId: string, direction: "up" | "down") {
     .eq("id", a.id);
   if (e3) throw new Error(e3.message);
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/stages");
 }

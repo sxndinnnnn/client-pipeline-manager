@@ -50,7 +50,7 @@ export async function createPlan(formData: FormData) {
     entityId: data.id,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/plans");
 }
 
 export async function updatePlan(planId: string, formData: FormData) {
@@ -83,7 +83,7 @@ export async function updatePlan(planId: string, formData: FormData) {
     entityId: planId,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/plans");
 }
 
 export async function deletePlan(planId: string, planName: string) {
@@ -110,5 +110,5 @@ export async function deletePlan(planId: string, planName: string) {
     entityId: planId,
   });
 
-  revalidatePath("/settings");
+  revalidatePath("/settings/plans");
 }

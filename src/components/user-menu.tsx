@@ -67,7 +67,7 @@ export function UserMenu({
           <div className="my-1 border-t border-border" />
 
           <Link
-            href="/settings?tab=users"
+            href="/settings/users"
             onClick={() => setOpen(false)}
             className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-surface-sunken"
           >
