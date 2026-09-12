@@ -12,13 +12,6 @@ const KIND_LABELS: Record<StageKind, string> = {
   LOST: "Lost",
 };
 
-const KIND_BADGE_STYLES: Record<StageKind, string> = {
-  PENDING: "bg-border text-muted",
-  IN_PROGRESS: "bg-primary/15 text-primary",
-  WON: "bg-success/15 text-success",
-  LOST: "bg-error/15 text-error",
-};
-
 function AddStageForm() {
   const [error, setError] = useState<string | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
@@ -89,11 +82,6 @@ function StageRow({
         </button>
       </div>
       <span className="flex-1 text-foreground">{stage.name}</span>
-      <span
-        className={`rounded-full px-2 py-0.5 text-xs font-medium ${KIND_BADGE_STYLES[stage.kind]}`}
-      >
-        {KIND_LABELS[stage.kind]}
-      </span>
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
