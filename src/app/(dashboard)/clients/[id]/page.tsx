@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -337,13 +336,6 @@ export default async function ClientDetailPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <Link
-        href="/clients"
-        className="text-sm text-subtle hover:text-foreground"
-      >
-        ← All Clients
-      </Link>
-
       <div className="rounded-lg border border-border bg-surface p-6 shadow-resting">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-4">
