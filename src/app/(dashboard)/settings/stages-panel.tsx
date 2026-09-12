@@ -169,10 +169,6 @@ function StageRow({
                   </option>
                 ))}
               </select>
-              <p className="mt-1 text-xs text-subtle">
-                Won marks a deal moved here as won; Lost marks it lost. This drives the
-                Reports and Dashboard gain/loss figures.
-              </p>
             </div>
             {error && <p className="text-xs text-error">{error}</p>}
             <button
