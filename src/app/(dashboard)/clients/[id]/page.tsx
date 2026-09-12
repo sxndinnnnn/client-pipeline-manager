@@ -14,11 +14,8 @@ import {
 } from "../actions";
 import {
   addActivity,
-  addTask,
   deleteActivity,
   deleteDeal,
-  deleteTask,
-  setTaskStatus,
   updateDeal,
 } from "../../deals/[id]/actions";
 import { ContactRow } from "./contact-row";
@@ -28,7 +25,7 @@ import { AddContactModal } from "./add-contact-modal";
 import { AddDealModal } from "./add-deal-modal";
 import { DealRow } from "./deal-row";
 import { DeleteClientButton } from "./delete-client-button";
-import type { Activity, Deal, Task } from "@/types/database";
+import type { Activity, Deal, Industry, Plan } from "@/types/database";
 import {
   BriefcaseIcon,
   CheckCircleIcon,
@@ -55,16 +52,23 @@ export default async function ClientDetailPage({
   const { tab } = await searchParams;
   const supabase = await createClient();
 
-  const [{ data: client, error: clientError }, { data: contacts }, { data: deals }] =
-    await Promise.all([
-      supabase.from("clients").select("*").eq("id", id).single(),
-      supabase.from("contacts").select("*").eq("client_id", id).order("created_at"),
-      supabase
-        .from("deals")
-        .select("*, pipeline_stages(name)")
-        .eq("client_id", id)
-        .order("created_at", { ascending: false }),
-    ]);
+  const [
+    { data: client, error: clientError },
+    { data: contacts },
+    { data: deals },
+    { data: plans },
+    { data: industries },
+  ] = await Promise.all([
+    supabase.from("clients").select("*").eq("id", id).single(),
+    supabase.from("contacts").select("*").eq("client_id", id).order("created_at"),
+    supabase
+      .from("deals")
+      .select("*, pipeline_stages(name), plans(name)")
+      .eq("client_id", id)
+      .order("created_at", { ascending: false }),
+    supabase.from("plans").select("*").order("name", { ascending: true }),
+    supabase.from("industries").select("*").order("name", { ascending: true }),
+  ]);
 
   if (clientError || !client) notFound();
 
@@ -81,21 +85,14 @@ export default async function ClientDetailPage({
     .reduce((sum, d) => sum + (Number(d.value) || 0), 0);
 
   const dealIds = (deals ?? []).map((d) => d.id);
-  const [{ data: allActivities }, { data: allTasks }] =
+  const { data: allActivities } =
     dealIds.length > 0
-      ? await Promise.all([
-          supabase
-            .from("activities")
-            .select("*")
-            .in("deal_id", dealIds)
-            .order("created_at", { ascending: false }),
-          supabase
-            .from("tasks")
-            .select("*")
-            .in("deal_id", dealIds)
-            .order("due_date", { ascending: true, nullsFirst: false }),
-        ])
-      : [{ data: [] as Activity[] }, { data: [] as Task[] }];
+      ? await supabase
+          .from("activities")
+          .select("*")
+          .in("deal_id", dealIds)
+          .order("created_at", { ascending: false })
+      : { data: [] as Activity[] };
 
   function groupByDealId<T extends { deal_id: string }>(items: T[]): Record<string, T[]> {
     const grouped: Record<string, T[]> = {};
@@ -105,7 +102,9 @@ export default async function ClientDetailPage({
     return grouped;
   }
   const activitiesByDeal = groupByDealId(allActivities ?? []);
-  const tasksByDeal = groupByDealId(allTasks ?? []);
+
+  const plansList = (plans ?? []) as Plan[];
+  const industriesList = (industries ?? []) as Industry[];
 
   async function saveClient(formData: FormData) {
     "use server";
@@ -150,11 +149,18 @@ export default async function ClientDetailPage({
             <label className="block text-xs font-medium text-muted">
               Industry
             </label>
-            <input
+            <select
               name="industry"
               defaultValue={client.industry ?? ""}
               className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-            />
+            >
+              <option value="">Select an industry</option>
+              {industriesList.map((industry) => (
+                <option key={industry.id} value={industry.name}>
+                  {industry.name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
         <div>
@@ -245,7 +251,7 @@ export default async function ClientDetailPage({
     <section>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-foreground">Deals</h2>
-        <AddDealModal createDealAction={createDealAction} />
+        <AddDealModal createDealAction={createDealAction} plans={plansList} />
       </div>
 
       <div className="mt-3 overflow-x-auto rounded-lg border border-border">
@@ -305,44 +311,21 @@ export default async function ClientDetailPage({
                 await deleteActivity(dealId, activityId, type);
                 revalidatePath(`/clients/${id}`);
               }
-              async function addTaskAction(formData: FormData) {
-                "use server";
-                await addTask(deal.id, formData);
-                revalidatePath(`/clients/${id}`);
-              }
-              async function deleteTaskAction(
-                dealId: string,
-                taskId: string,
-                taskTitle: string
-              ) {
-                "use server";
-                await deleteTask(dealId, taskId, taskTitle);
-                revalidatePath(`/clients/${id}`);
-              }
-              async function setTaskStatusAction(
-                dealId: string,
-                taskId: string,
-                done: boolean
-              ) {
-                "use server";
-                await setTaskStatus(dealId, taskId, done);
-                revalidatePath(`/clients/${id}`);
-              }
               return (
                 <DealRow
                   key={deal.id}
                   deal={
-                    deal as unknown as Deal & { pipeline_stages: { name: string } | null }
+                    deal as unknown as Deal & {
+                      pipeline_stages: { name: string } | null;
+                      plans: { name: string } | null;
+                    }
                   }
                   activities={activitiesByDeal[deal.id] ?? []}
-                  tasks={tasksByDeal[deal.id] ?? []}
+                  plans={plansList}
                   onUpdate={updateAction}
                   onDelete={deleteAction}
                   onAddActivity={addActivityAction}
                   onDeleteActivity={deleteActivityAction}
-                  onAddTask={addTaskAction}
-                  onDeleteTask={deleteTaskAction}
-                  onSetTaskStatus={setTaskStatusAction}
                 />
               );
             })}

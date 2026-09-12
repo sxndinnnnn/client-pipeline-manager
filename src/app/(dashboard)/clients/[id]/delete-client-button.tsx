@@ -13,7 +13,7 @@ export function DeleteClientButton({
       onSubmit={(e) => {
         if (
           !confirm(
-            `Delete "${clientName}"? This also deletes all of its contacts, deals, activity, and tasks. This can't be undone.`
+            `Delete "${clientName}"? This also deletes all of its contacts, deals, and activity. This can't be undone.`
           )
         ) {
           e.preventDefault();

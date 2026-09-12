@@ -266,6 +266,7 @@ export async function createDeal(clientId: string, formData: FormData) {
   } = await supabase.auth.getUser();
 
   const valueRaw = formData.get("value") as string;
+  const planIdRaw = formData.get("plan_id") as string;
 
   const { data, error } = await supabase
     .from("deals")
@@ -274,6 +275,7 @@ export async function createDeal(clientId: string, formData: FormData) {
       client_id: clientId,
       stage_id: leadStage?.id ?? null,
       owner_id: user?.id ?? null,
+      plan_id: planIdRaw || null,
       value: valueRaw ? Number(valueRaw) : null,
       source: (formData.get("source") as string) || null,
       expected_close_date: (formData.get("expected_close_date") as string) || null,

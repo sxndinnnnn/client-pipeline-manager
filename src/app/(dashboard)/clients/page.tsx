@@ -2,6 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { AddClientModal } from "./add-client-modal";
 import { PaginationControls } from "./pagination-controls";
+import type { Industry } from "@/types/database";
 
 const DEFAULT_PAGE_SIZE = 50;
 
@@ -25,7 +26,10 @@ export default async function ClientsPage({
     .range(from, to);
   if (q) query = query.ilike("name", `%${q}%`);
 
-  const { data: clients, error, count } = await query;
+  const [{ data: clients, error, count }, { data: industries }] = await Promise.all([
+    query,
+    supabase.from("industries").select("*").order("name", { ascending: true }),
+  ]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -46,7 +50,7 @@ export default async function ClientsPage({
             Search
           </button>
         </form>
-        <AddClientModal />
+        <AddClientModal industries={(industries ?? []) as Industry[]} />
       </div>
 
       {error && (

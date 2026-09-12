@@ -13,10 +13,13 @@ export async function updateDeal(dealId: string, formData: FormData) {
 
   const valueRaw = formData.get("value") as string;
 
+  const planIdRaw = formData.get("plan_id") as string;
+
   const { error } = await supabase
     .from("deals")
     .update({
       title,
+      plan_id: planIdRaw || null,
       value: valueRaw ? Number(valueRaw) : null,
       source: (formData.get("source") as string) || null,
       expected_close_date: (formData.get("expected_close_date") as string) || null,
@@ -98,76 +101,4 @@ export async function deleteActivity(dealId: string, activityId: string, type: A
   });
 
   revalidatePath(`/deals/${dealId}`);
-}
-
-export async function addTask(dealId: string, formData: FormData) {
-  const supabase = await createClient();
-
-  const title = (formData.get("title") as string)?.trim();
-  if (!title) throw new Error("Task title is required");
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const { data, error } = await supabase
-    .from("tasks")
-    .insert({
-      deal_id: dealId,
-      assignee_id: user?.id ?? null,
-      title,
-      due_date: (formData.get("due_date") as string) || null,
-    })
-    .select("id")
-    .single();
-
-  if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "task.create",
-    description: `Added task "${title}"`,
-    entityType: "task",
-    entityId: data.id,
-  });
-
-  revalidatePath(`/deals/${dealId}`);
-  revalidatePath("/tasks");
-}
-
-export async function deleteTask(dealId: string, taskId: string, taskTitle: string) {
-  const supabase = await createClient();
-
-  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
-  if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "task.delete",
-    description: `Deleted task "${taskTitle}"`,
-    entityType: "task",
-    entityId: taskId,
-  });
-
-  revalidatePath(`/deals/${dealId}`);
-  revalidatePath("/tasks");
-}
-
-export async function setTaskStatus(dealId: string, taskId: string, done: boolean) {
-  const supabase = await createClient();
-
-  const { error } = await supabase
-    .from("tasks")
-    .update({ status: done ? "DONE" : "PENDING" })
-    .eq("id", taskId);
-
-  if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "task.status_change",
-    description: `Marked a task as ${done ? "done" : "pending"}`,
-    entityType: "task",
-    entityId: taskId,
-  });
-
-  revalidatePath(`/deals/${dealId}`);
-  revalidatePath("/tasks");
 }

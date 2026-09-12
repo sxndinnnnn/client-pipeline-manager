@@ -10,7 +10,7 @@ const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/clients", label: "Clients" },
   { href: "/pipeline", label: "Pipeline" },
-  { href: "/tasks", label: "Tasks" },
+  { href: "/settings", label: "Settings" },
 ];
 
 const FOOTER_LINKS = [

@@ -1,14 +1,18 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { XIcon } from "@/components/icons";
+import type { Plan } from "@/types/database";
 
 export function AddDealModal({
   createDealAction,
+  plans,
 }: {
   createDealAction: (formData: FormData) => Promise<void>;
+  plans: Plan[];
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const [value, setValue] = useState("");
 
   function open() {
     dialogRef.current?.showModal();
@@ -16,6 +20,13 @@ export function AddDealModal({
 
   function close() {
     dialogRef.current?.close();
+  }
+
+  function handlePlanChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const plan = plans.find((p) => p.id === e.target.value);
+    if (plan?.amount_lkr != null) {
+      setValue(String(plan.amount_lkr));
+    }
   }
 
   return (
@@ -67,14 +78,35 @@ export function AddDealModal({
             </div>
             <div>
               <label className="block text-xs font-medium text-muted">
+                Plan
+              </label>
+              <select
+                name="plan_id"
+                defaultValue=""
+                onChange={handlePlanChange}
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              >
+                <option value="">Select a plan</option>
+                {plans.map((plan) => (
+                  <option key={plan.id} value={plan.id}>
+                    {plan.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted">
                 Value (LKR)
               </label>
               <input
                 name="value"
                 type="number"
                 step="0.01"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
                 className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
               />
+              <p className="mt-1 text-xs text-subtle">Autofills from the plan - editable.</p>
             </div>
             <div>
               <label className="block text-xs font-medium text-muted">

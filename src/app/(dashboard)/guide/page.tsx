@@ -20,9 +20,9 @@ const SECTIONS = [
       "From the Clients page, use \"+ Add Client\" to create one. Opening a client shows a header card (logo or initials, contact/deal counts, open pipeline value) and three tabs - Details (an always-editable Basic Details panel), Contacts, and Deals.",
       "Click Upload under the avatar to set a client's logo, or Change / Remove once one's set.",
       "The Contacts tab lists contacts in a table - click the pencil icon to edit one, or + Add Contact to open the add form as a modal.",
-      "The Deals tab works the same way - a table of the client's deals, and + Add Deal opens the create form as a modal. Click the View icon on a row to open the deal's full detail (value, source, dates, Activity and Tasks as tabs) in a large modal, with Edit Deal and Delete Deal buttons right there - no need to leave the client page.",
+      "The Deals tab works the same way - a table of the client's deals, and + Add Deal opens the create form as a modal, where picking a Plan autofills the deal's value. Click the View icon on a row to open the deal's full detail (plan, value, source, dates, and its Activity history) in a large modal, with Edit Deal and Delete Deal buttons right there - no need to leave the client page.",
       "Deal values are shown in LKR throughout the app.",
-      "Delete Client, in the client's header, permanently deletes the client and everything under it (contacts, deals, activity, tasks) - you'll be asked to confirm first since it can't be undone.",
+      "Delete Client, in the client's header, permanently deletes the client and everything under it (contacts, deals, activity) - you'll be asked to confirm first since it can't be undone.",
     ],
   },
   {
@@ -32,25 +32,16 @@ const SECTIONS = [
     body: [
       "Every deal moves through a set of stages - Lead, Contacted, Qualified, Proposal, Negotiation, Trial, Legal, Won, Lost - shown as columns on the Pipeline board.",
       "Drag a deal's card into another column to move it. Dropping a deal into Won or Lost automatically closes it and timestamps when that happened - you don't need to update that by hand.",
-      "New deals are created from a client's page and start in the first stage (Lead). After creating one you land back on that client's Deals tab, where View opens it to log activity or add tasks.",
+      "New deals are created from a client's page and start in the first stage (Lead). After creating one you land back on that client's Deals tab, where View opens it to log activity.",
     ],
   },
   {
-    title: "Deal Details, Activity, And Tasks",
+    title: "Deal Details And Activity",
     emoji: "📋",
     href: undefined,
     body: [
-      "Open any deal (from its card on the Pipeline board, or from the client page) to edit its value, source, and expected close date.",
+      "Open any deal (from its card on the Pipeline board, or from the client page) to edit its plan, value, source, and expected close date.",
       "Log calls, emails, meetings, or notes in the Activity feed - it's a running history of everything that's happened on that deal, newest first. Click the trash icon on an entry to delete it.",
-      "Add follow-up Tasks scoped to that deal, with an optional due date. Check them off as they're done, or click the trash icon to delete one.",
-    ],
-  },
-  {
-    title: "Tasks",
-    emoji: "✅",
-    href: "/tasks",
-    body: [
-      "The Tasks page pulls together every task across all deals as cards - client on top, deal on the side, task at the bottom - split into Open Tasks and Closed Tasks tabs, sorted by due date so nothing slips. Overdue open tasks are flagged in red.",
     ],
   },
   {
@@ -58,8 +49,16 @@ const SECTIONS = [
     emoji: "📜",
     href: "/system-log",
     body: [
-      "Every meaningful action anyone takes - signing in or out, creating or editing a client/contact/deal, moving a deal's stage, logging an activity, adding or completing a task - is recorded here with who did it, when, their IP address, and where that request came from.",
+      "Every meaningful action anyone takes - signing in or out, creating or editing a client/contact/deal, moving a deal's stage, logging an activity, changing Settings master data - is recorded here with who did it, when, their IP address, and where that request came from.",
       "It's append-only: nobody can edit or delete an entry by hand, so it stays a reliable record. Shown 25 entries per page by default (adjustable), and a daily automated job keeps only the most recent 1000 entries overall.",
+    ],
+  },
+  {
+    title: "Settings",
+    emoji: "⚙️",
+    href: "/settings",
+    body: [
+      "Manage the master data the rest of the app draws from, in four tabs: Plans (name, GPS/TMS/DVR/HES/FMS platforms, USD and LKR amounts, and a validity date range - shown in the Add Deal plan dropdown), Industries (populates the Client form's Industry dropdown), Pipeline Stages (add, rename, reorder, or delete a stage - a stage with deals in it can't be deleted), and Users (invite a teammate by email or remove one's access - requires a Supabase service-role key to be configured).",
     ],
   },
   {
@@ -82,9 +81,9 @@ const SECTIONS = [
 
 const FLOW_STEPS = [
   "Add the client, and a contact there you're talking to.",
-  "Create a deal for that client - it starts in the Lead stage.",
+  "Create a deal for that client, picking a Plan - it starts in the Lead stage.",
   "Drag it across the Pipeline board as it progresses.",
-  "Log calls/emails/meetings and set follow-up tasks on the deal as you go.",
+  "Log calls/emails/meetings on the deal as you go.",
   "Drop it in Won or Lost when it closes - that's the end of the trail.",
 ];
 

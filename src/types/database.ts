@@ -1,7 +1,7 @@
 export type DealStatus = "OPEN" | "WON" | "LOST";
 export type ActivityType = "call" | "email" | "meeting" | "note";
-export type TaskStatus = "PENDING" | "DONE";
 export type ChangelogCategory = "feature" | "fix" | "improvement";
+export type PlanPlatform = "GPS" | "TMS" | "DVR" | "HES" | "FMS";
 
 export interface Client {
   id: string;
@@ -32,12 +32,31 @@ export interface PipelineStage {
   sort_order: number;
 }
 
+export interface Plan {
+  id: string;
+  name: string;
+  platforms: PlanPlatform[];
+  amount_usd: number | null;
+  amount_lkr: number | null;
+  valid_from: string | null;
+  valid_to: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Industry {
+  id: string;
+  name: string;
+  created_at: string;
+}
+
 export interface Deal {
   id: string;
   title: string;
   client_id: string;
   stage_id: string | null;
   owner_id: string | null;
+  plan_id: string | null;
   value: number | null;
   status: DealStatus;
   source: string | null;
@@ -53,16 +72,6 @@ export interface Activity {
   author_id: string | null;
   type: ActivityType;
   content: string;
-  created_at: string;
-}
-
-export interface Task {
-  id: string;
-  deal_id: string;
-  assignee_id: string | null;
-  title: string;
-  due_date: string | null;
-  status: TaskStatus;
   created_at: string;
 }
 
@@ -107,9 +116,10 @@ export interface Database {
         Insert: Partial<PipelineStage>;
         Update: Partial<PipelineStage>;
       };
+      plans: { Row: Plan; Insert: Partial<Plan>; Update: Partial<Plan> };
+      industries: { Row: Industry; Insert: Partial<Industry>; Update: Partial<Industry> };
       deals: { Row: Deal; Insert: Partial<Deal>; Update: Partial<Deal> };
       activities: { Row: Activity; Insert: Partial<Activity>; Update: Partial<Activity> };
-      tasks: { Row: Task; Insert: Partial<Task>; Update: Partial<Task> };
     };
   };
 }

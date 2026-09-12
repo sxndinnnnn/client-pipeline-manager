@@ -1,18 +1,11 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { TaskCheckbox } from "@/components/task-checkbox";
 import { formatLKR } from "@/lib/currency";
 import { formatDateTime } from "@/lib/datetime";
 import { TrashIcon } from "@/components/icons";
-import {
-  addActivity,
-  addTask,
-  deleteActivity,
-  deleteTask,
-  setTaskStatus,
-  updateDeal,
-} from "./actions";
+import type { Plan } from "@/types/database";
+import { addActivity, deleteActivity, updateDeal } from "./actions";
 
 const statusStyles: Record<string, string> = {
   OPEN: "bg-primary/15 text-primary",
@@ -30,11 +23,11 @@ export default async function DealDetailPage({
   const { id } = await params;
   const supabase = await createClient();
 
-  const [{ data: deal, error: dealError }, { data: activities }, { data: tasks }] =
+  const [{ data: deal, error: dealError }, { data: activities }, { data: plans }] =
     await Promise.all([
       supabase
         .from("deals")
-        .select("*, clients(id, name), pipeline_stages(name)")
+        .select("*, clients(id, name), pipeline_stages(name), plans(name)")
         .eq("id", id)
         .single(),
       supabase
@@ -42,10 +35,7 @@ export default async function DealDetailPage({
         .select("*")
         .eq("deal_id", id)
         .order("created_at", { ascending: false }),
-      supabase.from("tasks").select("*").eq("deal_id", id).order("due_date", {
-        ascending: true,
-        nullsFirst: false,
-      }),
+      supabase.from("plans").select("*").order("name", { ascending: true }),
     ]);
 
   if (dealError || !deal) notFound();
@@ -53,6 +43,8 @@ export default async function DealDetailPage({
   const client = (deal as unknown as { clients: { id: string; name: string } | null }).clients;
   const stage = (deal as unknown as { pipeline_stages: { name: string } | null })
     .pipeline_stages;
+  const plan = (deal as unknown as { plans: { name: string } | null }).plans;
+  const plansList = (plans ?? []) as Plan[];
 
   async function saveDeal(formData: FormData) {
     "use server";
@@ -62,11 +54,6 @@ export default async function DealDetailPage({
   async function addActivityAction(formData: FormData) {
     "use server";
     await addActivity(id, formData);
-  }
-
-  async function addTaskAction(formData: FormData) {
-    "use server";
-    await addTask(id, formData);
   }
 
   return (
@@ -121,6 +108,23 @@ export default async function DealDetailPage({
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-muted">
+                    Plan
+                  </label>
+                  <select
+                    name="plan_id"
+                    defaultValue={deal.plan_id ?? ""}
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                  >
+                    <option value="">Select a plan</option>
+                    {plansList.map((p) => (
+                      <option key={p.id} value={p.id}>
+                        {p.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted">
                     Value (LKR)
                   </label>
                   <input
@@ -162,7 +166,11 @@ export default async function DealDetailPage({
             </div>
           </details>
         </div>
-        <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+        <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-5">
+          <div>
+            <dt className="text-xs text-subtle">Plan</dt>
+            <dd className="text-sm font-medium text-foreground">{plan?.name ?? "-"}</dd>
+          </div>
           <div>
             <dt className="text-xs text-subtle">Value</dt>
             <dd className="text-sm font-medium text-foreground">
@@ -190,159 +198,82 @@ export default async function DealDetailPage({
         </dl>
       </div>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
-        <section>
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-foreground">Activity</h2>
-          </div>
+      <section className="max-w-2xl">
+        <h2 className="text-lg font-semibold text-foreground">Activity</h2>
 
-          <form
-            action={addActivityAction}
-            className="mt-3 flex flex-col gap-2 rounded-lg border border-border bg-surface p-3"
-          >
-            <div className="flex gap-2">
-              <select
-                name="type"
-                defaultValue="note"
-                className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-foreground"
-              >
-                {ACTIVITY_TYPES.map((t) => (
-                  <option key={t} value={t}>
-                    {t[0].toUpperCase() + t.slice(1)}
-                  </option>
-                ))}
-              </select>
-              <button
-                type="submit"
-                className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-              >
-                Log activity
-              </button>
-            </div>
-            <textarea
-              name="content"
-              required
-              rows={2}
-              placeholder="What happened?"
-              className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-            />
-          </form>
-
-          <div className="mt-3 flex flex-col gap-2">
-            {(!activities || activities.length === 0) && (
-              <p className="text-sm text-subtle">No activity logged yet.</p>
-            )}
-            {activities?.map((activity) => {
-              async function deleteActivityAction() {
-                "use server";
-                await deleteActivity(id, activity.id, activity.type);
-              }
-              return (
-                <div
-                  key={activity.id}
-                  className="rounded-md border border-border bg-surface p-3"
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-medium uppercase tracking-wide text-subtle">
-                      {activity.type}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-xs text-subtle">
-                        {formatDateTime(activity.created_at)}
-                      </span>
-                      <form action={deleteActivityAction}>
-                        <button
-                          type="submit"
-                          aria-label="Delete activity"
-                          className="p-3.5 text-subtle hover:text-error lg:p-0"
-                        >
-                          <TrashIcon />
-                        </button>
-                      </form>
-                    </div>
-                  </div>
-                  <p className="mt-1 text-sm text-muted">
-                    {activity.content}
-                  </p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        <section>
-          <h2 className="text-lg font-semibold text-foreground">Tasks</h2>
-
-          <form
-            action={addTaskAction}
-            className="mt-3 flex flex-col gap-2 rounded-lg border border-border bg-surface p-3 sm:flex-row"
-          >
-            <input
-              name="title"
-              required
-              placeholder="New task..."
-              className="w-full flex-1 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-            />
-            <input
-              name="due_date"
-              type="date"
-              className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm sm:w-auto text-foreground"
-            />
+        <form
+          action={addActivityAction}
+          className="mt-3 flex flex-col gap-2 rounded-lg border border-border bg-surface p-3"
+        >
+          <div className="flex gap-2">
+            <select
+              name="type"
+              defaultValue="note"
+              className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-foreground"
+            >
+              {ACTIVITY_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t[0].toUpperCase() + t.slice(1)}
+                </option>
+              ))}
+            </select>
             <button
               type="submit"
-              className="w-full rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90 sm:w-auto"
+              className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Add
+              Log activity
             </button>
-          </form>
-
-          <div className="mt-3 flex flex-col gap-2">
-            {(!tasks || tasks.length === 0) && (
-              <p className="text-sm text-subtle">No tasks for this deal.</p>
-            )}
-            {tasks?.map((task) => {
-              async function deleteTaskAction() {
-                "use server";
-                await deleteTask(id, task.id, task.title);
-              }
-              return (
-                <div
-                  key={task.id}
-                  className="flex items-center gap-3 rounded-md border border-border bg-surface p-3"
-                >
-                  <TaskCheckbox
-                    taskId={task.id}
-                    dealId={id}
-                    initialDone={task.status === "DONE"}
-                    onToggle={setTaskStatus}
-                  />
-                  <span
-                    className={`flex-1 text-sm ${
-                      task.status === "DONE" ? "text-subtle line-through" : "text-foreground"
-                    }`}
-                  >
-                    {task.title}
-                  </span>
-                  {task.due_date && (
-                    <span className="text-xs text-subtle">
-                      {task.due_date}
-                    </span>
-                  )}
-                  <form action={deleteTaskAction}>
-                    <button
-                      type="submit"
-                      aria-label="Delete task"
-                      className="p-3.5 text-subtle hover:text-error lg:p-0"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </form>
-                </div>
-              );
-            })}
           </div>
-        </section>
-      </div>
+          <textarea
+            name="content"
+            required
+            rows={2}
+            placeholder="What happened?"
+            className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+          />
+        </form>
+
+        <div className="mt-3 flex flex-col gap-2">
+          {(!activities || activities.length === 0) && (
+            <p className="text-sm text-subtle">No activity logged yet.</p>
+          )}
+          {activities?.map((activity) => {
+            async function deleteActivityAction() {
+              "use server";
+              await deleteActivity(id, activity.id, activity.type);
+            }
+            return (
+              <div
+                key={activity.id}
+                className="rounded-md border border-border bg-surface p-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium uppercase tracking-wide text-subtle">
+                    {activity.type}
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-subtle">
+                      {formatDateTime(activity.created_at)}
+                    </span>
+                    <form action={deleteActivityAction}>
+                      <button
+                        type="submit"
+                        aria-label="Delete activity"
+                        className="p-3.5 text-subtle hover:text-error lg:p-0"
+                      >
+                        <TrashIcon />
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <p className="mt-1 text-sm text-muted">
+                  {activity.content}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

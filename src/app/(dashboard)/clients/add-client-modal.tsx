@@ -3,8 +3,9 @@
 import { useRef } from "react";
 import { createClientRecord } from "./actions";
 import { XIcon } from "@/components/icons";
+import type { Industry } from "@/types/database";
 
-export function AddClientModal() {
+export function AddClientModal({ industries }: { industries: Industry[] }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   function open() {
@@ -60,10 +61,18 @@ export function AddClientModal() {
               <label className="block text-xs font-medium text-muted">
                 Industry
               </label>
-              <input
+              <select
                 name="industry"
+                defaultValue=""
                 className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
+              >
+                <option value="">Select an industry</option>
+                {industries.map((industry) => (
+                  <option key={industry.id} value={industry.name}>
+                    {industry.name}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className="block text-xs font-medium text-muted">

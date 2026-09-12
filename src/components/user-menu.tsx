@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { LogOutIcon, UsersIcon } from "@/components/icons";
 
 function getInitials(email: string) {
@@ -65,16 +66,14 @@ export function UserMenu({
 
           <div className="my-1 border-t border-border" />
 
-          <div
-            aria-disabled="true"
-            className="flex cursor-not-allowed items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium text-subtle"
+          <Link
+            href="/settings?tab=users"
+            onClick={() => setOpen(false)}
+            className="flex items-center gap-2.5 rounded-md px-2 py-2 text-sm font-medium text-foreground hover:bg-surface-sunken"
           >
             <UsersIcon />
             Manage Users
-            <span className="ml-auto rounded-full bg-border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-muted">
-              Planned
-            </span>
-          </div>
+          </Link>
 
           <div className="my-1 border-t border-border" />
 
