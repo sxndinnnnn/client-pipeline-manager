@@ -113,13 +113,13 @@ export default async function ClientsPage({
                     Deals
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                    Open
+                    Open Deals
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                    Won
+                    Won Deals
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                    Lost
+                    Lost Deals
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                     Status
