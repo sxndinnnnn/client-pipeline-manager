@@ -38,6 +38,8 @@ export interface Plan {
   platforms: PlanPlatform[];
   amount_usd: number | null;
   amount_lkr: number | null;
+  vehicle_count: number | null;
+  shipment_count: number | null;
   valid_from: string | null;
   valid_to: string | null;
   created_at: string;

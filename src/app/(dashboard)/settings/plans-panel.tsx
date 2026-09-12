@@ -12,6 +12,10 @@ function formatUSD(value: number | null) {
   return value != null ? `$${value.toLocaleString()}` : "-";
 }
 
+function formatCount(value: number | null) {
+  return value != null ? value.toLocaleString() : "-";
+}
+
 function formatValidity(plan: Plan) {
   if (!plan.valid_from && !plan.valid_to) return "-";
   return `${plan.valid_from ?? "?"} → ${plan.valid_to ?? "?"}`;
@@ -70,6 +74,30 @@ function PlanFormFields({ plan }: { plan?: Plan }) {
             type="number"
             step="0.01"
             defaultValue={plan?.amount_lkr ?? ""}
+            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+          />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs font-medium text-muted">Vehicle Count</label>
+          <input
+            name="vehicle_count"
+            type="number"
+            min="0"
+            step="1"
+            defaultValue={plan?.vehicle_count ?? ""}
+            className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+          />
+        </div>
+        <div>
+          <label className="block text-xs font-medium text-muted">Shipment Count</label>
+          <input
+            name="shipment_count"
+            type="number"
+            min="0"
+            step="1"
+            defaultValue={plan?.shipment_count ?? ""}
             className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
           />
         </div>
@@ -176,6 +204,8 @@ function PlanRow({ plan }: { plan: Plan }) {
       </td>
       <td className="px-4 py-3 text-sm text-muted">{formatUSD(plan.amount_usd)}</td>
       <td className="px-4 py-3 text-sm text-muted">{formatLKR(plan.amount_lkr ?? 0)}</td>
+      <td className="px-4 py-3 text-sm text-muted">{formatCount(plan.vehicle_count)}</td>
+      <td className="px-4 py-3 text-sm text-muted">{formatCount(plan.shipment_count)}</td>
       <td className="px-4 py-3 text-sm text-muted">{formatValidity(plan)}</td>
       <td className="px-4 py-3">
         <div className="flex gap-3">
@@ -280,6 +310,12 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
                 LKR
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Vehicles
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Shipments
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Validity
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
@@ -290,7 +326,7 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
           <tbody>
             {plans.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-8 text-center text-sm text-subtle">
+                <td colSpan={8} className="px-4 py-8 text-center text-sm text-subtle">
                   No plans yet.
                 </td>
               </tr>

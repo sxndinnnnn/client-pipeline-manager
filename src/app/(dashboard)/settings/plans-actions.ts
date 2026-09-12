@@ -33,6 +33,8 @@ export async function createPlan(formData: FormData) {
       platforms: parsePlatforms(formData),
       amount_usd: parseNumber(formData.get("amount_usd")),
       amount_lkr: parseNumber(formData.get("amount_lkr")),
+      vehicle_count: parseNumber(formData.get("vehicle_count")),
+      shipment_count: parseNumber(formData.get("shipment_count")),
       valid_from: (formData.get("valid_from") as string) || null,
       valid_to: (formData.get("valid_to") as string) || null,
     })
@@ -64,6 +66,8 @@ export async function updatePlan(planId: string, formData: FormData) {
       platforms: parsePlatforms(formData),
       amount_usd: parseNumber(formData.get("amount_usd")),
       amount_lkr: parseNumber(formData.get("amount_lkr")),
+      vehicle_count: parseNumber(formData.get("vehicle_count")),
+      shipment_count: parseNumber(formData.get("shipment_count")),
       valid_from: (formData.get("valid_from") as string) || null,
       valid_to: (formData.get("valid_to") as string) || null,
       updated_at: new Date().toISOString(),
