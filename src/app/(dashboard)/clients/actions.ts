@@ -158,6 +158,30 @@ export async function updateClientRecord(clientId: string, formData: FormData) {
   revalidatePath("/clients");
 }
 
+export async function toggleClientActive(
+  clientId: string,
+  nextActive: boolean,
+  clientName: string
+) {
+  const supabase = await createClient();
+
+  const { error } = await supabase
+    .from("clients")
+    .update({ is_active: nextActive, updated_at: new Date().toISOString() })
+    .eq("id", clientId);
+  if (error) throw new Error(error.message);
+
+  await logAudit({
+    action: nextActive ? "client.activate" : "client.deactivate",
+    description: `${nextActive ? "Activated" : "Deactivated"} client "${clientName}"`,
+    entityType: "client",
+    entityId: clientId,
+  });
+
+  revalidatePath(`/clients/${clientId}`);
+  revalidatePath("/clients");
+}
+
 export async function deleteClient(clientId: string, clientName: string) {
   const supabase = await createClient();
 

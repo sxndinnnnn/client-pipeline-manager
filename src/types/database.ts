@@ -11,6 +11,7 @@ export interface Client {
   notes: string | null;
   tags: string[];
   logo_url: string | null;
+  is_active: boolean;
   created_by_email: string | null;
   updated_by_email: string | null;
   created_at: string;

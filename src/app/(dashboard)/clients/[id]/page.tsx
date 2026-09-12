@@ -9,6 +9,7 @@ import {
   createDeal,
   deleteClient,
   deleteContact,
+  toggleClientActive,
   updateClientRecord,
   updateContact,
 } from "../actions";
@@ -25,6 +26,7 @@ import { AddContactModal } from "./add-contact-modal";
 import { AddDealModal } from "./add-deal-modal";
 import { DealRow } from "./deal-row";
 import { DeleteClientButton } from "./delete-client-button";
+import { ToggleActiveButton } from "./toggle-active-button";
 import type { Activity, Deal, Industry, Plan } from "@/types/database";
 import {
   ArrowLeftIcon,
@@ -124,6 +126,11 @@ export default async function ClientDetailPage({
   async function deleteClientAction() {
     "use server";
     await deleteClient(id, client.name);
+  }
+
+  async function toggleActiveAction() {
+    "use server";
+    await toggleClientActive(id, !client.is_active, client.name);
   }
 
   async function addContactAction(formData: FormData) {
@@ -359,12 +366,26 @@ export default async function ClientDetailPage({
             </Link>
             <ClientLogo clientId={id} logoUrl={client.logo_url} initials={initials(client.name)} />
             <div>
-              <h1 className="text-2xl font-bold text-foreground">
-                {client.name}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-foreground">
+                  {client.name}
+                </h1>
+                {!client.is_active && (
+                  <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
+                    Inactive
+                  </span>
+                )}
+              </div>
             </div>
           </div>
-          <DeleteClientButton clientName={client.name} onDelete={deleteClientAction} />
+          <div className="flex gap-2">
+            <ToggleActiveButton
+              isActive={client.is_active}
+              clientName={client.name}
+              onToggle={toggleActiveAction}
+            />
+            <DeleteClientButton clientName={client.name} onDelete={deleteClientAction} />
+          </div>
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">

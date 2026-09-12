@@ -6,6 +6,18 @@ import type { Industry } from "@/types/database";
 
 const DEFAULT_PAGE_SIZE = 50;
 
+function initials(name: string) {
+  const words = name.trim().split(/\s+/).filter(Boolean);
+  const letters = words.slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "");
+  return letters.join("") || "?";
+}
+
+function countByClient(rows: { client_id: string }[]): Map<string, number> {
+  const counts = new Map<string, number>();
+  for (const row of rows) counts.set(row.client_id, (counts.get(row.client_id) ?? 0) + 1);
+  return counts;
+}
+
 export default async function ClientsPage({
   searchParams,
 }: {
@@ -30,6 +42,23 @@ export default async function ClientsPage({
     query,
     supabase.from("industries").select("*").order("name", { ascending: true }),
   ]);
+
+  const clientIds = (clients ?? []).map((c) => c.id);
+
+  const [{ data: contactRows }, { data: dealRows }] = await Promise.all([
+    clientIds.length > 0
+      ? supabase.from("contacts").select("client_id").in("client_id", clientIds)
+      : Promise.resolve({ data: [] as { client_id: string }[] }),
+    clientIds.length > 0
+      ? supabase.from("deals").select("client_id, status").in("client_id", clientIds)
+      : Promise.resolve({ data: [] as { client_id: string; status: string }[] }),
+  ]);
+
+  const contactCountByClient = countByClient(contactRows ?? []);
+  const dealCountByClient = countByClient(dealRows ?? []);
+  const openCountByClient = countByClient((dealRows ?? []).filter((d) => d.status === "OPEN"));
+  const wonCountByClient = countByClient((dealRows ?? []).filter((d) => d.status === "WON"));
+  const lostCountByClient = countByClient((dealRows ?? []).filter((d) => d.status === "LOST"));
 
   return (
     <div className="flex flex-col gap-6">
@@ -67,28 +96,61 @@ export default async function ClientsPage({
 
       {!error && clients && clients.length > 0 && (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
-            {clients.map((client) => (
-              <Link
-                key={client.id}
-                href={`/clients/${client.id}`}
-                className="rounded-lg border border-border bg-surface p-4 shadow-resting transition-all hover:-translate-y-0.5 hover:border-border-strong hover:shadow-raised"
-              >
-                <h2 className="font-medium text-foreground">{client.name}</h2>
-                {client.tags && client.tags.length > 0 && (
-                  <div className="mt-3 flex flex-wrap gap-1.5">
-                    {client.tags.map((tag: string) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-border px-2 py-0.5 text-xs text-muted"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </Link>
-            ))}
+          <div className="overflow-x-auto rounded-lg border border-border bg-surface shadow-resting">
+            <table className="min-w-full divide-y divide-border text-sm">
+              <thead className="bg-surface-sunken">
+                <tr>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                    Client
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                    Industry
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                    Contacts
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                    Deals
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                    Open
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                    Won
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                    Lost
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {clients.map((client) => (
+                  <tr key={client.id} className="hover:bg-surface-sunken">
+                    <td className="px-4 py-3">
+                      <Link href={`/clients/${client.id}`} className="flex items-center gap-3">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded-md bg-surface-sunken text-xs font-bold text-foreground">
+                          {client.logo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={client.logo_url} alt="" className="h-full w-full object-cover" />
+                          ) : (
+                            initials(client.name)
+                          )}
+                        </div>
+                        <span className="font-medium text-foreground">{client.name}</span>
+                      </Link>
+                    </td>
+                    <td className="px-4 py-3 text-muted">{client.industry ?? "-"}</td>
+                    <td className="px-4 py-3 text-muted">
+                      {contactCountByClient.get(client.id) ?? 0}
+                    </td>
+                    <td className="px-4 py-3 text-muted">{dealCountByClient.get(client.id) ?? 0}</td>
+                    <td className="px-4 py-3 text-muted">{openCountByClient.get(client.id) ?? 0}</td>
+                    <td className="px-4 py-3 text-muted">{wonCountByClient.get(client.id) ?? 0}</td>
+                    <td className="px-4 py-3 text-muted">{lostCountByClient.get(client.id) ?? 0}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
 
           <PaginationControls total={count ?? 0} page={page} pageSize={pageSize} />
