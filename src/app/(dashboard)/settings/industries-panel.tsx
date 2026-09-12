@@ -26,7 +26,7 @@ function AddIndustryForm() {
       <input
         name="name"
         required
-        placeholder="New industry name"
+        placeholder="New Industry Name"
         className="w-full max-w-xs rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
       />
       <button
