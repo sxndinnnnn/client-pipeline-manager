@@ -129,27 +129,6 @@ export default async function DealDetailPage({
                     className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted">
-                    Source
-                  </label>
-                  <input
-                    name="source"
-                    defaultValue={deal.source ?? ""}
-                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted">
-                    Expected close date
-                  </label>
-                  <input
-                    name="expected_close_date"
-                    type="date"
-                    defaultValue={deal.expected_close_date ?? ""}
-                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                  />
-                </div>
                 <button
                   type="submit"
                   className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
@@ -160,7 +139,7 @@ export default async function DealDetailPage({
             </div>
           </details>
         </div>
-        <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-5">
+        <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
           <div>
             <dt className="text-xs text-subtle">Plan</dt>
             <dd className="text-sm font-medium text-foreground">{plan?.name ?? "-"}</dd>
@@ -169,18 +148,6 @@ export default async function DealDetailPage({
             <dt className="text-xs text-subtle">Value</dt>
             <dd className="text-sm font-medium text-foreground">
               {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-subtle">Source</dt>
-            <dd className="text-sm font-medium text-foreground">
-              {deal.source ?? "-"}
-            </dd>
-          </div>
-          <div>
-            <dt className="text-xs text-subtle">Expected close</dt>
-            <dd className="text-sm font-medium text-foreground">
-              {deal.expected_close_date ?? "-"}
             </dd>
           </div>
           <div>

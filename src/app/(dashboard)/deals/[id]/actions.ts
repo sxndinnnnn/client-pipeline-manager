@@ -21,8 +21,6 @@ export async function updateDeal(dealId: string, formData: FormData) {
       title,
       plan_id: planId,
       value: valueRaw ? Number(valueRaw) : null,
-      source: (formData.get("source") as string) || null,
-      expected_close_date: (formData.get("expected_close_date") as string) || null,
       updated_at: new Date().toISOString(),
     })
     .eq("id", dealId);

@@ -74,8 +74,6 @@ export interface Deal {
   value: number | null;
   value_usd: number | null;
   status: DealStatus;
-  source: string | null;
-  expected_close_date: string | null;
   closed_at: string | null;
   created_at: string;
   updated_at: string;

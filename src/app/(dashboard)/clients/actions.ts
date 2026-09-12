@@ -304,8 +304,6 @@ export async function createDeal(clientId: string, formData: FormData) {
       plan_id: planId,
       value: valueRaw ? Number(valueRaw) : null,
       value_usd: valueUsdRaw ? Number(valueUsdRaw) : null,
-      source: (formData.get("source") as string) || null,
-      expected_close_date: (formData.get("expected_close_date") as string) || null,
     })
     .select("id")
     .single();
