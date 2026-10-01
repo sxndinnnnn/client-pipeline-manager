@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { DownloadIcon, TrashIcon } from "@/components/icons";
-import { formatDateTime } from "@/lib/datetime";
 import { deleteAttachment } from "./attachments-actions";
 import type { ClientAttachment } from "@/types/database";
 
@@ -43,7 +42,6 @@ export function AttachmentRow({
         )}
       </td>
       <td className="px-4 py-3 text-sm text-muted">{formatBytes(attachment.size_bytes)}</td>
-      <td className="px-4 py-3 text-sm text-muted">{formatDateTime(attachment.created_at)}</td>
       <td className="px-4 py-3">
         <div className="flex gap-3">
           {downloadUrl && (

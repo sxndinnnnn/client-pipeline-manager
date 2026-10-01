@@ -323,9 +323,6 @@ export default async function ClientDetailPage({
                 Size
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Uploaded
-              </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Actions
               </th>
             </tr>
@@ -333,7 +330,7 @@ export default async function ClientDetailPage({
           <tbody>
             {attachmentCount === 0 && (
               <tr>
-                <td colSpan={4} className="px-4 py-8 text-center text-sm text-subtle">
+                <td colSpan={3} className="px-4 py-8 text-center text-sm text-subtle">
                   No attachments yet.
                 </td>
               </tr>
