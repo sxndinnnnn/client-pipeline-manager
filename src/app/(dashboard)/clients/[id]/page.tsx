@@ -227,7 +227,7 @@ export default async function ClientDetailPage({
           <thead className="bg-surface-sunken">
             <tr>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Full Name
+                Name
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Role
