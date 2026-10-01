@@ -35,7 +35,7 @@ function AddStageModal() {
       >
         <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-sm font-semibold text-foreground">Add Pipeline Stage</h2>
+            <h2 className="text-sm font-semibold text-foreground">Add Stage</h2>
             <button
               type="button"
               onClick={() => dialogRef.current?.close()}
