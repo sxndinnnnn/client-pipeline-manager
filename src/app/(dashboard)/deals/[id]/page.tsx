@@ -6,6 +6,8 @@ import { formatDateTime } from "@/lib/datetime";
 import { TrashIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
 import type { Plan } from "@/types/database";
+import { LOGGED_ACTIVITY_TYPES, splitActivities } from "@/lib/activities";
+import type { Activity } from "@/types/database";
 import { addActivity, deleteActivity, updateDeal } from "./actions";
 
 const statusStyles: Record<string, string> = {
@@ -14,7 +16,6 @@ const statusStyles: Record<string, string> = {
   LOST: "bg-border text-muted",
 };
 
-const ACTIVITY_TYPES = ["note", "call", "email", "meeting"] as const;
 
 export default async function DealDetailPage({
   params,
@@ -46,6 +47,7 @@ export default async function DealDetailPage({
     .pipeline_stages;
   const plan = (deal as unknown as { plans: { name: string } | null }).plans;
   const plansList = (plans ?? []) as Plan[];
+  const { logged, moves } = splitActivities((activities ?? []) as Activity[]);
 
   async function saveDeal(formData: FormData) {
     "use server";
@@ -170,10 +172,10 @@ export default async function DealDetailPage({
           <div className="flex gap-2">
             <select
               name="type"
-              defaultValue="note"
+              defaultValue="call"
               className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-foreground"
             >
-              {ACTIVITY_TYPES.map((t) => (
+              {LOGGED_ACTIVITY_TYPES.map((t) => (
                 <option key={t} value={t}>
                   {t[0].toUpperCase() + t.slice(1)}
                 </option>
@@ -196,10 +198,10 @@ export default async function DealDetailPage({
         </form>
 
         <div className="mt-3 flex flex-col gap-2">
-          {(!activities || activities.length === 0) && (
+          {logged.length === 0 && (
             <p className="text-sm text-subtle">No activity logged yet.</p>
           )}
-          {activities?.map((activity) => {
+          {logged.map((activity) => {
             async function deleteActivityAction() {
               "use server";
               await deleteActivity(id, activity.id);
@@ -234,6 +236,24 @@ export default async function DealDetailPage({
               </div>
             );
           })}
+        </div>
+
+        <h2 className="mt-8 text-lg font-semibold text-foreground">Pipeline Movement</h2>
+        <div className="mt-3 flex flex-col rounded-lg border border-border bg-surface px-3">
+          {moves.length === 0 && (
+            <p className="py-3 text-sm text-subtle">No pipeline movement yet.</p>
+          )}
+          {moves.map((move) => (
+            <div
+              key={move.id}
+              className="flex items-center justify-between gap-3 border-t border-border py-2 text-sm first:border-t-0"
+            >
+              <span className="text-muted">
+                Deal Moved To: <span className="font-medium text-foreground">{move.stage}</span>
+              </span>
+              <span className="text-xs text-subtle">{formatDateTime(move.created_at)}</span>
+            </div>
+          ))}
         </div>
       </section>
     </div>

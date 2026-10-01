@@ -6,6 +6,7 @@ import { formatLKR } from "@/lib/currency";
 import { formatDateTime, toColomboInputValue } from "@/lib/datetime";
 import { EyeIcon, PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
+import { LOGGED_ACTIVITY_TYPES, splitActivities } from "@/lib/activities";
 import type { Activity, Deal, Plan } from "@/types/database";
 
 const statusStyles: Record<string, string> = {
@@ -14,7 +15,6 @@ const statusStyles: Record<string, string> = {
   LOST: "bg-border text-muted",
 };
 
-const ACTIVITY_TYPES = ["note", "call", "email", "meeting"] as const;
 
 type DealWithStage = Deal & {
   pipeline_stages: { name: string } | null;
@@ -74,6 +74,7 @@ export function DealRow({
   }
 
   const stageName = deal.pipeline_stages?.name ?? "No stage";
+  const { logged, moves } = splitActivities(activities);
 
   return (
     <tr className="border-b border-border last:border-0">
@@ -279,10 +280,10 @@ export function DealRow({
                   <div className="flex gap-2">
                     <select
                       name="type"
-                      defaultValue="note"
+                      defaultValue="call"
                       className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-foreground"
                     >
-                      {ACTIVITY_TYPES.map((t) => (
+                      {LOGGED_ACTIVITY_TYPES.map((t) => (
                         <option key={t} value={t}>
                           {t[0].toUpperCase() + t.slice(1)}
                         </option>
@@ -305,12 +306,12 @@ export function DealRow({
                 </form>
 
                 <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {activities.length === 0 && (
+                  {logged.length === 0 && (
                     <p className="text-sm text-subtle">
                       No activity logged yet.
                     </p>
                   )}
-                  {activities.map((activity) => (
+                  {logged.map((activity) => (
                     <div
                       key={activity.id}
                       className="rounded-md border border-border p-3"
@@ -340,6 +341,32 @@ export function DealRow({
                   ))}
                 </div>
               </div>
+            </div>
+
+            <div className="mt-6">
+              <h3 className="border-b border-border pb-2 text-sm font-medium text-foreground">
+                Pipeline Movement
+              </h3>
+              {moves.length === 0 ? (
+                <p className="pt-3 text-sm text-subtle">No pipeline movement yet.</p>
+              ) : (
+                <ul className="pt-3">
+                  {moves.map((move) => (
+                    <li
+                      key={move.id}
+                      className="flex items-center justify-between gap-3 border-t border-border py-2 text-sm first:border-t-0"
+                    >
+                      <span className="text-muted">
+                        Deal Moved To:{" "}
+                        <span className="font-medium text-foreground">{move.stage}</span>
+                      </span>
+                      <span className="text-xs text-subtle">
+                        {formatDateTime(move.created_at)}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
           </dialog>,

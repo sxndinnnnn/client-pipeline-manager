@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { getPlanName } from "@/lib/deals";
 import type { ActivityType } from "@/types/database";
+import { LOGGED_ACTIVITY_TYPES } from "@/lib/activities";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 import { parseColomboInput } from "@/lib/datetime";
 
@@ -74,6 +75,9 @@ export async function addActivity(dealId: string, formData: FormData) {
   if (!content) throw new Error("Activity content is required");
 
   const type = formData.get("type") as ActivityType;
+  if (!(LOGGED_ACTIVITY_TYPES as readonly string[]).includes(type)) {
+    throw new Error("Choose call, email or meeting");
+  }
 
   const user = await getCurrentUser();
 
