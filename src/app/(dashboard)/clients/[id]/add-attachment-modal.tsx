@@ -13,6 +13,7 @@ export function AddAttachmentModal({ clientId }: { clientId: string }) {
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [status, setStatus] = useState<string | null>(null);
+  const [fileNames, setFileNames] = useState<string[]>([]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -60,6 +61,7 @@ export function AddAttachmentModal({ clientId }: { clientId: string }) {
 
       if (i === files.length - 1) {
         formRef.current?.reset();
+        setFileNames([]);
         dialogRef.current?.close();
         router.refresh();
       }
@@ -102,15 +104,36 @@ export function AddAttachmentModal({ clientId }: { clientId: string }) {
 
           <form ref={formRef} onSubmit={handleSubmit} className="mt-3 flex flex-col gap-3">
             <div>
-              <label className="block text-xs font-medium text-muted">Files * (up to 25 MB each)</label>
+              <label className="block text-xs font-medium text-muted">
+                Files * (Up To 25 MB Each)
+              </label>
+              {/* The browser's own file input text ("No file chosen") can't be restyled or
+                  reworded, so it is visually hidden and replaced by a button plus label. */}
               <input
+                id="attachment-files"
                 name="files"
                 type="file"
                 multiple
                 required
                 disabled={uploading}
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground file:mr-3 file:rounded file:border-0 file:bg-surface-sunken file:px-2 file:py-1 file:text-sm file:text-foreground"
+                onChange={(e) => setFileNames(Array.from(e.target.files ?? []).map((f) => f.name))}
+                className="sr-only"
               />
+              <div className="mt-1 flex items-center gap-3 rounded-md border border-border-strong bg-surface px-2.5 py-1.5">
+                <label
+                  htmlFor="attachment-files"
+                  className="shrink-0 cursor-pointer rounded bg-surface-sunken px-2 py-1 text-sm text-foreground hover:opacity-80"
+                >
+                  Choose Files
+                </label>
+                <span className="min-w-0 truncate text-sm text-foreground">
+                  {fileNames.length === 0
+                    ? "No File Chosen"
+                    : fileNames.length === 1
+                      ? fileNames[0]
+                      : `${fileNames.length} Files Selected`}
+                </span>
+              </div>
             </div>
             {status && <p className="text-xs text-muted">{status}</p>}
             {error && <p className="text-xs text-error">{error}</p>}
