@@ -3,7 +3,6 @@ import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
-import { ReleaseNoteIcon } from "@/components/icons";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 
 const NAV_LINKS = [
@@ -12,10 +11,6 @@ const NAV_LINKS = [
   { href: "/pipeline", label: "Pipeline" },
   { href: "/reports", label: "Reports" },
   { href: "/settings", label: "Settings" },
-];
-
-const FOOTER_LINKS = [
-  { href: "/release-note", label: "Release Note", Icon: ReleaseNoteIcon },
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -57,21 +52,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           </div>
         </div>
       </header>
-      <main className="w-full flex-1 px-4 py-8 pb-20 sm:px-6">{children}</main>
-      <footer className="fixed inset-x-0 bottom-0 z-10 border-t border-border bg-surface">
-        <div className="flex items-center justify-center gap-4 px-2 py-3 sm:gap-8 sm:px-6">
-          {FOOTER_LINKS.map(({ href, label, Icon }) => (
-            <Link
-              key={href}
-              href={href}
-              className="flex items-center gap-1.5 text-sm font-medium text-muted hover:text-foreground"
-            >
-              <Icon />
-              {label}
-            </Link>
-          ))}
-        </div>
-      </footer>
+      <main className="w-full flex-1 px-4 py-8 sm:px-6">{children}</main>
     </div>
   );
 }
