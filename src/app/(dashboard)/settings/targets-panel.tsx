@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import type { SalesTarget } from "@/types/database";
 import { formatLKR, formatUSD } from "@/lib/currency";
-import { TrashIcon } from "@/components/icons";
+import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { deleteTarget, saveTarget } from "./targets-actions";
 import { SubmitButton } from "@/components/submit-button";
 
@@ -62,6 +62,111 @@ function TargetForm({ defaultYear }: { defaultYear: number }) {
   );
 }
 
+const INPUT_CLASS =
+  "mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground";
+
+function TargetRow({ target }: { target: SalesTarget }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <tr className="border-b border-border last:border-0">
+      <td className="px-4 py-3 text-sm font-medium text-foreground">{target.year}</td>
+      <td className="px-4 py-3 text-sm text-muted">{formatLKR(Number(target.amount_lkr))}</td>
+      <td className="px-4 py-3 text-sm text-muted">
+        {target.amount_usd != null ? formatUSD(Number(target.amount_usd)) : "-"}
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => dialogRef.current?.showModal()}
+            aria-label={`Edit ${target.year} target`}
+            className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+          >
+            <PencilIcon />
+          </button>
+          <form
+            action={async () => {
+              const result = await deleteTarget(target.year);
+              if (result.error) alert(result.error);
+            }}
+          >
+            <button
+              type="submit"
+              aria-label={`Delete ${target.year} target`}
+              className="p-3.5 text-error hover:opacity-80 lg:p-0"
+            >
+              <TrashIcon />
+            </button>
+          </form>
+        </div>
+      </td>
+
+      <dialog
+        ref={dialogRef}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) dialogRef.current?.close();
+        }}
+        className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
+      >
+        <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-4 shadow-floating">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h2 className="text-sm font-semibold text-foreground">Edit {target.year} Target</h2>
+            <button
+              type="button"
+              onClick={() => dialogRef.current?.close()}
+              aria-label="Close"
+              className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+            >
+              <XIcon />
+            </button>
+          </div>
+          <form
+            action={async (formData) => {
+              setError(null);
+              const result = await saveTarget(formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
+            }}
+            className="mt-3 flex flex-col gap-3"
+          >
+            <input type="hidden" name="year" value={target.year} />
+            <div>
+              <label className="block text-xs font-medium text-muted">Target Revenue (LKR)</label>
+              <input
+                name="amount_lkr"
+                type="number"
+                required
+                min={0}
+                step="any"
+                defaultValue={target.amount_lkr}
+                className={INPUT_CLASS}
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted">Target Revenue (USD)</label>
+              <input
+                name="amount_usd"
+                type="number"
+                required
+                min={0}
+                step="any"
+                defaultValue={target.amount_usd ?? ""}
+                className={INPUT_CLASS}
+              />
+            </div>
+            {error && <p className="text-xs text-error">{error}</p>}
+            <SubmitButton className="self-end rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+              Save Changes
+            </SubmitButton>
+          </form>
+        </div>
+      </dialog>
+    </tr>
+  );
+}
+
 export function TargetsPanel({ targets }: { targets: SalesTarget[] }) {
   return (
     <section>
@@ -97,29 +202,7 @@ export function TargetsPanel({ targets }: { targets: SalesTarget[] }) {
               </tr>
             )}
             {targets.map((t) => (
-              <tr key={t.year} className="border-b border-border last:border-0">
-                <td className="px-4 py-3 text-sm font-medium text-foreground">{t.year}</td>
-                <td className="px-4 py-3 text-sm text-muted">{formatLKR(Number(t.amount_lkr))}</td>
-                <td className="px-4 py-3 text-sm text-muted">
-                  {t.amount_usd != null ? formatUSD(Number(t.amount_usd)) : "-"}
-                </td>
-                <td className="px-4 py-3">
-                  <form
-                    action={async () => {
-                      const result = await deleteTarget(t.year);
-                      if (result.error) alert(result.error);
-                    }}
-                  >
-                    <button
-                      type="submit"
-                      aria-label={`Delete ${t.year} target`}
-                      className="p-3.5 text-error hover:opacity-80 lg:p-0"
-                    >
-                      <TrashIcon />
-                    </button>
-                  </form>
-                </td>
-              </tr>
+              <TargetRow key={t.year} target={t} />
             ))}
           </tbody>
         </table>
