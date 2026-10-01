@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR } from "@/lib/currency";
-import { formatDateTime as formatDate } from "@/lib/datetime";
 import {
   addContact,
   createDeal,
@@ -61,7 +60,6 @@ export default async function ClientDetailPage({
     { data: deals },
     { data: plans },
     { data: industries },
-    { data: profiles },
   ] = await Promise.all([
     supabase.from("clients").select("*").eq("id", id).single(),
     supabase.from("contacts").select("*").eq("client_id", id).order("created_at"),
@@ -72,17 +70,9 @@ export default async function ClientDetailPage({
       .order("created_at", { ascending: false }),
     supabase.from("plans").select("*").order("name", { ascending: true }),
     supabase.from("industries").select("*").order("name", { ascending: true }),
-    supabase.from("user_profiles").select("email, name"),
   ]);
 
   if (clientError || !client) notFound();
-
-  const nameByEmail = new Map(
-    (profiles ?? []).filter((p) => p.email).map((p) => [p.email as string, p.name])
-  );
-  function displayName(email: string | null) {
-    return (email && nameByEmail.get(email)) || email;
-  }
 
   const contactCount = contacts?.length ?? 0;
   const dealCount = deals?.length ?? 0;
@@ -193,7 +183,7 @@ export default async function ClientDetailPage({
         </div>
         <button
           type="submit"
-          className="self-start rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+          className="self-end rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
         >
           Save Changes
         </button>
@@ -409,7 +399,7 @@ export default async function ClientDetailPage({
                 {formatLKR(openValue)}
               </p>
               <p className="text-xs uppercase tracking-wide text-subtle">
-                Open Pipeline Value
+                Open Deal Value
               </p>
             </div>
           </div>
@@ -422,7 +412,7 @@ export default async function ClientDetailPage({
                 {formatLKR(wonValue)}
               </p>
               <p className="text-xs uppercase tracking-wide text-subtle">
-                Won Pipeline Value
+                Won Deal Value
               </p>
             </div>
           </div>
@@ -435,21 +425,10 @@ export default async function ClientDetailPage({
                 {formatLKR(lostValue)}
               </p>
               <p className="text-xs uppercase tracking-wide text-subtle">
-                Lost Pipeline Value
+                Lost Deal Value
               </p>
             </div>
           </div>
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-subtle">
-          <span>Created: {formatDate(client.created_at)}</span>
-          {client.created_by_email && (
-            <span>Created By: {displayName(client.created_by_email)}</span>
-          )}
-          <span>Updated: {formatDate(client.updated_at)}</span>
-          {client.updated_by_email && (
-            <span>Updated By: {displayName(client.updated_by_email)}</span>
-          )}
         </div>
       </div>
 
