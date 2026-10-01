@@ -388,10 +388,10 @@ export function LineChart({
               >
                 <p className="mb-0.5 font-semibold">{p.label}</p>
                 {p.actual != null && (
-                  <p className="font-medium">Won revenue: {tooltipFormat(p.actual)}</p>
+                  <p className="font-medium">Won Revenue: {tooltipFormat(p.actual)}</p>
                 )}
                 {p.target != null && (
-                  <p className="font-medium">Target pace: {tooltipFormat(Math.round(p.target))}</p>
+                  <p className="font-medium">Target Revenue: {tooltipFormat(Math.round(p.target))}</p>
                 )}
               </div>
             </div>

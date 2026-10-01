@@ -109,8 +109,8 @@ export default async function DashboardPage() {
         <Panel title={`Cumulative Revenue vs Target ${m.target.year}`} icon={<TrendingUpIcon />}>
           <Legend
             items={[
-              { name: "Won revenue", dotClass: "bg-success" },
-              ...(hasTarget ? [{ name: "Target pace", dotClass: "bg-subtle" }] : []),
+              { name: "Won Revenue", dotClass: "bg-success" },
+              ...(hasTarget ? [{ name: "Target Revenue", dotClass: "bg-subtle" }] : []),
             ]}
           />
           <LineChart points={m.cumulative} tooltipFormat={formatLKR} />
