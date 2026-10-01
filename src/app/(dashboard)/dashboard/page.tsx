@@ -4,12 +4,15 @@ import { buildDashboardMetrics } from "@/lib/dashboard/metrics";
 import type { Deal, PipelineStage, SalesTarget } from "@/types/database";
 import {
   BarChartIcon,
+  BriefcaseIcon,
   CheckCircleIcon,
   CrownIcon,
-  TargetIcon,
+  LayersIcon,
   TrendingDownIcon,
   TrendingUpIcon,
+  TrophyIcon,
   UsersIcon,
+  ValueIcon,
 } from "@/components/icons";
 import {
   EmptyNote,
@@ -58,7 +61,8 @@ export default async function DashboardPage() {
           label="Open Pipeline Value"
           value={formatLKR(m.open.value.lkr)}
           secondaryValue={formatUSD(m.open.value.usd)}
-          icon={<TrendingUpIcon />}
+          icon={<ValueIcon />}
+          badgeToneKey="sky"
         />
         <StatTile
           label="Closed Pipeline Value"
@@ -78,19 +82,19 @@ export default async function DashboardPage() {
           label="Win Rate"
           value={formatPercent(m.headline.winRate)}
           secondaryValue={`${m.headline.wonCount} / ${m.headline.decidedCount} Deals`}
-          icon={<TargetIcon />}
-          badgeToneKey="good"
+          icon={<TrophyIcon />}
+          badgeToneKey="gold"
         />
       </div>
 
       {/* ---------------------------- Pipeline health ---------------------------- */}
-      <Panel title="Pipeline By Stage" icon={<BarChartIcon />}>
+      <Panel title="Pipeline By Stage" icon={<LayersIcon />} iconTone="teal">
         <StageBarChart stageRows={m.stageRows} />
       </Panel>
 
       {/* --------------------------------- Trends --------------------------------- */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <Panel title="Won vs Lost Value" icon={<BarChartIcon />}>
+        <Panel title="Won vs Lost Value" icon={<BarChartIcon />} iconTone="orange">
           <Legend
             items={[
               { name: "Won", dotClass: "bg-success" },
@@ -106,7 +110,7 @@ export default async function DashboardPage() {
             ]}
           />
         </Panel>
-        <Panel title="Cumulative Revenue vs Target" icon={<TrendingUpIcon />}>
+        <Panel title="Cumulative Revenue vs Target" icon={<TrendingUpIcon />} iconTone="good">
           <Legend
             items={[
               { name: "Won Revenue", dotClass: "bg-success" },
@@ -119,7 +123,7 @@ export default async function DashboardPage() {
 
       {/* --------------------------------- Clients --------------------------------- */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
-        <Panel title="Client Base" icon={<UsersIcon />}>
+        <Panel title="Client Base" icon={<UsersIcon />} iconTone="purple">
           <div className="grid grid-cols-2 gap-3">
             <MiniStat label="Active" value={String(m.clients.active)} tone="good" />
             <MiniStat label="Inactive" value={String(m.clients.inactive)} />
@@ -131,14 +135,14 @@ export default async function DashboardPage() {
             <MiniStat label="Total Clients" value={String(m.clients.total)} />
           </div>
         </Panel>
-        <Panel title="Top Clients By Open Value" icon={<CrownIcon />}>
+        <Panel title="Top Clients By Open Value" icon={<BriefcaseIcon />} iconTone="sky">
           {m.clients.topByOpen.length === 0 ? (
             <EmptyNote>No open deals yet.</EmptyNote>
           ) : (
             <RankedList rows={m.clients.topByOpen} href={(id) => `/clients/${id}`} />
           )}
         </Panel>
-        <Panel title="Top Clients By Won Value" icon={<CrownIcon />}>
+        <Panel title="Top Clients By Won Value" icon={<CrownIcon />} iconTone="gold">
           {m.clients.topByWon.length === 0 ? (
             <EmptyNote>No won deals yet.</EmptyNote>
           ) : (

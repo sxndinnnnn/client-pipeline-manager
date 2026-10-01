@@ -46,6 +46,12 @@ const badgeTone: Record<string, string> = {
   good: "bg-success/10 text-success",
   warning: "bg-warning/10 text-warning",
   critical: "bg-error/10 text-error",
+  // Categorical tints from the chart palette, so each widget can have its own colour.
+  sky: "bg-chart-7/10 text-chart-7",
+  purple: "bg-chart-3/10 text-chart-3",
+  gold: "bg-chart-6/10 text-chart-6",
+  teal: "bg-chart-2/10 text-chart-2",
+  orange: "bg-chart-5/10 text-chart-5",
 };
 
 /* ------------------------- Building blocks ------------------------- */
@@ -104,18 +110,20 @@ export function StatTile({
 export function Panel({
   title,
   icon,
+  iconTone = "accent",
   subtitle,
   children,
 }: {
   title: string;
   icon: React.ReactNode;
+  iconTone?: keyof typeof badgeTone;
   subtitle?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className="rounded-lg border border-border bg-surface p-4 shadow-resting">
       <div className="mb-3 flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
+        <span className={`flex h-6 w-6 items-center justify-center rounded-md ${badgeTone[iconTone]}`}>
           {icon}
         </span>
         <h2 className="text-sm font-semibold text-foreground">{title}</h2>
