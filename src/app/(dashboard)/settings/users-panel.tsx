@@ -3,10 +3,58 @@
 import { useRef, useState } from "react";
 import { formatDateTime } from "@/lib/datetime";
 import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
-import { removeUser, updateUserProfile, type SettingsUser } from "./users-actions";
+import {
+  addUser,
+  removeUser,
+  updateUser,
+  type SettingsUser,
+  type UserActionResult,
+} from "./users-actions";
 import { SubmitButton } from "@/components/submit-button";
 
-function EditProfileModal({ user }: { user: SettingsUser }) {
+const INPUT_CLASS =
+  "mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground";
+const LABEL_CLASS = "block text-xs font-medium text-muted";
+const TH_CLASS =
+  "px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle";
+
+/** Shared dialog shell for the add and edit user forms. */
+function UserDialog({
+  dialogRef,
+  title,
+  children,
+}: {
+  dialogRef: React.RefObject<HTMLDialogElement | null>;
+  title: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <dialog
+      ref={dialogRef}
+      onClick={(e) => {
+        if (e.target === dialogRef.current) dialogRef.current?.close();
+      }}
+      className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
+    >
+      <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <h2 className="text-sm font-semibold text-foreground">{title}</h2>
+          <button
+            type="button"
+            onClick={() => dialogRef.current?.close()}
+            aria-label="Close"
+            className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+          >
+            <XIcon />
+          </button>
+        </div>
+        {children}
+      </div>
+    </dialog>
+  );
+}
+
+function AddUserModal() {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -15,63 +63,115 @@ function EditProfileModal({ user }: { user: SettingsUser }) {
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
-        aria-label="Edit profile"
+        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+      >
+        + Add User
+      </button>
+      <UserDialog dialogRef={dialogRef} title="Add User">
+        <form
+          action={async (formData) => {
+            setError(null);
+            const result: UserActionResult = await addUser(formData);
+            if (result.error) setError(result.error);
+            else dialogRef.current?.close();
+          }}
+          className="mt-3 flex flex-col gap-3"
+        >
+          <div>
+            <label className={LABEL_CLASS}>Name</label>
+            <input name="name" className={INPUT_CLASS} />
+          </div>
+          <div>
+            <label className={LABEL_CLASS}>Position</label>
+            <input name="position" className={INPUT_CLASS} />
+          </div>
+          <div>
+            <label className={LABEL_CLASS}>Email *</label>
+            <input name="email" type="email" required className={INPUT_CLASS} />
+          </div>
+          <div>
+            <label className={LABEL_CLASS}>Password *</label>
+            <input
+              name="password"
+              type="text"
+              required
+              minLength={8}
+              autoComplete="off"
+              className={INPUT_CLASS}
+            />
+            <p className="mt-1 text-xs text-subtle">
+              At least 8 characters. Share it with them directly; you can reset it later from Edit.
+            </p>
+          </div>
+          {error && <p className="text-xs text-error">{error}</p>}
+          <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+            Create User
+          </SubmitButton>
+        </form>
+      </UserDialog>
+    </>
+  );
+}
+
+function EditUserModal({ user }: { user: SettingsUser }) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => dialogRef.current?.showModal()}
+        aria-label="Edit user"
         className="p-3.5 text-subtle hover:text-foreground lg:p-0"
       >
         <PencilIcon />
       </button>
-      <dialog
-        ref={dialogRef}
-        onClick={(e) => {
-          if (e.target === dialogRef.current) dialogRef.current?.close();
-        }}
-        className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
-      >
-        <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-4 shadow-floating">
-          <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-sm font-semibold text-foreground">Edit Profile</h2>
-            <button
-              type="button"
-              onClick={() => dialogRef.current?.close()}
-              aria-label="Close"
-              className="p-3.5 text-subtle hover:text-foreground lg:p-0"
-            >
-              <XIcon />
-            </button>
+      <UserDialog dialogRef={dialogRef} title="Edit User">
+        <form
+          action={async (formData) => {
+            setError(null);
+            const result: UserActionResult = await updateUser(user.id, formData);
+            if (result.error) setError(result.error);
+            else dialogRef.current?.close();
+          }}
+          className="mt-3 flex flex-col gap-3"
+        >
+          <div>
+            <label className={LABEL_CLASS}>Name</label>
+            <input name="name" defaultValue={user.name ?? ""} className={INPUT_CLASS} />
           </div>
-          <form
-            action={async (formData) => {
-              try {
-                setError(null);
-                await updateUserProfile(user.id, user.email, formData);
-                dialogRef.current?.close();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to update profile");
-              }
-            }}
-            className="mt-3 flex flex-col gap-3"
-          >
-            <div>
-              <label className="block text-xs font-medium text-muted">Name</label>
-              <input
-                name="name"
-                defaultValue={user.name ?? ""}
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-muted">Position</label>
-              <input
-                name="position"
-                defaultValue={user.position ?? ""}
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              />
-            </div>
-            {error && <p className="text-xs text-error">{error}</p>}
-            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Changes</SubmitButton>
-          </form>
-        </div>
-      </dialog>
+          <div>
+            <label className={LABEL_CLASS}>Position</label>
+            <input name="position" defaultValue={user.position ?? ""} className={INPUT_CLASS} />
+          </div>
+          <div>
+            <label className={LABEL_CLASS}>Email *</label>
+            <input
+              name="email"
+              type="email"
+              required
+              defaultValue={user.email ?? ""}
+              className={INPUT_CLASS}
+            />
+          </div>
+          <div>
+            <label className={LABEL_CLASS}>New Password</label>
+            <input
+              name="password"
+              type="text"
+              minLength={8}
+              autoComplete="off"
+              placeholder="Leave blank to keep the current password"
+              className={INPUT_CLASS}
+            />
+          </div>
+          {error && <p className="text-xs text-error">{error}</p>}
+          <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+            Save Changes
+          </SubmitButton>
+        </form>
+      </UserDialog>
     </>
   );
 }
@@ -87,8 +187,9 @@ export function UsersPanel({
 }) {
   return (
     <section>
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-foreground">Users</h2>
+        {!error && <AddUserModal />}
       </div>
 
       {error && (
@@ -102,24 +203,12 @@ export function UsersPanel({
           <table className="min-w-full divide-y divide-border text-sm">
             <thead className="bg-surface-sunken">
               <tr>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Name
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Position
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Email
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Joined
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Last Sign In
-                </th>
-                <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Action
-                </th>
+                <th className={TH_CLASS}>Name</th>
+                <th className={TH_CLASS}>Position</th>
+                <th className={TH_CLASS}>Email</th>
+                <th className={TH_CLASS}>Joined</th>
+                <th className={TH_CLASS}>Last Sign In</th>
+                <th className={TH_CLASS}>Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -145,7 +234,7 @@ export function UsersPanel({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3">
-                      <EditProfileModal user={user} />
+                      <EditUserModal user={user} />
                       {user.id !== currentUserId && (
                         <form
                           action={async () => {
@@ -156,11 +245,8 @@ export function UsersPanel({
                             ) {
                               return;
                             }
-                            try {
-                              await removeUser(user.id);
-                            } catch (err) {
-                              alert(err instanceof Error ? err.message : "Failed to remove user");
-                            }
+                            const result = await removeUser(user.id);
+                            if (result.error) alert(result.error);
                           }}
                         >
                           <button

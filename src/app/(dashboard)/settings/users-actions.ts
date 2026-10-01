@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 
 export type SettingsUser = {
   id: string;
@@ -12,6 +13,18 @@ export type SettingsUser = {
   created_at: string;
   last_sign_in_at: string | null;
 };
+
+// Production builds replace thrown server-action errors with a generic masked message,
+// so the mutating actions below return the error text for the form to display.
+export type UserActionResult = { error?: string };
+
+const MIN_PASSWORD_LENGTH = 8;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function text(formData: FormData, key: string): string {
+  const value = formData.get(key);
+  return typeof value === "string" ? value.trim() : "";
+}
 
 export async function listUsers(): Promise<SettingsUser[]> {
   const admin = createAdminClient();
@@ -34,24 +47,96 @@ export async function listUsers(): Promise<SettingsUser[]> {
     .sort((a, b) => a.created_at.localeCompare(b.created_at));
 }
 
-export async function updateUserProfile(userId: string, email: string | null, formData: FormData) {
-  const supabase = await createClient();
+/** Creates a login with the given password (no email round trip) plus its profile row. */
+export async function addUser(formData: FormData): Promise<UserActionResult> {
+  const email = text(formData, "email").toLowerCase();
+  const password = (formData.get("password") as string) ?? "";
+  const name = text(formData, "name") || null;
+  const position = text(formData, "position") || null;
 
-  const name = ((formData.get("name") as string) ?? "").trim() || null;
-  const position = ((formData.get("position") as string) ?? "").trim() || null;
+  if (!EMAIL_PATTERN.test(email)) return { error: "Enter a valid email address" };
+  if (password.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` };
+  }
 
-  const { error } = await supabase
-    .from("user_profiles")
-    .upsert({ id: userId, email, name, position, updated_at: new Date().toISOString() });
-  if (error) throw new Error(error.message);
+  try {
+    const admin = createAdminClient();
+    const { data, error } = await admin.auth.admin.createUser({
+      email,
+      password,
+      email_confirm: true,
+    });
+    if (error || !data.user) return { error: error?.message ?? "Failed to create user" };
+
+    const { error: profileError } = await admin
+      .from("user_profiles")
+      .upsert({ id: data.user.id, email, name, position, updated_at: new Date().toISOString() });
+    if (profileError) {
+      return { error: `User created, but saving the profile failed: ${profileError.message}` };
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to create user" };
+  }
 
   revalidatePath("/settings/users");
+  return {};
 }
 
-export async function removeUser(userId: string) {
-  const admin = createAdminClient();
-  const { error } = await admin.auth.admin.deleteUser(userId);
-  if (error) throw new Error(error.message);
+/** Updates name/position, and the login email and/or password when they are provided. */
+export async function updateUser(userId: string, formData: FormData): Promise<UserActionResult> {
+  const email = text(formData, "email").toLowerCase();
+  const password = (formData.get("password") as string) ?? "";
+  const name = text(formData, "name") || null;
+  const position = text(formData, "position") || null;
+
+  if (!EMAIL_PATTERN.test(email)) return { error: "Enter a valid email address" };
+  if (password && password.length < MIN_PASSWORD_LENGTH) {
+    return { error: `Password must be at least ${MIN_PASSWORD_LENGTH} characters` };
+  }
+
+  try {
+    const admin = createAdminClient();
+
+    const { error: authError } = await admin.auth.admin.updateUserById(userId, {
+      email,
+      email_confirm: true,
+      ...(password ? { password } : {}),
+    });
+    if (authError) return { error: authError.message };
+
+    const { error: profileError } = await admin
+      .from("user_profiles")
+      .upsert({ id: userId, email, name, position, updated_at: new Date().toISOString() });
+    if (profileError) return { error: profileError.message };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to update user" };
+  }
 
   revalidatePath("/settings/users");
+  return {};
+}
+
+export async function removeUser(userId: string): Promise<UserActionResult> {
+  const current = await getCurrentUser();
+  if (current?.id === userId) return { error: "You can't remove your own account" };
+
+  try {
+    const admin = createAdminClient();
+    const { error } = await admin.auth.admin.deleteUser(userId);
+    if (error) {
+      // deals.owner_id and activities.author_id reference the login without a cascade,
+      // so a user who owns deals or logged activities cannot be deleted.
+      const blocked = /database error/i.test(error.message);
+      return {
+        error: blocked
+          ? "This user still owns deals or logged activities, so their login can't be removed."
+          : error.message,
+      };
+    }
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Failed to remove user" };
+  }
+
+  revalidatePath("/settings/users");
+  return {};
 }

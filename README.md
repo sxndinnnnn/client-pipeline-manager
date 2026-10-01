@@ -160,8 +160,9 @@ Current schema:
   `/deals/[id]` page with an activity log. Two extra stages (Trial, Legal) sit between
   Negotiation and Won.
 - **Settings** (`/settings`) - Plans, Industries, Pipeline Stages, Targets, and Users
-  management. Users management uses the service-role admin client to invite/remove
-  teammates via the Supabase Auth admin API.
+  management. Users management uses the service-role admin client to add (with a password you
+  set), edit (name, position, email, password reset) and remove logins via the Supabase Auth
+  admin API - no trip to the Supabase dashboard needed.
 - **Reports** (`/reports`) - extensible report generator. First report is Gain/Loss
   (`gain-loss-report.tsx`): customer, stage, plan, plan amount, actual amount, gain/loss in
   LKR and USD, and plan start date (the date the deal moved to Won).
