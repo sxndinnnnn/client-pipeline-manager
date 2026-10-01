@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { runAction, type ActionResult } from "@/lib/action-result";
 import type { StageKind } from "@/types/database";
 
 const VALID_KINDS: StageKind[] = ["PENDING", "IN_PROGRESS", "WON", "LOST"];
@@ -12,7 +13,7 @@ function parseKind(raw: FormDataEntryValue | null): StageKind {
     : "IN_PROGRESS";
 }
 
-export async function createStage(formData: FormData) {
+async function createStageImpl(formData: FormData) {
   const supabase = await createClient();
 
   const name = (formData.get("name") as string)?.trim();
@@ -36,7 +37,7 @@ export async function createStage(formData: FormData) {
   revalidatePath("/settings/stages");
 }
 
-export async function updateStage(stageId: string, formData: FormData) {
+async function updateStageImpl(stageId: string, formData: FormData) {
   const supabase = await createClient();
 
   const name = (formData.get("name") as string)?.trim();
@@ -52,7 +53,7 @@ export async function updateStage(stageId: string, formData: FormData) {
   revalidatePath("/settings/stages");
 }
 
-export async function deleteStage(stageId: string, stageName: string) {
+async function deleteStageImpl(stageId: string, stageName: string) {
   const supabase = await createClient();
 
   const { count } = await supabase
@@ -72,7 +73,7 @@ export async function deleteStage(stageId: string, stageName: string) {
   revalidatePath("/settings/stages");
 }
 
-export async function moveStage(stageId: string, direction: "up" | "down") {
+async function moveStageImpl(stageId: string, direction: "up" | "down") {
   const supabase = await createClient();
 
   const { data: stages, error } = await supabase
@@ -113,4 +114,20 @@ export async function moveStage(stageId: string, direction: "up" | "down") {
   if (e3) throw new Error(e3.message);
 
   revalidatePath("/settings/stages");
+}
+
+export async function createStage(formData: FormData): Promise<ActionResult> {
+  return runAction(() => createStageImpl(formData));
+}
+
+export async function updateStage(stageId: string, formData: FormData): Promise<ActionResult> {
+  return runAction(() => updateStageImpl(stageId, formData));
+}
+
+export async function deleteStage(stageId: string, stageName: string): Promise<ActionResult> {
+  return runAction(() => deleteStageImpl(stageId, stageName));
+}
+
+export async function moveStage(stageId: string, direction: "up" | "down"): Promise<ActionResult> {
+  return runAction(() => moveStageImpl(stageId, direction));
 }

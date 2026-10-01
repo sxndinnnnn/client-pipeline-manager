@@ -47,13 +47,10 @@ function AddStageModal() {
           </div>
           <form
             action={async (formData) => {
-              try {
-                setError(null);
-                await createStage(formData);
-                dialogRef.current?.close();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to add stage");
-              }
+              setError(null);
+              const result = await createStage(formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
             }}
             className="mt-3 flex flex-col gap-3"
           >
@@ -127,11 +124,8 @@ function StageRow({
           </button>
           <form
             action={async () => {
-              try {
-                await deleteStage(stage.id, stage.name);
-              } catch (err) {
-                alert(err instanceof Error ? err.message : "Failed to delete stage");
-              }
+              const result = await deleteStage(stage.id, stage.name);
+            if (result.error) alert(result.error);
             }}
           >
             <button type="submit" aria-label="Delete stage" className="p-3.5 text-error hover:opacity-80 lg:p-0">
@@ -162,13 +156,10 @@ function StageRow({
           </div>
           <form
             action={async (formData) => {
-              try {
-                setError(null);
-                await updateStage(stage.id, formData);
-                dialogRef.current?.close();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to update stage");
-              }
+              setError(null);
+              const result = await updateStage(stage.id, formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
             }}
             className="mt-3 flex flex-col gap-3"
           >

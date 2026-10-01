@@ -162,13 +162,10 @@ function AddPlanModal() {
           </div>
           <form
             action={async (formData) => {
-              try {
-                setError(null);
-                await createPlan(formData);
-                dialogRef.current?.close();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to create plan");
-              }
+              setError(null);
+              const result = await createPlan(formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
             }}
             className="mt-3 flex flex-col gap-3"
           >
@@ -212,11 +209,8 @@ function PlanRow({ plan }: { plan: Plan }) {
           </button>
           <form
             action={async () => {
-              try {
-                await deletePlan(plan.id, plan.name);
-              } catch (err) {
-                alert(err instanceof Error ? err.message : "Failed to delete plan");
-              }
+              const result = await deletePlan(plan.id, plan.name);
+            if (result.error) alert(result.error);
             }}
           >
             <button
@@ -251,13 +245,10 @@ function PlanRow({ plan }: { plan: Plan }) {
           </div>
           <form
             action={async (formData) => {
-              try {
-                setError(null);
-                await updatePlan(plan.id, formData);
-                dialogRef.current?.close();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to update plan");
-              }
+              setError(null);
+              const result = await updatePlan(plan.id, formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
             }}
             className="mt-3 flex flex-col gap-3"
           >

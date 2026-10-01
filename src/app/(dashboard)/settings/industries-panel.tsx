@@ -40,13 +40,10 @@ function AddIndustryModal() {
           </div>
           <form
             action={async (formData) => {
-              try {
-                setError(null);
-                await createIndustry(formData);
-                dialogRef.current?.close();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to add industry");
-              }
+              setError(null);
+              const result = await createIndustry(formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
             }}
             className="mt-3 flex flex-col gap-3"
           >
@@ -89,11 +86,8 @@ function IndustryRow({ industry }: { industry: Industry }) {
           </button>
           <form
             action={async () => {
-              try {
-                await deleteIndustry(industry.id);
-              } catch (err) {
-                alert(err instanceof Error ? err.message : "Failed to delete industry");
-              }
+              const result = await deleteIndustry(industry.id);
+            if (result.error) alert(result.error);
             }}
           >
             <button type="submit" aria-label="Delete industry" className="p-3.5 text-error hover:opacity-80 lg:p-0">
@@ -124,13 +118,10 @@ function IndustryRow({ industry }: { industry: Industry }) {
           </div>
           <form
             action={async (formData) => {
-              try {
-                setError(null);
-                await renameIndustry(industry.id, formData);
-                dialogRef.current?.close();
-              } catch (err) {
-                setError(err instanceof Error ? err.message : "Failed to rename industry");
-              }
+              setError(null);
+              const result = await renameIndustry(industry.id, formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
             }}
             className="mt-3 flex flex-col gap-3"
           >

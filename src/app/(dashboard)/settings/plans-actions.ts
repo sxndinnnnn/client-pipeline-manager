@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { runAction, type ActionResult } from "@/lib/action-result";
 import type { PlanPlatform } from "@/types/database";
 
 const VALID_PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HSC", "FMS"];
@@ -19,7 +20,7 @@ function parseNumber(raw: FormDataEntryValue | null): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
-export async function createPlan(formData: FormData) {
+async function createPlanImpl(formData: FormData) {
   const supabase = await createClient();
 
   const name = (formData.get("name") as string)?.trim();
@@ -43,7 +44,7 @@ export async function createPlan(formData: FormData) {
   revalidatePath("/settings/plans");
 }
 
-export async function updatePlan(planId: string, formData: FormData) {
+async function updatePlanImpl(planId: string, formData: FormData) {
   const supabase = await createClient();
 
   const name = (formData.get("name") as string)?.trim();
@@ -69,7 +70,7 @@ export async function updatePlan(planId: string, formData: FormData) {
   revalidatePath("/settings/plans");
 }
 
-export async function deletePlan(planId: string, planName: string) {
+async function deletePlanImpl(planId: string, planName: string) {
   const supabase = await createClient();
 
   const { count } = await supabase
@@ -87,4 +88,16 @@ export async function deletePlan(planId: string, planName: string) {
   if (error) throw new Error(error.message);
 
   revalidatePath("/settings/plans");
+}
+
+export async function createPlan(formData: FormData): Promise<ActionResult> {
+  return runAction(() => createPlanImpl(formData));
+}
+
+export async function updatePlan(planId: string, formData: FormData): Promise<ActionResult> {
+  return runAction(() => updatePlanImpl(planId, formData));
+}
+
+export async function deletePlan(planId: string, planName: string): Promise<ActionResult> {
+  return runAction(() => deletePlanImpl(planId, planName));
 }
