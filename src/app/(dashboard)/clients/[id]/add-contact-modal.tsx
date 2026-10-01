@@ -37,7 +37,7 @@ export function AddContactModal({
       >
         <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
           <div className="flex items-center justify-between border-b border-border pb-3">
-            <h2 className="text-sm font-semibold text-foreground">Create Contact</h2>
+            <h2 className="text-sm font-semibold text-foreground">Add Contact</h2>
             <button
               type="button"
               onClick={close}
@@ -97,7 +97,7 @@ export function AddContactModal({
               type="submit"
               className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Create Contact
+              Add Contact
             </button>
           </form>
         </div>
