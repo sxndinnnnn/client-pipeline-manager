@@ -500,7 +500,7 @@ export function StageBarChart({
                     </span>
                   )}
                   <div
-                    className={`w-full rounded-t ${colors[i]}`}
+                    className={`w-full max-w-14 rounded-t ${colors[i]}`}
                     style={{ height: `${(row.value / chartMax) * 100}%` }}
                   />
                 </div>
