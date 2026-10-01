@@ -24,9 +24,11 @@ import { ClientLogo } from "./client-logo";
 import { AddContactModal } from "./add-contact-modal";
 import { AddDealModal } from "./add-deal-modal";
 import { DealRow } from "./deal-row";
+import { AddAttachmentModal } from "./add-attachment-modal";
+import { AttachmentRow } from "./attachment-row";
 import { DeleteClientButton } from "./delete-client-button";
 import { ToggleActiveButton } from "./toggle-active-button";
-import type { Activity, Deal, Industry, Plan } from "@/types/database";
+import type { Activity, ClientAttachment, Deal, Industry, Plan } from "@/types/database";
 import {
   ArrowLeftIcon,
   BriefcaseIcon,
@@ -85,6 +87,7 @@ export default async function ClientDetailPage({
     { data: deals },
     { data: plans },
     { data: industries },
+    { data: attachments },
   ] = await Promise.all([
     supabase.from("clients").select("*").eq("id", id).single(),
     supabase.from("contacts").select("*").eq("client_id", id).order("created_at"),
@@ -95,9 +98,37 @@ export default async function ClientDetailPage({
       .order("created_at", { ascending: false }),
     supabase.from("plans").select("*").order("name", { ascending: true }),
     supabase.from("industries").select("*").order("name", { ascending: true }),
+    // client_attachments comes from migration 0141; until then this errors and the list is empty.
+    supabase
+      .from("client_attachments")
+      .select("*")
+      .eq("client_id", id)
+      .order("created_at", { ascending: false }),
   ]);
 
   if (clientError || !client) notFound();
+
+  const attachmentList = (attachments ?? []) as ClientAttachment[];
+  const attachmentCount = attachmentList.length;
+
+  // Files live in a private bucket, so each row gets short-lived signed links: one to
+  // open the file in the browser and one that forces a download.
+  const attachmentPaths = attachmentList.map((a) => a.storage_path);
+  const viewUrlByPath = new Map<string, string>();
+  const downloadUrlByPath = new Map<string, string>();
+  if (attachmentPaths.length > 0) {
+    const bucket = supabase.storage.from("client-attachments");
+    const [viewUrls, downloadUrls] = await Promise.all([
+      bucket.createSignedUrls(attachmentPaths, 3600),
+      bucket.createSignedUrls(attachmentPaths, 3600, { download: true }),
+    ]);
+    for (const item of viewUrls.data ?? []) {
+      if (item.path && item.signedUrl) viewUrlByPath.set(item.path, item.signedUrl);
+    }
+    for (const item of downloadUrls.data ?? []) {
+      if (item.path && item.signedUrl) downloadUrlByPath.set(item.path, item.signedUrl);
+    }
+  }
 
   const contactCount = contacts?.length ?? 0;
   const dealCount = deals?.length ?? 0;
@@ -274,6 +305,54 @@ export default async function ClientDetailPage({
     </section>
   );
 
+  const attachmentsPanel = (
+    <section>
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <h2 className="text-lg font-semibold text-foreground">Attachments</h2>
+        <AddAttachmentModal clientId={id} />
+      </div>
+
+      <div className="mt-3 overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-surface-sunken">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                File Name
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Size
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Uploaded
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {attachmentCount === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-subtle">
+                  No attachments yet.
+                </td>
+              </tr>
+            )}
+            {attachmentList.map((attachment) => (
+              <AttachmentRow
+                key={attachment.id}
+                attachment={attachment}
+                clientId={id}
+                viewUrl={viewUrlByPath.get(attachment.storage_path) ?? null}
+                downloadUrl={downloadUrlByPath.get(attachment.storage_path) ?? null}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  );
+
   const dealsPanel = (
     <section>
       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -431,6 +510,12 @@ export default async function ClientDetailPage({
           { key: "details", label: "Details", content: detailsPanel },
           { key: "contacts", label: "Contacts", count: contactCount, content: contactsPanel },
           { key: "deals", label: "Deals", count: dealCount, content: dealsPanel },
+          {
+            key: "attachments",
+            label: "Attachments",
+            count: attachmentCount,
+            content: attachmentsPanel,
+          },
         ]}
       />
     </div>

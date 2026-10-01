@@ -75,7 +75,8 @@ items from the original spec (CSV import/export, global search) have **not** bee
   client (`src/lib/supabase/server.ts`, used in Server Components/Actions), an admin
   client (`src/lib/supabase/admin.ts`, service-role, server-only, Settings > Users only),
   and the middleware session-refresh helper are kept deliberately separate. There is no
-  browser Supabase client - every data operation goes through Server Components/Actions.
+  browser Supabase client for data - every data operation goes through Server Components/Actions
+  (the only browser use is the signed-token file upload for client attachments).
   The `Database` generic type is **not** wired into the Supabase client generics (see
   Gotcha 6); types in `src/types/database.ts` are used for manual casts instead.
 - **Auth lookups**: `getCurrentUser()` in `src/lib/supabase/current-user.ts` verifies the
@@ -139,6 +140,10 @@ Current schema:
   which was a real security bug (any session could attribute an activity note to another
   user via direct RPC); migration 0007 fixed it to derive the actor from `auth.uid()`.
 - Storage bucket `client-logos` (public read, authenticated write) for client logos.
+- `client_attachments` + private Storage bucket `client-attachments` (0141) - files on a client's
+  Attachments tab. Files go browser -> Storage via a signed upload token from a server action
+  (`src/lib/supabase/browser-upload.ts`, the one place the browser talks to Supabase, because
+  Vercel caps request bodies near 4.5 MB); opening/downloading uses short-lived signed URLs.
 - **Removed, do not reintroduce unless asked**: `tasks` (migration 0086), `audit_log`
   (0135), `changelog_entries` (0137).
 
@@ -154,7 +159,7 @@ Current schema:
   reason; Settings > Targets sets the yearly target.
 - **Clients** - list with pagination (`?page=`, `?pageSize=`, composes with `?q=` search) and
   Activate/Deactivate; logo upload/remove (Supabase Storage); detail page with header card,
-  stat cards, tabs (Details/Contacts/Deals), Contacts and Deals as tables with modal-based
+  stat cards, tabs (Details/Contacts/Deals/Attachments), Contacts and Deals as tables with modal-based
   add/view/edit.
 - **Pipeline** - drag-and-drop kanban (`@dnd-kit/core`); deal detail modal and a standalone
   `/deals/[id]` page with an activity log. Two extra stages (Trial, Legal) sit between

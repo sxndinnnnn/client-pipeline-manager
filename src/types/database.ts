@@ -95,6 +95,17 @@ export interface SalesTarget {
   updated_at: string;
 }
 
+export interface ClientAttachment {
+  id: string;
+  client_id: string;
+  file_name: string;
+  storage_path: string;
+  size_bytes: number | null;
+  content_type: string | null;
+  uploaded_by_email: string | null;
+  created_at: string;
+}
+
 export interface Activity {
   id: string;
   deal_id: string;
@@ -131,6 +142,11 @@ export interface Database {
         Row: SalesTarget;
         Insert: Partial<SalesTarget>;
         Update: Partial<SalesTarget>;
+      };
+      client_attachments: {
+        Row: ClientAttachment;
+        Insert: Partial<ClientAttachment>;
+        Update: Partial<ClientAttachment>;
       };
       activities: { Row: Activity; Insert: Partial<Activity>; Update: Partial<Activity> };
     };

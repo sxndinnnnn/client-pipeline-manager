@@ -252,3 +252,13 @@ export function LayersIcon({ className = "h-4 w-4" }: IconProps) {
     </svg>
   );
 }
+
+export function DownloadIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v12" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="m7 11 5 5 5-5" />
+      <path strokeLinecap="round" strokeLinejoin="round" d="M4 20h16" />
+    </svg>
+  );
+}
