@@ -93,6 +93,8 @@ export function buildDashboardMetrics(input: MetricsInput) {
       wonValue: sumMoney(won),
       lostValue: sumMoney(lost),
       winRate: decided > 0 ? (won.length / decided) * 100 : null,
+      wonCount: won.length,
+      decidedCount: decided,
     },
     target: { year, amount: targetAmount },
     stageRows,
