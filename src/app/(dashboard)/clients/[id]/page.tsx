@@ -125,12 +125,12 @@ export default async function ClientDetailPage({
 
   async function deleteClientAction() {
     "use server";
-    await deleteClient(id, client.name);
+    await deleteClient(id);
   }
 
   async function toggleActiveAction() {
     "use server";
-    await toggleClientActive(id, !client.is_active, client.name);
+    await toggleClientActive(id, !client.is_active);
   }
 
   async function addContactAction(formData: FormData) {
@@ -247,7 +247,7 @@ export default async function ClientDetailPage({
               }
               async function remove() {
                 "use server";
-                await deleteContact(id, contact.id, contact.name);
+                await deleteContact(id, contact.id);
               }
               return (
                 <ContactRow
@@ -311,7 +311,7 @@ export default async function ClientDetailPage({
               }
               async function deleteAction() {
                 "use server";
-                await deleteDeal(deal.id, deal.title);
+                await deleteDeal(deal.id);
                 revalidatePath(`/clients/${id}`);
               }
               async function addActivityAction(formData: FormData) {
@@ -319,13 +319,9 @@ export default async function ClientDetailPage({
                 await addActivity(deal.id, formData);
                 revalidatePath(`/clients/${id}`);
               }
-              async function deleteActivityAction(
-                dealId: string,
-                activityId: string,
-                type: Activity["type"]
-              ) {
+              async function deleteActivityAction(dealId: string, activityId: string) {
                 "use server";
-                await deleteActivity(dealId, activityId, type);
+                await deleteActivity(dealId, activityId);
                 revalidatePath(`/clients/${id}`);
               }
               return (

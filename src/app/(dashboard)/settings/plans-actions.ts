@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { logAudit } from "@/lib/audit-log";
 import type { PlanPlatform } from "@/types/database";
 
 const VALID_PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HES", "FMS"];
@@ -26,7 +25,7 @@ export async function createPlan(formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Plan name is required");
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("plans")
     .insert({
       name,
@@ -37,18 +36,9 @@ export async function createPlan(formData: FormData) {
       shipment_count: parseNumber(formData.get("shipment_count")),
       valid_from: (formData.get("valid_from") as string) || null,
       valid_to: (formData.get("valid_to") as string) || null,
-    })
-    .select("id")
-    .single();
+    });
 
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "plan.create",
-    description: `Created plan "${name}"`,
-    entityType: "plan",
-    entityId: data.id,
-  });
 
   revalidatePath("/settings/plans");
 }
@@ -76,13 +66,6 @@ export async function updatePlan(planId: string, formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  await logAudit({
-    action: "plan.update",
-    description: `Updated plan "${name}"`,
-    entityType: "plan",
-    entityId: planId,
-  });
-
   revalidatePath("/settings/plans");
 }
 
@@ -102,13 +85,6 @@ export async function deletePlan(planId: string, planName: string) {
 
   const { error } = await supabase.from("plans").delete().eq("id", planId);
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "plan.delete",
-    description: `Deleted plan "${planName}"`,
-    entityType: "plan",
-    entityId: planId,
-  });
 
   revalidatePath("/settings/plans");
 }

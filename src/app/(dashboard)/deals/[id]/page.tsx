@@ -201,7 +201,7 @@ export default async function DealDetailPage({
           {activities?.map((activity) => {
             async function deleteActivityAction() {
               "use server";
-              await deleteActivity(id, activity.id, activity.type);
+              await deleteActivity(id, activity.id);
             }
             return (
               <div

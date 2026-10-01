@@ -122,10 +122,6 @@ Current schema (post-cleanup):
   `deals.plan_id` references `plans` (nullable - a deal need not have a plan).
 - `plans` - named pricing plans with a fixed amount, managed from Settings > Plans.
 - `industries` - client industry tags, managed from Settings > Industries.
-- `audit_log` - append-only (no update/delete RLS policy), records every mutating action
-  with actor email, IP, and geolocation (from Vercel's `x-vercel-ip-*` edge headers, so
-  location is only populated in production, not local dev). Written via
-  `src/lib/audit-log.ts`'s `logAudit()`, called from nearly every server action.
 - `changelog_entries` - backs the Release Note page.
 - `clients.logo_url`, `clients.created_by_email`, `clients.updated_by_email` - added
   after the original schema.
@@ -143,7 +139,7 @@ Current schema (post-cleanup):
 
 ## Feature list (everything built beyond the original Phase 1 spec)
 
-- Audit trail - every mutating action is still written to `audit_log` (IP + geolocation, append-only), but the `/system-log` page that displayed it has been **removed from the UI**. Do not reintroduce it unless asked.
+- **System Log / audit trail removed entirely** - the `/system-log` page, the `logAudit()` helper and every call to it, and the `audit_log` table (migration 0135) are gone. Do not reintroduce them unless asked.
 - Release Note (`/release-note`) - in-app changelog, no longer user-editable (the "+ Add
   entry" form was removed; entries only come from migrations now).
 - Dark mode - toggle in the header, defaults to system preference on first visit,
@@ -268,7 +264,6 @@ Established workaround for testing anything gated behind auth:
 - `src/proxy.ts`, `src/lib/supabase/middleware.ts` - route protection
 - `src/lib/supabase/server.ts` - regular Supabase server client factory
 - `src/lib/supabase/admin.ts` - service-role admin client, used only by Settings > Users
-- `src/lib/audit-log.ts` - `logAudit()`, called from most mutating server actions
 - `src/lib/currency.ts` - `formatLKR()`
 - `src/types/database.ts` - hand-written row types (see Gotcha #6 on why they're not
   wired into the Supabase client generics)

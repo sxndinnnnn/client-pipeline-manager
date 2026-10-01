@@ -3,8 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { logAudit } from "@/lib/audit-log";
-import { getUserDisplayName } from "@/lib/user-profile";
 
 export type SettingsUser = {
   id: string;
@@ -47,27 +45,13 @@ export async function updateUserProfile(userId: string, email: string | null, fo
     .upsert({ id: userId, email, name, position, updated_at: new Date().toISOString() });
   if (error) throw new Error(error.message);
 
-  await logAudit({
-    action: "user.profile_update",
-    description: `Updated profile for ${name ?? email ?? userId}`,
-    entityType: "user_profile",
-    entityId: userId,
-  });
-
   revalidatePath("/settings/users");
 }
 
-export async function removeUser(userId: string, userEmail: string) {
-  const displayName = await getUserDisplayName(userId, userEmail);
-
+export async function removeUser(userId: string) {
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.deleteUser(userId);
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "user.remove",
-    description: `Removed user ${displayName}`,
-  });
 
   revalidatePath("/settings/users");
 }

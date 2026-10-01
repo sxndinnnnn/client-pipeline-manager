@@ -36,7 +36,7 @@ export function DealRow({
   onUpdate: (formData: FormData) => Promise<void>;
   onDelete: () => Promise<void>;
   onAddActivity: (formData: FormData) => Promise<void>;
-  onDeleteActivity: (dealId: string, activityId: string, type: Activity["type"]) => Promise<void>;
+  onDeleteActivity: (dealId: string, activityId: string) => Promise<void>;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -269,7 +269,7 @@ export function DealRow({
                           </span>
                           <button
                             type="button"
-                            onClick={() => onDeleteActivity(deal.id, activity.id, activity.type)}
+                            onClick={() => onDeleteActivity(deal.id, activity.id)}
                             aria-label="Delete activity"
                             className="p-3.5 text-subtle hover:text-error lg:p-0"
                           >

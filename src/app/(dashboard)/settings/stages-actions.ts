@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { logAudit } from "@/lib/audit-log";
 import type { StageKind } from "@/types/database";
 
 const VALID_KINDS: StageKind[] = ["PENDING", "IN_PROGRESS", "WON", "LOST"];
@@ -36,20 +35,11 @@ export async function createStage(formData: FormData) {
 
   const nextSortOrder = (maxRow?.sort_order ?? -1) + 1;
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("pipeline_stages")
-    .insert({ name, sort_order: nextSortOrder })
-    .select("id")
-    .single();
+    .insert({ name, sort_order: nextSortOrder });
 
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "stage.create",
-    description: `Created pipeline stage "${name}"`,
-    entityType: "pipeline_stage",
-    entityId: data.id,
-  });
 
   revalidatePath("/settings/stages");
 }
@@ -67,13 +57,6 @@ export async function updateStage(stageId: string, formData: FormData) {
     .update({ name, kind, win_probability: winProbability })
     .eq("id", stageId);
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "stage.update",
-    description: `Updated pipeline stage "${name}" (${kind}, ${winProbability}% win probability)`,
-    entityType: "pipeline_stage",
-    entityId: stageId,
-  });
 
   revalidatePath("/settings/stages");
 }
@@ -94,13 +77,6 @@ export async function deleteStage(stageId: string, stageName: string) {
 
   const { error } = await supabase.from("pipeline_stages").delete().eq("id", stageId);
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "stage.delete",
-    description: `Deleted pipeline stage "${stageName}"`,
-    entityType: "pipeline_stage",
-    entityId: stageId,
-  });
 
   revalidatePath("/settings/stages");
 }

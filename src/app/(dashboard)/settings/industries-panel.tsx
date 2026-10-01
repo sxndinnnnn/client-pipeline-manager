@@ -58,7 +58,7 @@ function IndustryRow({ industry }: { industry: Industry }) {
       <form
         action={async () => {
           try {
-            await deleteIndustry(industry.id, industry.name);
+            await deleteIndustry(industry.id);
           } catch (err) {
             alert(err instanceof Error ? err.message : "Failed to delete industry");
           }

@@ -10,7 +10,6 @@ Original Phase 1 (MVP) is built and deployed, plus a long list of follow-up feat
 clients + contacts, pipeline board with drag-and-drop, deal detail with activity log,
 Settings (plans, industries, pipeline stages, user management), Reports (extensible
 report generator, starting with Gain/Loss), and Release Note.
-Every mutating action is also recorded (actor, IP address, geolocation) in the `audit_log` table.
 
 ## Setup
 
@@ -57,7 +56,6 @@ Every mutating action is also recorded (actor, IP address, geolocation) in the `
 - `supabase/migrations/` - schema, RLS policies, and data migrations, run in order
 - `src/lib/supabase/` - server Supabase client + admin (service-role) client +
   session-refresh middleware
-- `src/lib/audit-log.ts` - `logAudit()`, called from every mutating server action;
   pulls IP + geolocation from Vercel's edge headers (`x-vercel-ip-*`), null in local dev
 - `src/proxy.ts` - route protection (redirects unauthenticated users to `/login`)
 - `src/app/login/` - auth (also logs `login`/`logout` events)

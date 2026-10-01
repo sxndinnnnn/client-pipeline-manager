@@ -103,22 +103,6 @@ export interface Activity {
   created_at: string;
 }
 
-export interface AuditLog {
-  id: string;
-  user_id: string | null;
-  user_email: string | null;
-  action: string;
-  description: string;
-  entity_type: string | null;
-  entity_id: string | null;
-  ip_address: string | null;
-  city: string | null;
-  region: string | null;
-  country: string | null;
-  user_agent: string | null;
-  created_at: string;
-}
-
 export interface ChangelogEntry {
   id: string;
   title: string;
@@ -133,7 +117,6 @@ export interface Database {
     Tables: {
       clients: { Row: Client; Insert: Partial<Client>; Update: Partial<Client> };
       contacts: { Row: Contact; Insert: Partial<Contact>; Update: Partial<Contact> };
-      audit_log: { Row: AuditLog; Insert: Partial<AuditLog>; Update: Partial<AuditLog> };
       changelog_entries: {
         Row: ChangelogEntry;
         Insert: Partial<ChangelogEntry>;

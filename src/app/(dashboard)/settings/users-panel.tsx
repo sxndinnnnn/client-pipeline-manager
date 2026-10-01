@@ -161,7 +161,7 @@ export function UsersPanel({
                               return;
                             }
                             try {
-                              await removeUser(user.id, user.email ?? "unknown");
+                              await removeUser(user.id);
                             } catch (err) {
                               alert(err instanceof Error ? err.message : "Failed to remove user");
                             }

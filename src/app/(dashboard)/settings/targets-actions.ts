@@ -2,7 +2,6 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { logAudit } from "@/lib/audit-log";
 
 // Production builds replace thrown server-action errors with a generic masked message,
 // so these actions return the error text for the form to display instead.
@@ -33,13 +32,6 @@ export async function saveTarget(formData: FormData): Promise<TargetResult> {
     .upsert({ year, amount_lkr: amount, updated_at: new Date().toISOString() });
   if (error) return { error: describeDbError(error) };
 
-  await logAudit({
-    action: "target.save",
-    description: `Set the ${year} sales target to LKR ${amount.toLocaleString()}`,
-    entityType: "sales_target",
-    entityId: String(year),
-  });
-
   revalidatePath("/settings/targets");
   revalidatePath("/dashboard");
   return {};
@@ -50,13 +42,6 @@ export async function deleteTarget(year: number): Promise<TargetResult> {
 
   const { error } = await supabase.from("sales_targets").delete().eq("year", year);
   if (error) return { error: describeDbError(error) };
-
-  await logAudit({
-    action: "target.delete",
-    description: `Removed the ${year} sales target`,
-    entityType: "sales_target",
-    entityId: String(year),
-  });
 
   revalidatePath("/settings/targets");
   revalidatePath("/dashboard");

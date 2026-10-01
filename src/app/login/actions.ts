@@ -2,9 +2,6 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { logAudit } from "@/lib/audit-log";
-import { getUserDisplayName } from "@/lib/user-profile";
-import { getCurrentUser } from "@/lib/supabase/current-user";
 
 // Only ever redirect within the app after login. redirectTo comes from a
 // client-controlled query param, so an unvalidated value here would be an
@@ -25,33 +22,17 @@ export async function signIn(_prevState: { error: string | null }, formData: For
   const redirectTo = safeRedirectPath(formData.get("redirectTo") as string | null);
 
   const supabase = await createClient();
-  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
     return { error: error.message };
   }
-
-  await logAudit({
-    action: "login",
-    description: `${await getUserDisplayName(data.user?.id, data.user?.email ?? email)} signed in`,
-    userId: data.user?.id ?? null,
-    userEmail: data.user?.email ?? email,
-  });
 
   redirect(redirectTo);
 }
 
 export async function signOut() {
   const supabase = await createClient();
-  const user = await getCurrentUser();
-
-  await logAudit({
-    action: "logout",
-    description: `${await getUserDisplayName(user?.id, user?.email)} signed out`,
-    userId: user?.id ?? null,
-    userEmail: user?.email ?? null,
-  });
-
   await supabase.auth.signOut();
   redirect("/login");
 }

@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { logAudit } from "@/lib/audit-log";
 import { getPlanName } from "@/lib/deals";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 
@@ -49,13 +48,6 @@ export async function uploadClientLogo(clientId: string, formData: FormData) {
     .eq("id", clientId);
   if (error) throw new Error(error.message);
 
-  await logAudit({
-    action: "client.logo_upload",
-    description: "Uploaded a client logo",
-    entityType: "client",
-    entityId: clientId,
-  });
-
   revalidatePath(`/clients/${clientId}`);
 }
 
@@ -78,13 +70,6 @@ export async function removeClientLogo(clientId: string) {
   if (path) {
     await supabase.storage.from(LOGO_BUCKET).remove([path]);
   }
-
-  await logAudit({
-    action: "client.logo_remove",
-    description: "Removed a client logo",
-    entityType: "client",
-    entityId: clientId,
-  });
 
   revalidatePath(`/clients/${clientId}`);
 }
@@ -112,13 +97,6 @@ export async function createClientRecord(formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  await logAudit({
-    action: "client.create",
-    description: `Created client "${name}"`,
-    entityType: "client",
-    entityId: data.id,
-  });
-
   revalidatePath("/clients");
   redirect(`/clients/${data.id}`);
 }
@@ -145,22 +123,11 @@ export async function updateClientRecord(clientId: string, formData: FormData) {
 
   if (error) throw new Error(error.message);
 
-  await logAudit({
-    action: "client.update",
-    description: `Updated client "${name}"`,
-    entityType: "client",
-    entityId: clientId,
-  });
-
   revalidatePath(`/clients/${clientId}`);
   revalidatePath("/clients");
 }
 
-export async function toggleClientActive(
-  clientId: string,
-  nextActive: boolean,
-  clientName: string
-) {
+export async function toggleClientActive(clientId: string, nextActive: boolean) {
   const supabase = await createClient();
 
   const { error } = await supabase
@@ -169,29 +136,15 @@ export async function toggleClientActive(
     .eq("id", clientId);
   if (error) throw new Error(error.message);
 
-  await logAudit({
-    action: nextActive ? "client.activate" : "client.deactivate",
-    description: `${nextActive ? "Activated" : "Deactivated"} client "${clientName}"`,
-    entityType: "client",
-    entityId: clientId,
-  });
-
   revalidatePath(`/clients/${clientId}`);
   revalidatePath("/clients");
 }
 
-export async function deleteClient(clientId: string, clientName: string) {
+export async function deleteClient(clientId: string) {
   const supabase = await createClient();
 
   const { error } = await supabase.from("clients").delete().eq("id", clientId);
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "client.delete",
-    description: `Deleted client "${clientName}"`,
-    entityType: "client",
-    entityId: clientId,
-  });
 
   revalidatePath("/clients");
   redirect("/clients");
@@ -203,7 +156,7 @@ export async function addContact(clientId: string, formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Contact name is required");
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("contacts")
     .insert({
       client_id: clientId,
@@ -211,18 +164,9 @@ export async function addContact(clientId: string, formData: FormData) {
       role: (formData.get("role") as string) || null,
       email: (formData.get("email") as string) || null,
       phone: (formData.get("phone") as string) || null,
-    })
-    .select("id")
-    .single();
+    });
 
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "contact.create",
-    description: `Added contact "${name}"`,
-    entityType: "contact",
-    entityId: data.id,
-  });
 
   revalidatePath(`/clients/${clientId}`);
 }
@@ -245,27 +189,13 @@ export async function updateContact(clientId: string, contactId: string, formDat
 
   if (error) throw new Error(error.message);
 
-  await logAudit({
-    action: "contact.update",
-    description: `Updated contact "${name}"`,
-    entityType: "contact",
-    entityId: contactId,
-  });
-
   revalidatePath(`/clients/${clientId}`);
 }
 
-export async function deleteContact(clientId: string, contactId: string, contactName: string) {
+export async function deleteContact(clientId: string, contactId: string) {
   const supabase = await createClient();
   const { error } = await supabase.from("contacts").delete().eq("id", contactId);
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "contact.delete",
-    description: `Deleted contact "${contactName}"`,
-    entityType: "contact",
-    entityId: contactId,
-  });
 
   revalidatePath(`/clients/${clientId}`);
 }
@@ -289,7 +219,7 @@ export async function createDeal(clientId: string, formData: FormData) {
   const valueRaw = formData.get("value") as string;
   const valueUsdRaw = formData.get("value_usd") as string;
 
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from("deals")
     .insert({
       title,
@@ -299,18 +229,9 @@ export async function createDeal(clientId: string, formData: FormData) {
       plan_id: planId,
       value: valueRaw ? Number(valueRaw) : null,
       value_usd: valueUsdRaw ? Number(valueUsdRaw) : null,
-    })
-    .select("id")
-    .single();
+    });
 
   if (error) throw new Error(error.message);
-
-  await logAudit({
-    action: "deal.create",
-    description: `Created deal "${title}"`,
-    entityType: "deal",
-    entityId: data.id,
-  });
 
   revalidatePath(`/clients/${clientId}`);
   redirect(`/clients/${clientId}?tab=deals`);
