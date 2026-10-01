@@ -150,16 +150,8 @@ export default async function ClientsPage({
                     <td className="px-4 py-3 text-muted">{openCountByClient.get(client.id) ?? 0}</td>
                     <td className="px-4 py-3 text-muted">{wonCountByClient.get(client.id) ?? 0}</td>
                     <td className="px-4 py-3 text-muted">{lostCountByClient.get(client.id) ?? 0}</td>
-                    <td className="px-4 py-3">
-                      {client.is_active ? (
-                        <span className="rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success">
-                          Active
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
-                          Inactive
-                        </span>
-                      )}
+                    <td className="px-4 py-3 text-muted">
+                      {client.is_active ? "Active" : "Inactive"}
                     </td>
                   </tr>
                 ))}
