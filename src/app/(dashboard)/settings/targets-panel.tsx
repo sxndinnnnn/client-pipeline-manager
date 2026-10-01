@@ -14,13 +14,10 @@ function TargetForm({ defaultYear }: { defaultYear: number }) {
     <form
       ref={formRef}
       action={async (formData) => {
-        try {
-          setError(null);
-          await saveTarget(formData);
-          formRef.current?.reset();
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to save target");
-        }
+        setError(null);
+        const result = await saveTarget(formData);
+        if (result.error) setError(result.error);
+        else formRef.current?.reset();
       }}
       className="flex flex-wrap items-start gap-2"
     >
@@ -83,11 +80,8 @@ export function TargetsPanel({ targets }: { targets: SalesTarget[] }) {
             <span className="flex-1 text-muted">{formatLKR(Number(t.amount_lkr))}</span>
             <form
               action={async () => {
-                try {
-                  await deleteTarget(t.year);
-                } catch (err) {
-                  alert(err instanceof Error ? err.message : "Failed to delete target");
-                }
+                const result = await deleteTarget(t.year);
+                if (result.error) alert(result.error);
               }}
             >
               <button
