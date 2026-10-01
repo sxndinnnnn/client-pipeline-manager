@@ -286,16 +286,16 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
           <thead className="bg-surface-sunken">
             <tr>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Name
+                Plan Name
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Platforms
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                USD
+                Amount USD
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                LKR
+                Amount LKR
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Vehicles
@@ -310,7 +310,7 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
                 Status
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Action
+                Actions
               </th>
             </tr>
           </thead>
