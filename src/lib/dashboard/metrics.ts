@@ -41,30 +41,44 @@ export function buildDashboardMetrics(input: MetricsInput) {
   const year = colomboYear(now);
   const targetRow = targets.find((t) => t.year === year);
   const targetAmount = targetRow ? Number(targetRow.amount_lkr) : null;
+  const targetAmountUsd = targetRow?.amount_usd != null ? Number(targetRow.amount_usd) : null;
 
   // ---- Pipeline by stage (current snapshot) -------------------------------------
   const stageRows = stages.map((s) => {
     const list = deals.filter((d) => d.stage_id === s.id);
-    return { name: s.name, kind: s.kind, count: list.length, value: sumMoney(list).lkr };
+    const total = sumMoney(list);
+    return { name: s.name, kind: s.kind, count: list.length, value: total.lkr, valueUsd: total.usd };
   });
 
   // ---- Monthly won vs lost (Jan-Dec of the current year) ---------------------------------
   const closedMonth = (d: Deal) => (d.closed_at ? monthKey(new Date(d.closed_at)) : null);
-  const trend = monthsOfYear(now).map((m) => ({
-    label: m.label,
-    wonValue: sumMoney(won.filter((d) => closedMonth(d) === m.key)).lkr,
-    lostValue: sumMoney(lost.filter((d) => closedMonth(d) === m.key)).lkr,
-  }));
+  const trend = monthsOfYear(now).map((m) => {
+    const wonInMonth = sumMoney(won.filter((d) => closedMonth(d) === m.key));
+    const lostInMonth = sumMoney(lost.filter((d) => closedMonth(d) === m.key));
+    return {
+      label: m.label,
+      wonValue: wonInMonth.lkr,
+      wonValueUsd: wonInMonth.usd,
+      lostValue: lostInMonth.lkr,
+      lostValueUsd: lostInMonth.usd,
+    };
+  });
 
   // ---- Cumulative revenue vs target (current calendar year) ---------------------
   const currentMonthKey = monthKey(now);
   let running = 0;
+  let runningUsd = 0;
   const cumulative = monthsOfYear(now).map((m, i) => {
-    running += won.filter((d) => closedMonth(d) === m.key).reduce((s, d) => s + lkr(d), 0);
+    const wonInMonth = sumMoney(won.filter((d) => closedMonth(d) === m.key));
+    running += wonInMonth.lkr;
+    runningUsd += wonInMonth.usd;
+    const reached = m.key <= currentMonthKey;
     return {
       label: m.label,
-      actual: m.key <= currentMonthKey ? running : null,
+      actual: reached ? running : null,
+      actualUsd: reached ? runningUsd : null,
       target: targetAmount != null ? (targetAmount * (i + 1)) / 12 : null,
+      targetUsd: targetAmountUsd != null ? (targetAmountUsd * (i + 1)) / 12 : null,
     };
   });
 

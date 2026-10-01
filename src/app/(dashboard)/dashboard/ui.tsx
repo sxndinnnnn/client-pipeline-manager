@@ -190,7 +190,13 @@ export function RankedList({
 
 /* ------------------------------ Charts ------------------------------ */
 
-type Series = { name: string; barClass: string; values: number[] };
+// `values` are LKR (they set the bar heights); `usdValues` appear alongside in the tooltip.
+type Series = { name: string; barClass: string; values: number[]; usdValues: number[] };
+
+/** "LKR 1,000 | $3" - both currencies for a chart tooltip. */
+function lkrAndUsd(lkr: number, usd: number | null): string {
+  return usd != null ? `${formatLKR(lkr)} | ${formatUSD(usd)}` : formatLKR(lkr);
+}
 
 export function Legend({ items }: { items: { name: string; dotClass: string }[] }) {
   return (
@@ -272,11 +278,9 @@ const TOOLTIP_CLASS =
 export function GroupedBarChart({
   labels,
   series,
-  tooltipFormat,
 }: {
   labels: string[];
   series: Series[];
-  tooltipFormat: (n: number) => string;
 }) {
   const dataMax = Math.max(0, ...series.flatMap((s) => s.values));
   if (dataMax === 0) return <EmptyNote>No data yet this year.</EmptyNote>;
@@ -301,7 +305,7 @@ export function GroupedBarChart({
                 <p className="mb-0.5 font-semibold">{label}</p>
                 {series.map((s) => (
                   <p key={s.name} className="font-medium">
-                    {s.name}: {tooltipFormat(s.values[i])}
+                    {s.name}: {lkrAndUsd(s.values[i], s.usdValues[i])}
                   </p>
                 ))}
               </div>
@@ -323,10 +327,14 @@ export function GroupedBarChart({
 /** Cumulative actual vs target-pace lines across a year, in the same frame as the bar chart. */
 export function LineChart({
   points,
-  tooltipFormat,
 }: {
-  points: { label: string; actual: number | null; target: number | null }[];
-  tooltipFormat: (n: number) => string;
+  points: {
+    label: string;
+    actual: number | null;
+    actualUsd: number | null;
+    target: number | null;
+    targetUsd: number | null;
+  }[];
 }) {
   const values = points.flatMap((p) => [p.actual, p.target]).filter((v): v is number => v != null);
   const dataMax = Math.max(0, ...values);
@@ -397,10 +405,10 @@ export function LineChart({
               >
                 <p className="mb-0.5 font-semibold">{p.label}</p>
                 {p.actual != null && (
-                  <p className="font-medium">Won Revenue: {tooltipFormat(p.actual)}</p>
+                  <p className="font-medium">Won Revenue: {lkrAndUsd(p.actual, p.actualUsd)}</p>
                 )}
                 {p.target != null && (
-                  <p className="font-medium">Target Revenue: {tooltipFormat(Math.round(p.target))}</p>
+                  <p className="font-medium">Target Revenue: {lkrAndUsd(Math.round(p.target), p.targetUsd != null ? Math.round(p.targetUsd) : null)}</p>
                 )}
               </div>
             </div>
@@ -436,7 +444,7 @@ function stageBarColors(stageRows: { kind: StageKind }[]): string[] {
 export function StageBarChart({
   stageRows,
 }: {
-  stageRows: { name: string; kind: StageKind; count: number; value: number }[];
+  stageRows: { name: string; kind: StageKind; count: number; value: number; valueUsd: number }[];
 }) {
   const colors = stageBarColors(stageRows);
   if (stageRows.every((r) => r.count === 0)) {
@@ -481,10 +489,15 @@ export function StageBarChart({
                     className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-xs font-medium text-background opacity-0 shadow-floating transition-opacity group-hover:opacity-100"
                     style={{ bottom: `calc(${(row.value / chartMax) * 100}% + 2rem)` }}
                   >
-                    {row.count} Deal{row.count === 1 ? "" : "s"} · {formatLKR(row.value)}
+                    {row.count} Deal{row.count === 1 ? "" : "s"} · {lkrAndUsd(row.value, row.valueUsd)}
                   </div>
-                  {row.value > 0 && (
-                    <span className="mb-1 text-xs font-medium text-muted">{formatCompact(row.value)}</span>
+                  {(row.value > 0 || row.valueUsd > 0) && (
+                    <span className="mb-1 flex flex-col items-center text-xs font-medium leading-tight text-muted">
+                      <span>{formatCompact(row.value)}</span>
+                      <span className="text-[10px] font-normal text-subtle">
+                        ${formatCompact(row.valueUsd)}
+                      </span>
+                    </span>
                   )}
                   <div
                     className={`w-full rounded-t ${colors[i]}`}

@@ -99,9 +99,6 @@ function AddUserModal() {
               autoComplete="off"
               className={INPUT_CLASS}
             />
-            <p className="mt-1 text-xs text-subtle">
-              At least 8 characters. Share it with them directly; you can reset it later from Edit.
-            </p>
           </div>
           {error && <p className="text-xs text-error">{error}</p>}
           <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">

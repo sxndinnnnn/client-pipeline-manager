@@ -103,10 +103,19 @@ export default async function DashboardPage() {
           />
           <GroupedBarChart
             labels={monthLabels}
-            tooltipFormat={formatLKR}
             series={[
-              { name: "Won", barClass: "bg-success", values: m.trend.map((t) => t.wonValue) },
-              { name: "Lost", barClass: "bg-error", values: m.trend.map((t) => t.lostValue) },
+              {
+                name: "Won",
+                barClass: "bg-success",
+                values: m.trend.map((t) => t.wonValue),
+                usdValues: m.trend.map((t) => t.wonValueUsd),
+              },
+              {
+                name: "Lost",
+                barClass: "bg-error",
+                values: m.trend.map((t) => t.lostValue),
+                usdValues: m.trend.map((t) => t.lostValueUsd),
+              },
             ]}
           />
         </Panel>
@@ -117,7 +126,7 @@ export default async function DashboardPage() {
               ...(hasTarget ? [{ name: "Target Revenue", dotClass: "bg-subtle" }] : []),
             ]}
           />
-          <LineChart points={m.cumulative} tooltipFormat={formatLKR} />
+          <LineChart points={m.cumulative} />
         </Panel>
       </div>
 
