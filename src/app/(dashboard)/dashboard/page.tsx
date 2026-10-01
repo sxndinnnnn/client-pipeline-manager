@@ -26,7 +26,6 @@ import {
   BarList,
   DataTable,
   EmptyNote,
-  FunnelChart,
   GroupedBarChart,
   Legend,
   LineChart,
@@ -139,18 +138,9 @@ export default async function DashboardPage() {
 
       {/* ---------------------------- Pipeline health ---------------------------- */}
       <SectionHeading>Pipeline Health</SectionHeading>
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
-        <Panel title="Pipeline By Stage" icon={<BarChartIcon />}>
-          <StageBarChart stageRows={m.stageRows} />
-        </Panel>
-        <Panel title="Conversion Funnel" icon={<TrendingUpIcon />} subtitle="All deals">
-          {m.funnelRows.every((r) => r.count === 0) ? (
-            <EmptyNote>No deals yet.</EmptyNote>
-          ) : (
-            <FunnelChart rows={m.funnelRows} />
-          )}
-        </Panel>
-      </div>
+      <Panel title="Pipeline By Stage" icon={<BarChartIcon />}>
+        <StageBarChart stageRows={m.stageRows} />
+      </Panel>
 
       {/* --------------------------------- Trends --------------------------------- */}
       <SectionHeading>Trends · Last 12 Months</SectionHeading>

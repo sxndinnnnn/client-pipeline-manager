@@ -279,38 +279,6 @@ export function DataTable({
 
 /* ------------------------------ Charts ------------------------------ */
 
-export function FunnelChart({
-  rows,
-}: {
-  rows: { name: string; count: number; pctOfFirst: number | null; stepConversion: number | null }[];
-}) {
-  const max = Math.max(1, ...rows.map((r) => r.count));
-  return (
-    <ul className="flex flex-col gap-2.5">
-      {rows.map((r) => (
-        <li key={r.name}>
-          <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-            <span className="text-muted">{r.name}</span>
-            <span className="text-foreground">
-              <span className="font-medium">{r.count}</span>
-              {r.stepConversion != null && (
-                <span className="ml-2 text-xs text-subtle">{Math.round(r.stepConversion)}% of previous</span>
-              )}
-            </span>
-          </div>
-          <div className="h-5 overflow-hidden rounded bg-surface-sunken">
-            <div
-              className="h-full rounded bg-primary"
-              style={{ width: `${(r.count / max) * 100}%`, opacity: 0.55 + 0.45 * (r.count / max) }}
-              title={r.pctOfFirst != null ? `${Math.round(r.pctOfFirst)}% of all deals` : undefined}
-            />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 type Series = { name: string; barClass: string; values: number[] };
 
 export function Legend({ items }: { items: { name: string; dotClass: string }[] }) {

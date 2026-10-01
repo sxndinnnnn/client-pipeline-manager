@@ -176,36 +176,6 @@ export function buildDashboardMetrics(input: MetricsInput) {
     return { name: s.name, count: list.length, value: sumMoney(list).lkr };
   });
 
-  // ---- Conversion funnel --------------------------------------------------------
-  // A deal "reached" a stage if it ever entered that stage or any later one, so a
-  // deal dragged straight from Lead to Won still counts for the stages it skipped.
-  const funnelStages = stages.filter((s) => s.kind !== "LOST");
-  const reachedOrders: number[] = [];
-  for (const d of deals) {
-    let max = -1;
-    for (const e of eventsByDeal.get(d.id) ?? []) {
-      const s = stageById.get(e.stage_id);
-      if (s && s.kind !== "LOST") max = Math.max(max, s.sort_order);
-    }
-    const currentStage = stageById.get(d.stage_id ?? "");
-    if (currentStage && currentStage.kind !== "LOST") max = Math.max(max, currentStage.sort_order);
-    if (max >= 0) reachedOrders.push(max);
-  }
-  const funnelCounts = funnelStages.map((s) => ({
-    name: s.name,
-    count: reachedOrders.filter((m) => m >= s.sort_order).length,
-  }));
-  const funnelRows = funnelCounts.map((row, i) => {
-    const first = funnelCounts[0]?.count ?? 0;
-    const prevCount = i > 0 ? funnelCounts[i - 1].count : null;
-    return {
-      name: row.name,
-      count: row.count,
-      pctOfFirst: first > 0 ? (row.count / first) * 100 : null,
-      stepConversion: prevCount != null && prevCount > 0 ? (row.count / prevCount) * 100 : null,
-    };
-  });
-
   // ---- Stale open deals ---------------------------------------------------------
   const lastActivityByDeal = new Map<string, number>();
   for (const a of activities) {
@@ -413,7 +383,6 @@ export function buildDashboardMetrics(input: MetricsInput) {
       coverage,
     },
     stageRows,
-    funnelRows,
     staleDeals,
     staleValue: staleDeals.reduce((s, d) => s + d.value, 0),
     trend,
