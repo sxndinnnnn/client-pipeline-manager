@@ -222,9 +222,6 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
                     <tr className="bg-surface-sunken/60">
                       <td className="px-4 py-3 text-sm font-semibold text-foreground">
                         {group.customer}
-                        <span className="ml-2 text-xs font-normal text-subtle">
-                          {group.rows.length} deals
-                        </span>
                       </td>
                       <td className="px-4 py-3" />
                       <td className="px-4 py-3" />
