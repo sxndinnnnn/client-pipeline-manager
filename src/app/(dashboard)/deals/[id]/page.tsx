@@ -10,12 +10,6 @@ import { LOGGED_ACTIVITY_TYPES, splitActivities } from "@/lib/activities";
 import type { Activity } from "@/types/database";
 import { addActivity, deleteActivity, updateDeal } from "./actions";
 
-const statusStyles: Record<string, string> = {
-  OPEN: "bg-primary/15 text-primary",
-  WON: "bg-success/15 text-success",
-  LOST: "bg-border text-muted",
-};
-
 
 export default async function DealDetailPage({
   params,
@@ -77,10 +71,8 @@ export default async function DealDetailPage({
               {deal.title}
             </h1>
             <div className="mt-1 flex items-center gap-2">
-              <span
-                className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[deal.status]}`}
-              >
-                {deal.status}
+              <span className="text-xs capitalize text-subtle">
+                {deal.status.toLowerCase()}
               </span>
               <span className="text-xs text-subtle">
                 {stage?.name ?? "No stage"}

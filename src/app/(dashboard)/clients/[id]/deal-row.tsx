@@ -9,12 +9,6 @@ import { isPlanActive } from "@/lib/plans";
 import { LOGGED_ACTIVITY_TYPES, splitActivities } from "@/lib/activities";
 import type { Activity, Deal, Plan } from "@/types/database";
 
-const statusStyles: Record<string, string> = {
-  OPEN: "bg-primary/15 text-primary",
-  WON: "bg-success/15 text-success",
-  LOST: "bg-border text-muted",
-};
-
 
 type DealWithStage = Deal & {
   pipeline_stages: { name: string } | null;
@@ -85,12 +79,8 @@ export function DealRow({
       <td className="px-4 py-3 text-sm text-muted">
         {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
       </td>
-      <td className="px-4 py-3">
-        <span
-          className={`rounded-full px-2 py-0.5 text-xs font-medium ${statusStyles[deal.status]}`}
-        >
-          {deal.status}
-        </span>
+      <td className="px-4 py-3 text-sm capitalize text-muted">
+        {deal.status.toLowerCase()}
       </td>
       <td className="px-4 py-3">
         <div className="flex items-center justify-center gap-3">
