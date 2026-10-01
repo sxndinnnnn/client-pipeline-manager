@@ -32,7 +32,6 @@ export interface PipelineStage {
   name: string;
   sort_order: number;
   kind: StageKind;
-  win_probability: number;
 }
 
 export interface Plan {

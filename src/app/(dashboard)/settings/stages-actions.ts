@@ -12,14 +12,6 @@ function parseKind(raw: FormDataEntryValue | null): StageKind {
     : "IN_PROGRESS";
 }
 
-function parseProbability(raw: FormDataEntryValue | null): number {
-  const n = typeof raw === "string" && raw.trim() !== "" ? Number(raw) : NaN;
-  if (!Number.isFinite(n) || n < 0 || n > 100) {
-    throw new Error("Win probability must be between 0 and 100");
-  }
-  return Math.round(n);
-}
-
 export async function createStage(formData: FormData) {
   const supabase = await createClient();
 
@@ -50,11 +42,10 @@ export async function updateStage(stageId: string, formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Stage name is required");
   const kind = parseKind(formData.get("kind"));
-  const winProbability = parseProbability(formData.get("win_probability"));
 
   const { error } = await supabase
     .from("pipeline_stages")
-    .update({ name, kind, win_probability: winProbability })
+    .update({ name, kind })
     .eq("id", stageId);
   if (error) throw new Error(error.message);
 

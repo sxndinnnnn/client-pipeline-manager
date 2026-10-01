@@ -126,8 +126,8 @@ Current schema:
 - `user_profiles` - name/position/email per auth user, shown in Settings > Users.
 - `clients.logo_url`, `clients.is_active`, `clients.created_by_email`,
   `clients.updated_by_email` - added after the original schema.
-- `pipeline_stages.kind` (`PENDING` / `IN_PROGRESS` / `WON` / `LOST`) drives deal status;
-  `pipeline_stages.win_probability` feeds weighted-pipeline math.
+- `pipeline_stages.kind` (`PENDING` / `IN_PROGRESS` / `WON` / `LOST`) drives deal status.
+  (`pipeline_stages.win_probability` was added in 0112 but is no longer used by the app.)
 - `deals.lost_reason` - captured when a deal is dropped into a Lost stage.
 - `deals.plan_amount_lkr` / `plan_amount_usd` - the plan price frozen when a plan is set on a deal
   (0138), so editing a plan in Settings does not rewrite past Gain/Loss rows.
@@ -151,7 +151,7 @@ Current schema:
   amounts), and client panels (active/inactive, top clients by open and won value). Math
   lives in `src/lib/dashboard/metrics.ts` + `period.ts`; UI blocks in
   `src/app/(dashboard)/dashboard/ui.tsx`. Dropping a deal into a Lost stage asks for a
-  reason; Settings > Targets sets the yearly target; stage edit sets win probability.
+  reason; Settings > Targets sets the yearly target.
 - **Clients** - list with pagination (`?page=`, `?pageSize=`, composes with `?q=` search) and
   Activate/Deactivate; logo upload/remove (Supabase Storage); detail page with header card,
   stat cards, tabs (Details/Contacts/Deals), Contacts and Deals as tables with modal-based
