@@ -168,7 +168,8 @@ Current schema:
   management. Users management uses the service-role admin client to add (with a password you
   set), edit (name, position, email, password reset) and remove logins via the Supabase Auth
   admin API - no trip to the Supabase dashboard needed.
-- **Reports** (`/reports`) - extensible report generator. First report is Gain/Loss
+- **Reports** (`/reports`) - extensible report generator, one tab per report: Gain/Loss (won deals) and
+  Open Deals (same layout for open deals, with expected gain/loss and the created date). Gain/Loss
   (`gain-loss-report.tsx`): customer, stage, plan, plan amount, actual amount, gain/loss in
   LKR and USD, and plan start date (the date the deal moved to Won).
 - Dark mode (header toggle; defaults to system preference on first visit, then the

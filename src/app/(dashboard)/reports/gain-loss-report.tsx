@@ -28,6 +28,7 @@ export type RawWonDeal = {
   value: number | null;
   value_usd: number | null;
   closed_at: string | null;
+  created_at?: string | null;
   // The plan price when the plan was set on the deal (null for deals from before
   // migration 0138, which then fall back to the plan's current price).
   plan_amount_lkr?: number | null;
@@ -55,7 +56,36 @@ function numberOrNull(value: number | string | null | undefined): number | null 
   return value != null ? Number(value) : null;
 }
 
-export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
+// Wording and date column that differ between the won-deals and open-deals reports.
+export type ReportVariant = {
+  title: string;
+  emptyText: string;
+  actualLabel: string;
+  resultLabel: string;
+  dateLabel: string;
+};
+
+export const WON_REPORT: ReportVariant = {
+  title: "Gain / Loss Report",
+  emptyText: "No won deals yet.",
+  actualLabel: "Actual Amount",
+  resultLabel: "Gain / Loss",
+  dateLabel: "Plan Start Date",
+};
+
+export const OPEN_REPORT: ReportVariant = {
+  title: "Open Deals Report",
+  emptyText: "No open deals.",
+  actualLabel: "Deal Amount",
+  resultLabel: "Expected Gain / Loss",
+  dateLabel: "Created",
+};
+
+/** `dateField` picks the date shown per deal: when it closed, or when it was created. */
+export function buildGainLossRows(
+  deals: RawWonDeal[],
+  dateField: "closed_at" | "created_at" = "closed_at"
+): GainLossRow[] {
   return deals.map((d) => ({
     id: d.id,
     clientId: d.client_id,
@@ -70,7 +100,7 @@ export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
       numberOrNull(d.plan_amount_usd ?? d.plans?.amount_usd),
       numberOrNull(d.value_usd)
     ),
-    planStartDate: d.closed_at,
+    planStartDate: d[dateField] ?? null,
   }));
 }
 
@@ -154,16 +184,22 @@ function GainLossBadge({
   );
 }
 
-export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
+export function GainLossReport({
+  rows,
+  variant = WON_REPORT,
+}: {
+  rows: GainLossRow[];
+  variant?: ReportVariant;
+}) {
   return (
     <section>
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Gain / Loss Report</h2>
+        <h2 className="text-lg font-semibold text-foreground">{variant.title}</h2>
       </div>
 
       {rows.length === 0 ? (
         <div className="mt-3 rounded-lg border border-dashed border-border-strong bg-surface p-10 text-center text-sm text-subtle">
-          No won deals yet.
+          {variant.emptyText}
         </div>
       ) : (
         <div className="mt-3 overflow-x-auto rounded-lg border border-border">
@@ -183,22 +219,22 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
                   Plan Amount (LKR)
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Actual Amount (LKR)
+                  {variant.actualLabel} (LKR)
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                   Plan Amount (USD)
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Actual Amount (USD)
+                  {variant.actualLabel} (USD)
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Gain / Loss (LKR)
+                  {variant.resultLabel} (LKR)
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Gain / Loss (USD)
+                  {variant.resultLabel} (USD)
                 </th>
                 <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                  Plan Start Date
+                  {variant.dateLabel}
                 </th>
               </tr>
             </thead>
