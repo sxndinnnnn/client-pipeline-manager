@@ -90,7 +90,7 @@ export default async function DashboardPage() {
 
       {/* --------------------------------- Trends --------------------------------- */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <Panel title={`Won vs Lost Value ${m.target.year}`} icon={<BarChartIcon />}>
+        <Panel title="Won vs Lost Value" icon={<BarChartIcon />}>
           <Legend
             items={[
               { name: "Won", dotClass: "bg-success" },
@@ -106,7 +106,7 @@ export default async function DashboardPage() {
             ]}
           />
         </Panel>
-        <Panel title={`Cumulative Revenue vs Target ${m.target.year}`} icon={<TrendingUpIcon />}>
+        <Panel title="Cumulative Revenue vs Target" icon={<TrendingUpIcon />}>
           <Legend
             items={[
               { name: "Won Revenue", dotClass: "bg-success" },
