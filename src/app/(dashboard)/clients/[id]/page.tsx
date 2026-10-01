@@ -37,6 +37,30 @@ import {
   ValueIcon,
 } from "@/components/icons";
 
+function ClientStat({
+  icon,
+  tone,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  tone: string;
+  value: string;
+  label: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
+      <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${tone}`}>
+        {icon}
+      </span>
+      <div>
+        <p className="text-lg font-bold text-foreground">{value}</p>
+        <p className="text-xs uppercase tracking-wide text-subtle">{label}</p>
+      </div>
+    </div>
+  );
+}
+
 function initials(name: string) {
   const words = name.trim().split(/\s+/).filter(Boolean);
   const letters = words.slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "");
@@ -369,67 +393,36 @@ export default async function ClientDetailPage({
         </div>
 
         <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
-            <span className="text-subtle">
-              <ContactIcon />
-            </span>
-            <div>
-              <p className="text-lg font-bold text-foreground">{contactCount}</p>
-              <p className="text-xs uppercase tracking-wide text-subtle">
-                Contacts
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
-            <span className="text-subtle">
-              <BriefcaseIcon className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-lg font-bold text-foreground">{dealCount}</p>
-              <p className="text-xs uppercase tracking-wide text-subtle">
-                Deals
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
-            <span className="text-subtle">
-              <ValueIcon />
-            </span>
-            <div>
-              <p className="text-lg font-bold text-foreground">
-                {formatLKR(openValue)}
-              </p>
-              <p className="text-xs uppercase tracking-wide text-subtle">
-                Open Deal Value
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
-            <span className="text-success">
-              <CheckCircleIcon className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-lg font-bold text-foreground">
-                {formatLKR(wonValue)}
-              </p>
-              <p className="text-xs uppercase tracking-wide text-subtle">
-                Won Deal Value
-              </p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 rounded-lg border border-border px-4 py-3">
-            <span className="text-error">
-              <TrendingDownIcon className="h-5 w-5" />
-            </span>
-            <div>
-              <p className="text-lg font-bold text-foreground">
-                {formatLKR(lostValue)}
-              </p>
-              <p className="text-xs uppercase tracking-wide text-subtle">
-                Lost Deal Value
-              </p>
-            </div>
-          </div>
+          <ClientStat
+            icon={<ContactIcon />}
+            tone="bg-chart-3/10 text-chart-3"
+            value={String(contactCount)}
+            label="Contacts"
+          />
+          <ClientStat
+            icon={<BriefcaseIcon />}
+            tone="bg-chart-2/10 text-chart-2"
+            value={String(dealCount)}
+            label="Deals"
+          />
+          <ClientStat
+            icon={<ValueIcon />}
+            tone="bg-chart-7/10 text-chart-7"
+            value={formatLKR(openValue)}
+            label="Open Deal Value"
+          />
+          <ClientStat
+            icon={<CheckCircleIcon />}
+            tone="bg-success/10 text-success"
+            value={formatLKR(wonValue)}
+            label="Won Deal Value"
+          />
+          <ClientStat
+            icon={<TrendingDownIcon />}
+            tone="bg-error/10 text-error"
+            value={formatLKR(lostValue)}
+            label="Lost Deal Value"
+          />
         </div>
       </div>
 
