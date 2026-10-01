@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR, formatUSD } from "@/lib/currency";
 import { buildDashboardMetrics } from "@/lib/dashboard/metrics";
@@ -120,14 +119,6 @@ export default async function DashboardPage() {
             ]}
           />
           <LineChart points={m.cumulative} />
-          {!hasTarget && (
-            <p className="mt-2 text-xs text-subtle">
-              <Link href="/settings/targets" className="text-primary hover:underline">
-                Set a yearly target
-              </Link>{" "}
-              to see the pace line.
-            </p>
-          )}
         </Panel>
       </div>
 

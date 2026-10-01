@@ -322,38 +322,67 @@ export function LineChart({
       .join(" ");
 
   return (
-    <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Cumulative won revenue versus target">
-      {ticks.map((tick) => (
-        <g key={tick}>
-          <line x1={left} x2={W - right} y1={y(tick)} y2={y(tick)} className="stroke-border" strokeWidth={1} />
-          <text x={left - 6} y={y(tick) + 3} textAnchor="end" className="fill-subtle" fontSize={10}>
-            {formatCompact(tick)}
+    <div className="relative w-full" style={{ aspectRatio: `${W} / ${H}` }}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="absolute inset-0 h-full w-full"
+        role="img"
+        aria-label="Cumulative won revenue versus target"
+      >
+        {ticks.map((tick) => (
+          <g key={tick}>
+            <line x1={left} x2={W - right} y1={y(tick)} y2={y(tick)} className="stroke-border" strokeWidth={1} />
+            <text x={left - 6} y={y(tick) + 3} textAnchor="end" className="fill-subtle" fontSize={10}>
+              {formatCompact(tick)}
+            </text>
+          </g>
+        ))}
+        {points.map((p, i) => (
+          <text key={p.label} x={x(i)} y={H - 6} textAnchor="middle" className="fill-subtle" fontSize={10}>
+            {p.label}
           </text>
-        </g>
-      ))}
-      {points.map((p, i) => (
-        <text key={p.label} x={x(i)} y={H - 6} textAnchor="middle" className="fill-subtle" fontSize={10}>
-          {p.label}
-        </text>
-      ))}
-      {points.some((p) => p.target != null) && (
-        <polyline
-          points={line((p) => p.target)}
-          fill="none"
-          strokeWidth={2}
-          strokeDasharray="5 4"
-          className="stroke-subtle"
-        />
-      )}
-      <polyline points={line((p) => p.actual)} fill="none" strokeWidth={2.5} className="stroke-primary" />
-      {points.map((p, i) =>
-        p.actual != null ? (
-          <circle key={p.label} cx={x(i)} cy={y(p.actual)} r={3} className="fill-primary">
-            <title>{`${p.label}: ${formatLKR(p.actual)}`}</title>
-          </circle>
-        ) : null,
-      )}
-    </svg>
+        ))}
+        {points.some((p) => p.target != null) && (
+          <polyline
+            points={line((p) => p.target)}
+            fill="none"
+            strokeWidth={2}
+            strokeDasharray="5 4"
+            className="stroke-subtle"
+          />
+        )}
+        <polyline points={line((p) => p.actual)} fill="none" strokeWidth={2.5} className="stroke-primary" />
+        {points.map((p, i) =>
+          p.actual != null ? <circle key={p.label} cx={x(i)} cy={y(p.actual)} r={3} className="fill-primary" /> : null,
+        )}
+      </svg>
+
+      {/* Hover layer: one column per month, showing that month's amounts. */}
+      {points.map((p, i) => {
+        const highest = Math.max(p.actual ?? 0, p.target ?? 0);
+        const align =
+          i >= points.length - 3 ? "right-0" : i < 2 ? "left-0" : "left-1/2 -translate-x-1/2";
+        return (
+          <div
+            key={p.label}
+            className="group absolute inset-y-0 rounded hover:bg-surface-sunken/60"
+            style={{
+              left: `${((x(i) - innerW / (points.length - 1) / 2) / W) * 100}%`,
+              width: `${(innerW / (points.length - 1) / W) * 100}%`,
+            }}
+          >
+            <div
+              className={`pointer-events-none absolute z-10 whitespace-nowrap rounded bg-foreground px-2.5 py-1.5 text-xs text-background opacity-0 shadow-floating transition-opacity group-hover:opacity-100 ${align}`}
+              style={{ bottom: `calc(${(1 - y(highest) / H) * 100}% + 0.5rem)` }}
+            >
+              <p className="mb-0.5 font-semibold">{p.label}</p>
+              {p.actual != null && <p className="font-medium">Won revenue: {formatLKR(p.actual)}</p>}
+              {p.target != null && <p className="font-medium">Target pace: {formatLKR(Math.round(p.target))}</p>}
+            </div>
+          </div>
+        );
+      })}
+    </div>
   );
 }
 
