@@ -204,19 +204,15 @@ export function buildDashboardMetrics(input: MetricsInput) {
 
   // ---- Monthly trends (trailing 12 months) --------------------------------------
   const closedMonth = (d: Deal) => (d.closed_at ? monthKey(new Date(d.closed_at)) : null);
-  const trend = trailingMonths(now, 12).map((m) => {
-    const won = deals.filter((d) => d.status === "WON" && closedMonth(d) === m.key);
-    const lost = deals.filter((d) => d.status === "LOST" && closedMonth(d) === m.key);
-    const decided = won.length + lost.length;
-    return {
-      label: m.label,
-      wonValue: sumMoney(won).lkr,
-      lostValue: sumMoney(lost).lkr,
-      created: deals.filter((d) => monthKey(new Date(d.created_at)) === m.key).length,
-      closed: decided,
-      winRate: decided > 0 ? (won.length / decided) * 100 : 0,
-    };
-  });
+  const trend = trailingMonths(now, 12).map((m) => ({
+    label: m.label,
+    wonValue: sumMoney(
+      deals.filter((d) => d.status === "WON" && closedMonth(d) === m.key),
+    ).lkr,
+    lostValue: sumMoney(
+      deals.filter((d) => d.status === "LOST" && closedMonth(d) === m.key),
+    ).lkr,
+  }));
 
   // ---- Cumulative revenue vs target (current calendar year) ---------------------
   const currentMonthKey = monthKey(now);

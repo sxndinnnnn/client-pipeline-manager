@@ -161,22 +161,6 @@ export default async function DashboardPage() {
             ]}
           />
         </Panel>
-        <Panel title="Deals Created vs Closed" icon={<BriefcaseIcon />}>
-          <Legend
-            items={[
-              { name: "Created", dotClass: "bg-primary" },
-              { name: "Closed (won + lost)", dotClass: "bg-subtle" },
-            ]}
-          />
-          <GroupedBarChart
-            labels={monthLabels}
-            format={(n) => String(Math.round(n))}
-            series={[
-              { name: "Created", barClass: "bg-primary", values: m.trend.map((t) => t.created) },
-              { name: "Closed", barClass: "bg-subtle", values: m.trend.map((t) => t.closed) },
-            ]}
-          />
-        </Panel>
         <Panel
           title={`Cumulative Revenue vs Target ${m.target.year}`}
           icon={<TrendingUpIcon />}
@@ -196,16 +180,6 @@ export default async function DashboardPage() {
               to see the pace line.
             </p>
           )}
-        </Panel>
-        <Panel title="Win Rate By Month" icon={<TargetIcon />}>
-          <GroupedBarChart
-            labels={monthLabels}
-            format={(n) => `${Math.round(n)}%`}
-            maxOverride={100}
-            series={[
-              { name: "Win rate", barClass: "bg-success", values: m.trend.map((t) => t.winRate) },
-            ]}
-          />
         </Panel>
       </div>
 
