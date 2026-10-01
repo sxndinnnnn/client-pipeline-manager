@@ -45,8 +45,8 @@ export default async function ReportsPage({
       defaultTab={report}
       tabs={[
         {
-          key: "gain-loss",
-          label: "Gain / Loss",
+          key: "won-deals",
+          label: "Won Deals",
           content: <GainLossReport rows={buildGainLossRows(wonDeals)} variant={WON_REPORT} />,
         },
         {

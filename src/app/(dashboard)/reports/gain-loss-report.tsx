@@ -66,7 +66,7 @@ export type ReportVariant = {
 };
 
 export const WON_REPORT: ReportVariant = {
-  title: "Gain / Loss Report",
+  title: "Won Deals Report",
   emptyText: "No won deals yet.",
   actualLabel: "Actual Amount",
   resultLabel: "Gain / Loss",
