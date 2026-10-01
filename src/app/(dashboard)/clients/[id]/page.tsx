@@ -36,6 +36,7 @@ import {
   TrendingDownIcon,
   ValueIcon,
 } from "@/components/icons";
+import { SubmitButton } from "@/components/submit-button";
 
 function ClientStat({
   icon,
@@ -205,12 +206,7 @@ export default async function ClientDetailPage({
             className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
           />
         </div>
-        <button
-          type="submit"
-          className="self-end rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-        >
-          Save Changes
-        </button>
+        <SubmitButton className="self-end rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Changes</SubmitButton>
       </form>
     </details>
   );

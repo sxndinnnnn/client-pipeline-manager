@@ -6,6 +6,7 @@ import { formatLKR } from "@/lib/currency";
 import { isPlanActive } from "@/lib/plans";
 import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { createPlan, deletePlan, updatePlan } from "./plans-actions";
+import { SubmitButton } from "@/components/submit-button";
 
 const PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HES", "FMS"];
 
@@ -173,12 +174,7 @@ function AddPlanModal() {
           >
             <PlanFormFields />
             {error && <p className="text-xs text-error">{error}</p>}
-            <button
-              type="submit"
-              className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Create Plan
-            </button>
+            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Create Plan</SubmitButton>
           </form>
         </div>
       </dialog>
@@ -282,12 +278,7 @@ function PlanRow({ plan }: { plan: Plan }) {
           >
             <PlanFormFields plan={plan} />
             {error && <p className="text-xs text-error">{error}</p>}
-            <button
-              type="submit"
-              className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Save Changes
-            </button>
+            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Changes</SubmitButton>
           </form>
         </div>
       </dialog>

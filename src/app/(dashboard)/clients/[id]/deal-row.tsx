@@ -8,6 +8,7 @@ import { EyeIcon, PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
 import { LOGGED_ACTIVITY_TYPES, splitActivities } from "@/lib/activities";
 import type { Activity, Deal, Plan } from "@/types/database";
+import { SubmitButton } from "@/components/submit-button";
 
 
 type DealWithStage = Deal & {
@@ -235,12 +236,7 @@ export function DealRow({
                   >
                     Cancel
                   </button>
-                  <button
-                    type="submit"
-                    className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-                  >
-                    Save Changes
-                  </button>
+                  <SubmitButton className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Changes</SubmitButton>
                 </div>
               </form>
             ) : (
@@ -303,12 +299,7 @@ export function DealRow({
                           </option>
                         ))}
                       </select>
-                      <button
-                        type="submit"
-                        className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-                      >
-                        Log Activity
-                      </button>
+                      <SubmitButton className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Log Activity</SubmitButton>
                     </div>
                     <textarea
                       name="content"

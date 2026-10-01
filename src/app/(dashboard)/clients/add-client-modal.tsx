@@ -4,6 +4,7 @@ import { useRef } from "react";
 import { createClientRecord } from "./actions";
 import { XIcon } from "@/components/icons";
 import type { Industry } from "@/types/database";
+import { SubmitButton } from "@/components/submit-button";
 
 export function AddClientModal({ industries }: { industries: Industry[] }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -46,7 +47,14 @@ export function AddClientModal({ industries }: { industries: Industry[] }) {
             </button>
           </div>
 
-          <form action={createClientRecord} className="mt-3 flex flex-col gap-3">
+          <form
+            action={async (formData) => {
+              // Close straight away; the button is disabled while the request runs.
+              close();
+              await createClientRecord(formData);
+            }}
+            className="mt-3 flex flex-col gap-3"
+          >
             <div>
               <label className="block text-xs font-medium text-muted">
                 Name *
@@ -74,12 +82,7 @@ export function AddClientModal({ industries }: { industries: Industry[] }) {
                 ))}
               </select>
             </div>
-            <button
-              type="submit"
-              className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Create Client
-            </button>
+            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Create Client</SubmitButton>
           </form>
         </div>
       </dialog>

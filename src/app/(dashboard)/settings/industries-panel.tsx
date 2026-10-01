@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { Industry } from "@/types/database";
 import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { createIndustry, deleteIndustry, renameIndustry } from "./industries-actions";
+import { SubmitButton } from "@/components/submit-button";
 
 function AddIndustryForm() {
   const [error, setError] = useState<string | null>(null);
@@ -29,12 +30,7 @@ function AddIndustryForm() {
         placeholder="New Industry Name"
         className="w-full max-w-xs rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
       />
-      <button
-        type="submit"
-        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-      >
-        + Add Industry
-      </button>
+      <SubmitButton className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">+ Add Industry</SubmitButton>
       {error && <p className="w-full text-xs text-error">{error}</p>}
     </form>
   );
@@ -107,12 +103,7 @@ function IndustryRow({ industry }: { industry: Industry }) {
               className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
             />
             {error && <p className="text-xs text-error">{error}</p>}
-            <button
-              type="submit"
-              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Save Changes
-            </button>
+            <SubmitButton className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Changes</SubmitButton>
           </form>
         </div>
       </dialog>

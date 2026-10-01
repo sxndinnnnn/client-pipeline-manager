@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import type { PipelineStage, StageKind } from "@/types/database";
 import { ArrowDownIcon, ArrowUpIcon, PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { createStage, deleteStage, moveStage, updateStage } from "./stages-actions";
+import { SubmitButton } from "@/components/submit-button";
 
 const KIND_LABELS: Record<StageKind, string> = {
   PENDING: "Pending",
@@ -36,12 +37,7 @@ function AddStageForm() {
         placeholder="New Pipeline Stage Name"
         className="w-full max-w-xs rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
       />
-      <button
-        type="submit"
-        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-      >
-        + Add Stage
-      </button>
+      <SubmitButton className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">+ Add Stage</SubmitButton>
       {error && <p className="w-full text-xs text-error">{error}</p>}
     </form>
   );
@@ -176,12 +172,7 @@ function StageRow({
               </p>
             </div>
             {error && <p className="text-xs text-error">{error}</p>}
-            <button
-              type="submit"
-              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Save Changes
-            </button>
+            <SubmitButton className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Changes</SubmitButton>
           </form>
         </div>
       </dialog>

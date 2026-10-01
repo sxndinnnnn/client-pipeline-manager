@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { XIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
 import type { Plan } from "@/types/database";
+import { SubmitButton } from "@/components/submit-button";
 
 export function AddDealModal({
   createDealAction,
@@ -62,8 +63,8 @@ export function AddDealModal({
 
           <form
             action={async (formData) => {
-              await createDealAction(formData);
               close();
+              await createDealAction(formData);
             }}
             className="mt-3 flex flex-col gap-3"
           >
@@ -114,12 +115,7 @@ export function AddDealModal({
                 />
               </div>
             </div>
-            <button
-              type="submit"
-              className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Create Deal
-            </button>
+            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Create Deal</SubmitButton>
           </form>
         </div>
       </dialog>

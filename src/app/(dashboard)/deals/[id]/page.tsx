@@ -9,6 +9,7 @@ import type { Plan } from "@/types/database";
 import { LOGGED_ACTIVITY_TYPES, splitActivities } from "@/lib/activities";
 import type { Activity } from "@/types/database";
 import { addActivity, deleteActivity, updateDeal } from "./actions";
+import { SubmitButton } from "@/components/submit-button";
 
 
 export default async function DealDetailPage({
@@ -124,12 +125,7 @@ export default async function DealDetailPage({
                     className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-                >
-                  Save changes
-                </button>
+                <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save changes</SubmitButton>
               </form>
             </div>
           </details>
@@ -173,12 +169,7 @@ export default async function DealDetailPage({
                 </option>
               ))}
             </select>
-            <button
-              type="submit"
-              className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Log activity
-            </button>
+            <SubmitButton className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Log activity</SubmitButton>
           </div>
           <textarea
             name="content"

@@ -5,6 +5,7 @@ import type { SalesTarget } from "@/types/database";
 import { formatLKR } from "@/lib/currency";
 import { TrashIcon } from "@/components/icons";
 import { deleteTarget, saveTarget } from "./targets-actions";
+import { SubmitButton } from "@/components/submit-button";
 
 function TargetForm({ defaultYear }: { defaultYear: number }) {
   const [error, setError] = useState<string | null>(null);
@@ -41,12 +42,7 @@ function TargetForm({ defaultYear }: { defaultYear: number }) {
         aria-label="Target revenue in LKR"
         className="w-full max-w-xs rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
       />
-      <button
-        type="submit"
-        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-      >
-        Save Target
-      </button>
+      <SubmitButton className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Target</SubmitButton>
       {error && <p className="w-full text-xs text-error">{error}</p>}
     </form>
   );

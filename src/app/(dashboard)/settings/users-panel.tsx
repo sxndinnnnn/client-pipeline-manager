@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { formatDateTime } from "@/lib/datetime";
 import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { removeUser, updateUserProfile, type SettingsUser } from "./users-actions";
+import { SubmitButton } from "@/components/submit-button";
 
 function EditProfileModal({ user }: { user: SettingsUser }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -67,12 +68,7 @@ function EditProfileModal({ user }: { user: SettingsUser }) {
               />
             </div>
             {error && <p className="text-xs text-error">{error}</p>}
-            <button
-              type="submit"
-              className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-            >
-              Save Changes
-            </button>
+            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Save Changes</SubmitButton>
           </form>
         </div>
       </dialog>
