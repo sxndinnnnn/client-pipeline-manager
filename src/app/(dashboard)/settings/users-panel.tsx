@@ -159,7 +159,6 @@ function EditUserModal({ user }: { user: SettingsUser }) {
               type="text"
               minLength={8}
               autoComplete="off"
-              placeholder="Leave blank to keep the current password"
               className={INPUT_CLASS}
             />
           </div>
