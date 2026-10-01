@@ -39,14 +39,8 @@ export function ContactRow({
       <td className="px-4 py-3 text-sm font-medium text-foreground">
         {contact.name}
       </td>
-      <td className="px-4 py-3">
-        {contact.role ? (
-          <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
-            {contact.role}
-          </span>
-        ) : (
-          <span className="text-sm text-subtle">-</span>
-        )}
+      <td className="px-4 py-3 text-sm text-muted">
+        {contact.role || "-"}
       </td>
       <td className="px-4 py-3 text-sm text-muted">
         {contact.email || "-"}
