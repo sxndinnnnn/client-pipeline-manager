@@ -3,7 +3,7 @@ import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
-import { ReleaseNoteIcon, SystemLogIcon } from "@/components/icons";
+import { ReleaseNoteIcon } from "@/components/icons";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 
 const NAV_LINKS = [
@@ -15,7 +15,6 @@ const NAV_LINKS = [
 ];
 
 const FOOTER_LINKS = [
-  { href: "/system-log", label: "System Log", Icon: SystemLogIcon },
   { href: "/release-note", label: "Release Note", Icon: ReleaseNoteIcon },
 ];
 

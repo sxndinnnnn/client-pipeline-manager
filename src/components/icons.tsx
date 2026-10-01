@@ -110,15 +110,6 @@ export function ChevronDownIcon({ className = "h-4 w-4" }: IconProps) {
   );
 }
 
-export function SystemLogIcon({ className = "h-4 w-4" }: IconProps) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>
-      <rect x="5" y="4" width="14" height="17" rx="2" />
-      <path strokeLinecap="round" d="M9 3.5h6M9 10h6M9 14h4" />
-    </svg>
-  );
-}
-
 export function ReleaseNoteIcon({ className = "h-4 w-4" }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} className={className}>

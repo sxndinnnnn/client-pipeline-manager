@@ -9,8 +9,8 @@ TypeScript + Tailwind CSS v4, backed by Supabase (Postgres, Auth, Storage, RLS).
 Original Phase 1 (MVP) is built and deployed, plus a long list of follow-up features:
 clients + contacts, pipeline board with drag-and-drop, deal detail with activity log,
 Settings (plans, industries, pipeline stages, user management), Reports (extensible
-report generator, starting with Gain/Loss), Release Note, and a System Log audit trail
-(every mutating action, with the actor, IP address, and geolocation).
+report generator, starting with Gain/Loss), and Release Note.
+Every mutating action is also recorded (actor, IP address, geolocation) in the `audit_log` table.
 
 ## Setup
 
@@ -67,5 +67,4 @@ report generator, starting with Gain/Loss), Release Note, and a System Log audit
 - `src/app/(dashboard)/deals/[id]/` - deal detail, activity log
 - `src/app/(dashboard)/reports/` - report generator (Gain/Loss, extensible)
 - `src/app/(dashboard)/settings/` - plans, industries, pipeline stages, user management
-- `src/app/(dashboard)/system-log/` - audit trail view
 - `src/app/(dashboard)/release-note/` - in-app changelog

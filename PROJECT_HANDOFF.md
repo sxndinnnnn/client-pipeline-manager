@@ -17,7 +17,7 @@ on Vercel, auto-deploys on every push to `master`.
 
 ## Status: original MVP long since surpassed by follow-up work
 
-The original Phase 1 build (clients, contacts, pipeline board, deal detail, System Log)
+The original Phase 1 build (clients, contacts, pipeline board, deal detail)
 is done and in use, plus a long list of follow-up features and fixes (full list below).
 Phase 2 items from the original spec (CSV import/export, global search) have **not**
 been started.
@@ -77,7 +77,7 @@ the user rotate it in the Supabase dashboard.
   before adding a new inline SVG.
 - **Currency is LKR**, not USD - `src/lib/currency.ts`'s `formatLKR()` is used everywhere
   a deal value is displayed.
-- **Timezone is Asia/Colombo** for any displayed timestamp (System Log, activity
+- **Timezone is Asia/Colombo** for any displayed timestamp (activity
   timestamps, etc.) - dates are formatted with an explicit `timeZone: "Asia/Colombo"`
   rather than relying on the server/client's local timezone.
 - **Modals**: native `<dialog>` + `showModal()`/`.close()`, not a UI library. See the
@@ -143,7 +143,7 @@ Current schema (post-cleanup):
 
 ## Feature list (everything built beyond the original Phase 1 spec)
 
-- System audit log (`/system-log`) - IP + geolocation, append-only.
+- Audit trail - every mutating action is still written to `audit_log` (IP + geolocation, append-only), but the `/system-log` page that displayed it has been **removed from the UI**. Do not reintroduce it unless asked.
 - Release Note (`/release-note`) - in-app changelog, no longer user-editable (the "+ Add
   entry" form was removed; entries only come from migrations now).
 - Dark mode - toggle in the header, defaults to system preference on first visit,
@@ -277,8 +277,8 @@ Established workaround for testing anything gated behind auth:
   pattern reused by ContactRow/DealRow
 - `src/components/user-menu.tsx` - avatar account menu in the header (replaces the old
   plain email + logout icon)
-- `src/app/(dashboard)/layout.tsx` - header nav + fixed footer (System Log/Release Note
-  live in the footer, not the top nav)
+- `src/app/(dashboard)/layout.tsx` - header nav + fixed footer (Release Note
+  lives in the footer, not the top nav)
 - `src/app/(dashboard)/clients/[id]/` - client detail page and its modals (add-contact,
   add-deal, contact-row, deal-row, client-logo, client-tabs)
 - `src/app/(dashboard)/pipeline/board.tsx` - drag-and-drop kanban (`@dnd-kit/core`)
