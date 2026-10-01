@@ -35,26 +35,26 @@ export default async function SystemLogPage({
 
   const supabase = await createClient();
 
-  const {
-    data: entries,
-    error,
-    count,
-  } = await supabase
-    .from("audit_log")
-    .select(
-      "id, user_id, user_email, action, description, ip_address, city, region, country, created_at",
-      { count: "exact" }
-    )
-    .order("created_at", { ascending: false })
-    .range(from, to);
+  const [{ data: entries, error, count }, { data: profiles }] =
+    await Promise.all([
+      supabase
+        .from("audit_log")
+        .select(
+          "id, user_id, user_email, action, description, ip_address, city, region, country, created_at",
+          { count: "exact" },
+        )
+        .order("created_at", { ascending: false })
+        .range(from, to),
+      supabase.from("user_profiles").select("id, name"),
+    ]);
 
   const rows = (entries ?? []) as LogEntry[];
-
-  const { data: profiles } = await supabase.from("user_profiles").select("id, name");
   const nameById = new Map((profiles ?? []).map((p) => [p.id, p.name]));
 
   function displayName(entry: LogEntry) {
-    return (entry.user_id && nameById.get(entry.user_id)) || entry.user_email || "-";
+    return (
+      (entry.user_id && nameById.get(entry.user_id)) || entry.user_email || "-"
+    );
   }
 
   return (
@@ -126,7 +126,11 @@ export default async function SystemLogPage({
             </table>
           </div>
 
-          <PaginationControls total={count ?? 0} page={page} pageSize={pageSize} />
+          <PaginationControls
+            total={count ?? 0}
+            page={page}
+            pageSize={pageSize}
+          />
         </>
       )}
     </div>

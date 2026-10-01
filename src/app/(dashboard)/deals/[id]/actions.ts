@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit-log";
 import { getPlanName } from "@/lib/deals";
 import type { ActivityType } from "@/types/database";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 
 export async function updateDeal(dealId: string, formData: FormData) {
   const supabase = await createClient();
@@ -62,9 +63,7 @@ export async function addActivity(dealId: string, formData: FormData) {
 
   const type = formData.get("type") as ActivityType;
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const { error } = await supabase.from("activities").insert({
     deal_id: dealId,

@@ -1,12 +1,9 @@
-import { createClient } from "@/lib/supabase/server";
 import { UsersPanel } from "../users-panel";
 import { listUsers, type SettingsUser } from "../users-actions";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 
 export default async function UsersSettingsPage() {
-  const supabase = await createClient();
-  const {
-    data: { user: currentUser },
-  } = await supabase.auth.getUser();
+  const currentUser = await getCurrentUser();
 
   let users: SettingsUser[] = [];
   let usersError: string | undefined;

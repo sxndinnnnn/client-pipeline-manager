@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { logAudit } from "@/lib/audit-log";
 import { getPlanName } from "@/lib/deals";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 
 function parseTags(raw: FormDataEntryValue | null): string[] {
   if (!raw || typeof raw !== "string") return [];
@@ -94,9 +95,7 @@ export async function createClientRecord(formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Client name is required");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const { data, error } = await supabase
     .from("clients")
@@ -130,9 +129,7 @@ export async function updateClientRecord(clientId: string, formData: FormData) {
   const name = (formData.get("name") as string)?.trim();
   if (!name) throw new Error("Client name is required");
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const { error } = await supabase
     .from("clients")
@@ -287,9 +284,7 @@ export async function createDeal(clientId: string, formData: FormData) {
     .limit(1)
     .single();
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   const valueRaw = formData.get("value") as string;
   const valueUsdRaw = formData.get("value_usd") as string;

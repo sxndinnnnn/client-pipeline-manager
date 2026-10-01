@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { signOut } from "@/app/login/actions";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { MobileNav } from "@/components/mobile-nav";
 import { UserMenu } from "@/components/user-menu";
 import { ReleaseNoteIcon, SystemLogIcon } from "@/components/icons";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 
 const NAV_LINKS = [
   { href: "/dashboard", label: "Dashboard" },
@@ -20,10 +20,7 @@ const FOOTER_LINKS = [
 ];
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await getCurrentUser();
 
   return (
     <div className="flex min-h-screen flex-col bg-surface-sunken">

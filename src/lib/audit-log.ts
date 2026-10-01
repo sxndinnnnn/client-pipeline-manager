@@ -1,5 +1,6 @@
 import { headers } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
+import { getCurrentUser } from "@/lib/supabase/current-user";
 
 type AuditParams = {
   action: string;
@@ -18,9 +19,7 @@ export async function logAudit(params: AuditParams) {
   let userEmail = params.userEmail;
 
   if (userId === undefined) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const user = await getCurrentUser();
     userId = user?.id ?? null;
     userEmail = user?.email ?? null;
   }
