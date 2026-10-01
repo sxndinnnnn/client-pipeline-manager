@@ -168,59 +168,6 @@ export default async function DashboardPage({
 
       {/* ---------------------------- Pipeline health ---------------------------- */}
       <SectionHeading>Pipeline Health</SectionHeading>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <StatTile
-          label="Avg Sales Cycle"
-          value={
-            m.headline.avgCycleDays != null ? `${Math.round(m.headline.avgCycleDays)} days` : "N/A"
-          }
-          note="Created to won, deals won in period"
-          delta={deltas?.avgCycleDays}
-          deltaSuffix={prevLabel}
-          lowerIsBetter
-          icon={<TrendingDownIcon />}
-        />
-        <StatTile
-          label="Weighted Pipeline"
-          value={formatLKR(Math.round(m.open.weighted))}
-          note="Open value × stage win probability"
-          icon={<ValueIcon />}
-        />
-        <StatTile
-          label={`Pipeline Coverage ${m.target.year}`}
-          value={
-            !hasTarget
-              ? "No target"
-              : m.target.coverage != null
-                ? `${m.target.coverage.toFixed(1)}×`
-                : "Target met"
-          }
-          note={
-            !hasTarget ? (
-              <Link href="/settings/targets" className="text-primary hover:underline">
-                Set a yearly target
-              </Link>
-            ) : m.target.remaining != null && m.target.remaining > 0 ? (
-              `Open pipeline vs ${formatLKR(Math.round(m.target.remaining))} still to win`
-            ) : (
-              `${formatLKR(Math.round(m.target.wonThisYear))} won this year`
-            )
-          }
-          icon={<TargetIcon />}
-          valueTone={
-            m.target.coverage == null ? "default" : m.target.coverage >= 3 ? "good" : "warning"
-          }
-        />
-        <StatTile
-          label={`Stale Open Deals (${STALE_DAYS}+ days idle)`}
-          value={String(m.staleDeals.length)}
-          note={m.staleDeals.length > 0 ? `${formatLKR(m.staleValue)} at risk` : "Nothing is going cold"}
-          icon={<BriefcaseIcon />}
-          badgeToneKey={m.staleDeals.length > 0 ? "warning" : "good"}
-          valueTone={m.staleDeals.length > 0 ? "warning" : "good"}
-        />
-      </div>
-
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
         <Panel title="Pipeline By Stage" icon={<BarChartIcon />}>
           <StageBarChart stageRows={m.stageRows} />
