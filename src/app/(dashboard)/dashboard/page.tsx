@@ -21,7 +21,6 @@ import {
   RankedList,
   StageBarChart,
   StatTile,
-  formatCompact,
   formatPercent,
 } from "./ui";
 
@@ -91,7 +90,7 @@ export default async function DashboardPage() {
 
       {/* --------------------------------- Trends --------------------------------- */}
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <Panel title="Won vs Lost Value" icon={<BarChartIcon />}>
+        <Panel title={`Won vs Lost Value ${m.target.year}`} icon={<BarChartIcon />}>
           <Legend
             items={[
               { name: "Won", dotClass: "bg-success" },
@@ -100,7 +99,6 @@ export default async function DashboardPage() {
           />
           <GroupedBarChart
             labels={monthLabels}
-            format={formatCompact}
             tooltipFormat={formatLKR}
             series={[
               { name: "Won", barClass: "bg-success", values: m.trend.map((t) => t.wonValue) },
@@ -108,17 +106,14 @@ export default async function DashboardPage() {
             ]}
           />
         </Panel>
-        <Panel
-          title={`Cumulative Revenue vs Target ${m.target.year}`}
-          icon={<TrendingUpIcon />}
-        >
+        <Panel title={`Cumulative Revenue vs Target ${m.target.year}`} icon={<TrendingUpIcon />}>
           <Legend
             items={[
-              { name: "Won revenue", dotClass: "bg-primary" },
+              { name: "Won revenue", dotClass: "bg-success" },
               ...(hasTarget ? [{ name: "Target pace", dotClass: "bg-subtle" }] : []),
             ]}
           />
-          <LineChart points={m.cumulative} />
+          <LineChart points={m.cumulative} tooltipFormat={formatLKR} />
         </Panel>
       </div>
 

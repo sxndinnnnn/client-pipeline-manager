@@ -3,7 +3,6 @@ import {
   colomboYear,
   monthKey,
   monthsOfYear,
-  trailingMonths,
 } from "./period";
 
 export type ClientLite = {
@@ -49,9 +48,9 @@ export function buildDashboardMetrics(input: MetricsInput) {
     return { name: s.name, count: list.length, value: sumMoney(list).lkr };
   });
 
-  // ---- Monthly won vs lost (trailing 12 months) ---------------------------------
+  // ---- Monthly won vs lost (Jan-Dec of the current year) ---------------------------------
   const closedMonth = (d: Deal) => (d.closed_at ? monthKey(new Date(d.closed_at)) : null);
-  const trend = trailingMonths(now, 12).map((m) => ({
+  const trend = monthsOfYear(now).map((m) => ({
     label: m.label,
     wonValue: sumMoney(won.filter((d) => closedMonth(d) === m.key)).lkr,
     lostValue: sumMoney(lost.filter((d) => closedMonth(d) === m.key)).lkr,

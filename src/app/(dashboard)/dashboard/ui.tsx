@@ -196,39 +196,35 @@ export function Legend({ items }: { items: { name: string; dotClass: string }[] 
   );
 }
 
-/** Side-by-side bars per category (e.g. per month), shared y-axis. */
-export function GroupedBarChart({
+// Both month charts share this frame so their axes, plot height and month columns
+// line up exactly: a fixed axis width, one column per month with no gaps (so the
+// centre of month i is always (i + 0.5) / n of the plot width), and headroom above
+// the plot for tooltips.
+const AXIS_WIDTH = 56;
+
+function MonthChartFrame({
   labels,
-  series,
-  format,
-  tooltipFormat = format,
+  ticks,
+  chartMax,
+  children,
 }: {
   labels: string[];
-  series: Series[];
-  /** Compact format for the axis. */
-  format: (n: number) => string;
-  /** Full format for the hover tooltip; defaults to `format`. */
-  tooltipFormat?: (n: number) => string;
+  ticks: number[];
+  chartMax: number;
+  children: React.ReactNode;
 }) {
-  const dataMax = Math.max(0, ...series.flatMap((s) => s.values));
-  if (dataMax === 0) return <EmptyNote>No data in the last 12 months.</EmptyNote>;
-
-  const ticks = niceTicks(dataMax);
-  const chartMax = Math.max(1, ticks[ticks.length - 1]);
-  const axisWidth = Math.max(36, format(chartMax).length * 7 + 12);
-
   return (
     <div className="overflow-x-auto">
-      <div style={{ minWidth: `${axisWidth + labels.length * 36}px` }}>
+      <div style={{ minWidth: `${AXIS_WIDTH + labels.length * 36}px` }}>
         <div className="flex h-60 pt-16">
-          <div className="relative shrink-0" style={{ width: `${axisWidth}px` }}>
+          <div className="relative shrink-0" style={{ width: `${AXIS_WIDTH}px` }}>
             {ticks.map((tick) => (
               <span
                 key={tick}
                 className="absolute right-2 -translate-y-1/2 whitespace-nowrap text-[11px] text-subtle"
                 style={{ bottom: `${(tick / chartMax) * 100}%` }}
               >
-                {format(tick)}
+                {formatCompact(tick)}
               </span>
             ))}
           </div>
@@ -240,46 +236,10 @@ export function GroupedBarChart({
                 style={{ bottom: `${(tick / chartMax) * 100}%` }}
               />
             ))}
-            <div className="absolute inset-0 flex items-end gap-1.5">
-              {labels.map((label, i) => {
-                const tallest = Math.max(...series.map((s) => s.values[i]));
-                // Keep the tooltip inside the chart at both ends of the axis.
-                const align =
-                  i >= labels.length - 3
-                    ? "right-0"
-                    : i < 2
-                      ? "left-0"
-                      : "left-1/2 -translate-x-1/2";
-                return (
-                  <div
-                    key={label}
-                    className="group relative flex h-full flex-1 items-end justify-center gap-0.5 rounded hover:bg-surface-sunken/60"
-                  >
-                    <div
-                      className={`pointer-events-none absolute z-10 whitespace-nowrap rounded bg-foreground px-2.5 py-1.5 text-xs text-background opacity-0 shadow-floating transition-opacity group-hover:opacity-100 ${align}`}
-                      style={{ bottom: `calc(${(tallest / chartMax) * 100}% + 0.5rem)` }}
-                    >
-                      <p className="mb-0.5 font-semibold">{label}</p>
-                      {series.map((s) => (
-                        <p key={s.name} className="font-medium">
-                          {s.name}: {tooltipFormat(s.values[i])}
-                        </p>
-                      ))}
-                    </div>
-                    {series.map((s) => (
-                      <div
-                        key={s.name}
-                        className={`w-full max-w-4 rounded-t ${s.barClass}`}
-                        style={{ height: `${(s.values[i] / chartMax) * 100}%` }}
-                      />
-                    ))}
-                  </div>
-                );
-              })}
-            </div>
+            {children}
           </div>
         </div>
-        <div className="mt-1.5 flex gap-1.5" style={{ paddingLeft: `${axisWidth}px` }}>
+        <div className="mt-1.5 flex" style={{ paddingLeft: `${AXIS_WIDTH}px` }}>
           {labels.map((label) => (
             <span key={label} className="flex-1 text-center text-[10px] text-subtle">
               {label}
@@ -291,11 +251,73 @@ export function GroupedBarChart({
   );
 }
 
-/** Cumulative actual vs target-pace lines across a year. */
+/** Keeps a tooltip inside the chart at both ends of the axis. */
+function tooltipAlign(i: number, count: number) {
+  return i >= count - 3 ? "right-0" : i < 2 ? "left-0" : "left-1/2 -translate-x-1/2";
+}
+
+const TOOLTIP_CLASS =
+  "pointer-events-none absolute z-10 whitespace-nowrap rounded bg-foreground px-2.5 py-1.5 text-xs text-background opacity-0 shadow-floating transition-opacity group-hover:opacity-100";
+
+/** Side-by-side bars per month, with a hover tooltip of the exact amounts. */
+export function GroupedBarChart({
+  labels,
+  series,
+  tooltipFormat,
+}: {
+  labels: string[];
+  series: Series[];
+  tooltipFormat: (n: number) => string;
+}) {
+  const dataMax = Math.max(0, ...series.flatMap((s) => s.values));
+  if (dataMax === 0) return <EmptyNote>No data yet this year.</EmptyNote>;
+
+  const ticks = niceTicks(dataMax);
+  const chartMax = Math.max(1, ticks[ticks.length - 1]);
+
+  return (
+    <MonthChartFrame labels={labels} ticks={ticks} chartMax={chartMax}>
+      <div className="absolute inset-0 flex">
+        {labels.map((label, i) => {
+          const tallest = Math.max(...series.map((s) => s.values[i]));
+          return (
+            <div
+              key={label}
+              className="group relative flex h-full flex-1 items-end justify-center gap-0.5 rounded px-1 hover:bg-surface-sunken/60"
+            >
+              <div
+                className={`${TOOLTIP_CLASS} ${tooltipAlign(i, labels.length)}`}
+                style={{ bottom: `calc(${(tallest / chartMax) * 100}% + 0.5rem)` }}
+              >
+                <p className="mb-0.5 font-semibold">{label}</p>
+                {series.map((s) => (
+                  <p key={s.name} className="font-medium">
+                    {s.name}: {tooltipFormat(s.values[i])}
+                  </p>
+                ))}
+              </div>
+              {series.map((s) => (
+                <div
+                  key={s.name}
+                  className={`w-full max-w-4 rounded-t ${s.barClass}`}
+                  style={{ height: `${(s.values[i] / chartMax) * 100}%` }}
+                />
+              ))}
+            </div>
+          );
+        })}
+      </div>
+    </MonthChartFrame>
+  );
+}
+
+/** Cumulative actual vs target-pace lines across a year, in the same frame as the bar chart. */
 export function LineChart({
   points,
+  tooltipFormat,
 }: {
   points: { label: string; actual: number | null; target: number | null }[];
+  tooltipFormat: (n: number) => string;
 }) {
   const values = points.flatMap((p) => [p.actual, p.target]).filter((v): v is number => v != null);
   const dataMax = Math.max(0, ...values);
@@ -303,86 +325,80 @@ export function LineChart({
 
   const ticks = niceTicks(dataMax);
   const chartMax = Math.max(1, ticks[ticks.length - 1]);
-  const W = 600;
-  const H = 200;
-  const left = 56;
-  const right = 12;
-  const top = 10;
-  const bottom = 24;
-  const innerW = W - left - right;
-  const innerH = H - top - bottom;
-  const x = (i: number) => left + (points.length === 1 ? innerW / 2 : (i / (points.length - 1)) * innerW);
-  const y = (v: number) => top + innerH - (v / chartMax) * innerH;
+  const n = points.length;
+  const xPct = (i: number) => ((i + 0.5) / n) * 100;
+  const yPct = (v: number) => (v / chartMax) * 100;
 
+  // Drawn in a 0-100 box stretched over the plot. Non-scaling strokes keep the line
+  // width constant, and the dots are HTML elements so they stay round.
   const line = (pick: (p: (typeof points)[number]) => number | null) =>
     points
       .map((p, i) => ({ v: pick(p), i }))
       .filter((p): p is { v: number; i: number } => p.v != null)
-      .map((p) => `${x(p.i)},${y(p.v)}`)
+      .map((p) => `${xPct(p.i)},${100 - yPct(p.v)}`)
       .join(" ");
 
   return (
-    <div className="relative w-full" style={{ aspectRatio: `${W} / ${H}` }}>
+    <MonthChartFrame labels={points.map((p) => p.label)} ticks={ticks} chartMax={chartMax}>
       <svg
-        viewBox={`0 0 ${W} ${H}`}
-        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 h-full w-full overflow-visible"
         role="img"
         aria-label="Cumulative won revenue versus target"
       >
-        {ticks.map((tick) => (
-          <g key={tick}>
-            <line x1={left} x2={W - right} y1={y(tick)} y2={y(tick)} className="stroke-border" strokeWidth={1} />
-            <text x={left - 6} y={y(tick) + 3} textAnchor="end" className="fill-subtle" fontSize={10}>
-              {formatCompact(tick)}
-            </text>
-          </g>
-        ))}
-        {points.map((p, i) => (
-          <text key={p.label} x={x(i)} y={H - 6} textAnchor="middle" className="fill-subtle" fontSize={10}>
-            {p.label}
-          </text>
-        ))}
         {points.some((p) => p.target != null) && (
           <polyline
             points={line((p) => p.target)}
             fill="none"
             strokeWidth={2}
             strokeDasharray="5 4"
+            vectorEffect="non-scaling-stroke"
             className="stroke-subtle"
           />
         )}
-        <polyline points={line((p) => p.actual)} fill="none" strokeWidth={2.5} className="stroke-primary" />
-        {points.map((p, i) =>
-          p.actual != null ? <circle key={p.label} cx={x(i)} cy={y(p.actual)} r={3} className="fill-primary" /> : null,
-        )}
+        <polyline
+          points={line((p) => p.actual)}
+          fill="none"
+          strokeWidth={2.5}
+          vectorEffect="non-scaling-stroke"
+          className="stroke-success"
+        />
       </svg>
 
-      {/* Hover layer: one column per month, showing that month's amounts. */}
-      {points.map((p, i) => {
-        const highest = Math.max(p.actual ?? 0, p.target ?? 0);
-        const align =
-          i >= points.length - 3 ? "right-0" : i < 2 ? "left-0" : "left-1/2 -translate-x-1/2";
-        return (
-          <div
+      {points.map((p, i) =>
+        p.actual != null ? (
+          <span
             key={p.label}
-            className="group absolute inset-y-0 rounded hover:bg-surface-sunken/60"
-            style={{
-              left: `${((x(i) - innerW / (points.length - 1) / 2) / W) * 100}%`,
-              width: `${(innerW / (points.length - 1) / W) * 100}%`,
-            }}
-          >
-            <div
-              className={`pointer-events-none absolute z-10 whitespace-nowrap rounded bg-foreground px-2.5 py-1.5 text-xs text-background opacity-0 shadow-floating transition-opacity group-hover:opacity-100 ${align}`}
-              style={{ bottom: `calc(${(1 - y(highest) / H) * 100}% + 0.5rem)` }}
-            >
-              <p className="mb-0.5 font-semibold">{p.label}</p>
-              {p.actual != null && <p className="font-medium">Won revenue: {formatLKR(p.actual)}</p>}
-              {p.target != null && <p className="font-medium">Target pace: {formatLKR(Math.round(p.target))}</p>}
+            className="absolute h-2 w-2 -translate-x-1/2 translate-y-1/2 rounded-full bg-success"
+            style={{ left: `${xPct(i)}%`, bottom: `${yPct(p.actual)}%` }}
+          />
+        ) : null,
+      )}
+
+      {/* Hover layer: one column per month, showing that month's amounts. */}
+      <div className="absolute inset-0 flex">
+        {points.map((p, i) => {
+          const highest = Math.max(p.actual ?? 0, p.target ?? 0);
+          return (
+            <div key={p.label} className="group relative h-full flex-1 rounded hover:bg-surface-sunken/60">
+              <div
+                className={`${TOOLTIP_CLASS} ${tooltipAlign(i, n)}`}
+                style={{ bottom: `calc(${yPct(highest)}% + 0.5rem)` }}
+              >
+                <p className="mb-0.5 font-semibold">{p.label}</p>
+                {p.actual != null && (
+                  <p className="font-medium">Won revenue: {tooltipFormat(p.actual)}</p>
+                )}
+                {p.target != null && (
+                  <p className="font-medium">Target pace: {tooltipFormat(Math.round(p.target))}</p>
+                )}
+              </div>
             </div>
-          </div>
-        );
-      })}
-    </div>
+          );
+        })}
+      </div>
+    </MonthChartFrame>
   );
 }
 
