@@ -114,11 +114,8 @@ function IndustryRow({ industry }: { industry: Industry }) {
 export function IndustriesPanel({ industries }: { industries: Industry[] }) {
   return (
     <section>
-      <div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-foreground">Industries</h2>
-      </div>
-
-      <div className="mt-3">
         <AddIndustryForm />
       </div>
 
