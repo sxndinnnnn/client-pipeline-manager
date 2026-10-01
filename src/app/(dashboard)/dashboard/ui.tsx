@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { formatLKR, formatUSD } from "@/lib/currency";
-import { PERIOD_OPTIONS, type PeriodKey } from "@/lib/dashboard/period";
 import type { Delta } from "@/lib/dashboard/metrics";
 
 /* ------------------------------ Formatting ------------------------------ */
@@ -172,27 +171,6 @@ export function MiniStat({
 
 export function EmptyNote({ children }: { children: React.ReactNode }) {
   return <p className="text-sm text-subtle">{children}</p>;
-}
-
-export function PeriodSelector({ active }: { active: PeriodKey }) {
-  return (
-    <div className="inline-flex rounded-lg border border-border bg-surface p-0.5 shadow-resting">
-      {PERIOD_OPTIONS.map((p) => (
-        <Link
-          key={p.key}
-          href={`/dashboard?period=${p.key}`}
-          aria-current={p.key === active ? "true" : undefined}
-          className={`rounded-md px-3 py-1.5 text-sm font-medium transition-colors ${
-            p.key === active
-              ? "bg-primary text-primary-foreground"
-              : "text-muted hover:bg-surface-sunken hover:text-foreground"
-          }`}
-        >
-          {p.label}
-        </Link>
-      ))}
-    </div>
-  );
 }
 
 /* ------------------------------ Lists & tables ------------------------------ */

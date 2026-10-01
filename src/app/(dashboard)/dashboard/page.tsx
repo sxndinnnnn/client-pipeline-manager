@@ -2,7 +2,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { formatLKR, formatUSD } from "@/lib/currency";
 import { buildDashboardMetrics, STALE_DAYS, type GroupRow } from "@/lib/dashboard/metrics";
-import { parsePeriod, resolvePeriod } from "@/lib/dashboard/period";
+import { resolvePeriod } from "@/lib/dashboard/period";
 import type {
   Deal,
   DealStageEvent,
@@ -32,7 +32,6 @@ import {
   LineChart,
   MiniStat,
   Panel,
-  PeriodSelector,
   RankedList,
   SectionHeading,
   StageBarChart,
@@ -44,7 +43,7 @@ import {
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 function GroupTable({ rows, label }: { rows: GroupRow[]; label: string }) {
-  if (rows.length === 0) return <EmptyNote>No closed deals in this period.</EmptyNote>;
+  if (rows.length === 0) return <EmptyNote>No closed deals yet.</EmptyNote>;
   return (
     <DataTable
       columns={[
@@ -58,14 +57,9 @@ function GroupTable({ rows, label }: { rows: GroupRow[]; label: string }) {
   );
 }
 
-export default async function DashboardPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ period?: string }>;
-}) {
-  const { period: periodParam } = await searchParams;
+export default async function DashboardPage() {
   const now = new Date();
-  const period = resolvePeriod(parsePeriod(periodParam), now);
+  const period = resolvePeriod("all", now);
 
   const supabase = await createClient();
   const activitySince = new Date(now.getTime() - 400 * DAY_MS).toISOString();
@@ -113,11 +107,6 @@ export default async function DashboardPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
-        <PeriodSelector active={period.key} />
-      </div>
-
       {/* ------------------------------ Headline ------------------------------ */}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
@@ -127,14 +116,14 @@ export default async function DashboardPage({
           icon={<TrendingUpIcon />}
         />
         <StatTile
-          label={`Closed Pipeline Value ${period.label}`}
+          label="Closed Pipeline Value"
           value={formatLKR(m.headline.wonValue.lkr)}
           secondary={m.headline.wonValue.usd > 0 ? formatUSD(m.headline.wonValue.usd) : undefined}
           icon={<CheckCircleIcon />}
           badgeToneKey="good"
         />
         <StatTile
-          label={`Lost Pipeline Value ${period.label}`}
+          label="Lost Pipeline Value"
           value={formatLKR(m.headline.lostValue.lkr)}
           secondary={m.headline.lostValue.usd > 0 ? formatUSD(m.headline.lostValue.usd) : undefined}
           icon={<TrendingDownIcon />}
@@ -265,7 +254,7 @@ export default async function DashboardPage({
             <MiniStat label="Lost Value" value={formatLKR(m.headline.lostValue.lkr)} tone={m.headline.lostValue.lkr > 0 ? "critical" : "default"} />
           </div>
           {m.headline.lostCount === 0 ? (
-            <EmptyNote>No deals lost in this period.</EmptyNote>
+            <EmptyNote>No deals lost yet.</EmptyNote>
           ) : (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
               <div>
@@ -303,7 +292,7 @@ export default async function DashboardPage({
               value={String(m.clients.activeWithoutOpenDeals)}
               tone={m.clients.activeWithoutOpenDeals > 0 ? "warning" : "good"}
             />
-            <MiniStat label={`New ${period.label}`} value={String(m.headline.newClients)} />
+            <MiniStat label="Total Clients" value={String(m.clients.total)} />
           </div>
           <p className="mt-3 text-xs text-subtle">
             {m.clients.top3Share != null
@@ -339,7 +328,7 @@ export default async function DashboardPage({
       </div>
       <Panel title="Won Deals vs Plan Price" icon={<ValueIcon />} subtitle="Same rule as the Gain / Loss report">
         {m.planVariance.comparable === 0 ? (
-          <EmptyNote>No won deals in this period have both a plan price and a deal value.</EmptyNote>
+          <EmptyNote>No won deals have both a plan price and a deal value.</EmptyNote>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <MiniStat
