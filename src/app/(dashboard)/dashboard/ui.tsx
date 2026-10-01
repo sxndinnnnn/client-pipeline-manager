@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { formatLKR, formatUSD } from "@/lib/currency";
-import type { Delta } from "@/lib/dashboard/metrics";
 
 /* ------------------------------ Formatting ------------------------------ */
 
@@ -50,53 +49,22 @@ const badgeTone: Record<string, string> = {
 
 /* ------------------------- Building blocks ------------------------- */
 
-/** Change vs the previous period. `lowerIsBetter` flips the good/bad colouring. */
-export function DeltaBadge({
-  delta,
-  suffix,
-  lowerIsBetter = false,
-}: {
-  delta: Delta | null | undefined;
-  suffix: string | null;
-  lowerIsBetter?: boolean;
-}) {
-  if (!delta) return null;
-  const amount = delta.points ?? delta.pct;
-  if (amount == null) {
-    return <span className="text-xs text-subtle">New vs {suffix}</span>;
-  }
-  const rounded = Math.round(amount);
-  if (rounded === 0) return <span className="text-xs text-subtle">No change vs {suffix}</span>;
-  const up = rounded > 0;
-  const good = up !== lowerIsBetter;
-  return (
-    <span className={`text-xs font-medium ${good ? "text-success" : "text-error"}`}>
-      {up ? "▲" : "▼"} {Math.abs(rounded)}
-      {delta.points != null ? " pts" : "%"}{" "}
-      <span className="font-normal text-subtle">vs {suffix}</span>
-    </span>
-  );
-}
-
 export function StatTile({
   label,
   value,
+  secondaryValue,
   secondary,
   note,
-  delta,
-  deltaSuffix = null,
-  lowerIsBetter,
   icon,
   badgeToneKey = "accent",
   valueTone = "default",
 }: {
   label: string;
   value: string;
+  /** Shown beside the main value, separated by a divider (e.g. the USD amount next to LKR). */
+  secondaryValue?: string;
   secondary?: string;
   note?: React.ReactNode;
-  delta?: Delta | null;
-  deltaSuffix?: string | null;
-  lowerIsBetter?: boolean;
   icon: React.ReactNode;
   badgeToneKey?: keyof typeof badgeTone;
   valueTone?: keyof typeof toneText;
@@ -107,15 +75,22 @@ export function StatTile({
         {icon}
       </span>
       <div>
-        <p className={`text-2xl font-bold ${toneText[valueTone]}`}>{value}</p>
+        <p
+          className={`flex flex-wrap items-baseline gap-x-3 text-2xl font-bold ${toneText[valueTone]}`}
+        >
+          <span>{value}</span>
+          {secondaryValue && (
+            <>
+              <span className="font-normal text-subtle">|</span>
+              <span>{secondaryValue}</span>
+            </>
+          )}
+        </p>
         {secondary && <p className="text-xs text-muted">{secondary}</p>}
         <p className="text-xs uppercase tracking-wide text-subtle">{label}</p>
       </div>
-      {(delta || note) && (
-        <div className="flex flex-col gap-0.5 border-t border-border pt-2">
-          <DeltaBadge delta={delta} suffix={deltaSuffix} lowerIsBetter={lowerIsBetter} />
-          {note && <span className="text-xs text-subtle">{note}</span>}
-        </div>
+      {note && (
+        <div className="border-t border-border pt-2 text-xs text-subtle">{note}</div>
       )}
     </div>
   );
@@ -175,34 +150,6 @@ export function EmptyNote({ children }: { children: React.ReactNode }) {
 
 /* ------------------------------ Lists & tables ------------------------------ */
 
-/** Horizontal bars: one labelled row per item, bar width relative to the largest. */
-export function BarList({
-  rows,
-  format = (n) => String(n),
-  tone = "bg-primary",
-}: {
-  rows: { name: string; value: number }[];
-  format?: (n: number) => string;
-  tone?: string;
-}) {
-  const max = Math.max(1, ...rows.map((r) => r.value));
-  return (
-    <ul className="flex flex-col gap-2.5">
-      {rows.map((r) => (
-        <li key={r.name}>
-          <div className="mb-1 flex items-baseline justify-between gap-3 text-sm">
-            <span className="truncate text-muted">{r.name}</span>
-            <span className="shrink-0 font-medium text-foreground">{format(r.value)}</span>
-          </div>
-          <div className="h-1.5 overflow-hidden rounded-full bg-border">
-            <div className={`h-full rounded-full ${tone}`} style={{ width: `${(r.value / max) * 100}%` }} />
-          </div>
-        </li>
-      ))}
-    </ul>
-  );
-}
-
 export function RankedList({
   rows,
   href,
@@ -231,49 +178,6 @@ export function RankedList({
         </li>
       ))}
     </ol>
-  );
-}
-
-export function DataTable({
-  columns,
-  rows,
-}: {
-  columns: { label: string; align?: "left" | "right" }[];
-  rows: React.ReactNode[][];
-}) {
-  return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="text-[11px] uppercase tracking-wide text-subtle">
-            {columns.map((c) => (
-              <th
-                key={c.label}
-                className={`pb-2 font-medium ${c.align === "right" ? "text-right" : "text-left"}`}
-              >
-                {c.label}
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((cells, i) => (
-            <tr key={i} className="border-t border-border">
-              {cells.map((cell, j) => (
-                <td
-                  key={j}
-                  className={`py-2 ${columns[j].align === "right" ? "text-right" : "text-left"} ${
-                    j === 0 ? "text-muted" : "text-foreground"
-                  }`}
-                >
-                  {cell}
-                </td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
   );
 }
 

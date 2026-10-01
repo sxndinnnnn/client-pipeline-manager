@@ -3,25 +3,7 @@
 const COLOMBO_OFFSET_MS = 5.5 * 60 * 60 * 1000;
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-export type PeriodKey = "month" | "quarter" | "year" | "all";
-
-export const PERIOD_OPTIONS: { key: PeriodKey; label: string }[] = [
-  { key: "month", label: "This Month" },
-  { key: "quarter", label: "This Quarter" },
-  { key: "year", label: "This Year" },
-  { key: "all", label: "All Time" },
-];
-
 export type DateRange = { start: Date; end: Date };
-
-export type ResolvedPeriod = {
-  key: PeriodKey;
-  label: string;
-  current: DateRange;
-  /** null for "all", which has nothing to compare against. */
-  previous: DateRange | null;
-  previousLabel: string | null;
-};
 
 /** Start of the Colombo calendar month `monthOffset` months from the month containing `date`. */
 function colomboMonthStart(date: Date, monthOffset = 0): Date {
@@ -29,39 +11,6 @@ function colomboMonthStart(date: Date, monthOffset = 0): Date {
   return new Date(
     Date.UTC(local.getUTCFullYear(), local.getUTCMonth() + monthOffset, 1) - COLOMBO_OFFSET_MS
   );
-}
-
-export function parsePeriod(raw: string | undefined): PeriodKey {
-  return PERIOD_OPTIONS.some((p) => p.key === raw) ? (raw as PeriodKey) : "month";
-}
-
-export function resolvePeriod(key: PeriodKey, now: Date): ResolvedPeriod {
-  if (key === "all") {
-    return {
-      key,
-      label: "All Time",
-      current: { start: new Date(0), end: new Date(8.64e15) },
-      previous: null,
-      previousLabel: null,
-    };
-  }
-
-  const local = new Date(now.getTime() + COLOMBO_OFFSET_MS);
-  const monthsInPeriod = key === "month" ? 1 : key === "quarter" ? 3 : 12;
-  const monthIndex = local.getUTCMonth();
-  const startMonthOffset =
-    key === "month" ? 0 : key === "quarter" ? -(monthIndex % 3) : -monthIndex;
-
-  const start = colomboMonthStart(now, startMonthOffset);
-  const end = colomboMonthStart(now, startMonthOffset + monthsInPeriod);
-  const previous = { start: colomboMonthStart(now, startMonthOffset - monthsInPeriod), end: start };
-
-  const label =
-    key === "month" ? "this month" : key === "quarter" ? "this quarter" : "this year";
-  const previousLabel =
-    key === "month" ? "last month" : key === "quarter" ? "last quarter" : "last year";
-
-  return { key, label, current: { start, end }, previous, previousLabel };
 }
 
 export function inRange(iso: string | null | undefined, range: DateRange): boolean {
@@ -101,10 +50,4 @@ export function monthsOfYear(now: Date): { key: string; label: string }[] {
     key: `${year}-${String(i + 1).padStart(2, "0")}`,
     label,
   }));
-}
-
-/** Percentage change, or null when there is no meaningful baseline. */
-export function pctChange(current: number, previous: number): number | null {
-  if (previous === 0) return current === 0 ? 0 : null;
-  return ((current - previous) / Math.abs(previous)) * 100;
 }
