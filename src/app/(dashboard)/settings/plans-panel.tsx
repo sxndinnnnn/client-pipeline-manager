@@ -292,10 +292,10 @@ export function PlansPanel({ plans }: { plans: Plan[] }) {
                 Platforms
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Amount USD
+                Amount (USD)
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Amount LKR
+                Amount (LKR)
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Vehicles
