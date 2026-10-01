@@ -5,8 +5,9 @@ type CurrencyGainLoss = {
   planAmount: number | null;
   actualAmount: number | null;
   // null means there isn't enough data (no plan, or no deal value) to compare.
-  status: "gain" | "loss" | null;
-  lossAmount: number | null;
+  status: "gain" | "loss" | "even" | null;
+  // How far the actual amount is above (gain) or below (loss) the plan price.
+  difference: number | null;
 };
 
 export type GainLossRow = {
@@ -24,6 +25,10 @@ export type RawWonDeal = {
   value: number | null;
   value_usd: number | null;
   closed_at: string | null;
+  // The plan price when the plan was set on the deal (null for deals from before
+  // migration 0138, which then fall back to the plan's current price).
+  plan_amount_lkr?: number | null;
+  plan_amount_usd?: number | null;
   clients: { name: string } | null;
   pipeline_stages: { name: string } | null;
   plans: { name: string; amount_lkr: number | null; amount_usd: number | null } | null;
@@ -31,17 +36,20 @@ export type RawWonDeal = {
 
 function computeGainLoss(planAmount: number | null, actualAmount: number | null): CurrencyGainLoss {
   let status: CurrencyGainLoss["status"] = null;
-  let lossAmount: number | null = null;
+  let difference: number | null = null;
 
   if (planAmount != null && actualAmount != null) {
-    const diff = planAmount - actualAmount;
-    // Matches the plan price, or came in at/above it: a gain. Anything
-    // below the plan price is a loss of that difference.
-    status = diff <= 0 ? "gain" : "loss";
-    lossAmount = diff > 0 ? diff : 0;
+    difference = Math.abs(actualAmount - planAmount);
+    // Sold above the plan price is a gain, below it is a loss, and exactly at it is
+    // neither - it must not be reported as a gain.
+    status = actualAmount > planAmount ? "gain" : actualAmount < planAmount ? "loss" : "even";
   }
 
-  return { planAmount, actualAmount, status, lossAmount };
+  return { planAmount, actualAmount, status, difference };
+}
+
+function numberOrNull(value: number | string | null | undefined): number | null {
+  return value != null ? Number(value) : null;
 }
 
 export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
@@ -50,10 +58,13 @@ export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
     customer: d.clients?.name ?? "-",
     stage: d.pipeline_stages?.name ?? "-",
     plan: d.plans?.name ?? "-",
-    lkr: computeGainLoss(d.plans?.amount_lkr ?? null, d.value != null ? Number(d.value) : null),
+    lkr: computeGainLoss(
+      numberOrNull(d.plan_amount_lkr ?? d.plans?.amount_lkr),
+      numberOrNull(d.value)
+    ),
     usd: computeGainLoss(
-      d.plans?.amount_usd ?? null,
-      d.value_usd != null ? Number(d.value_usd) : null
+      numberOrNull(d.plan_amount_usd ?? d.plans?.amount_usd),
+      numberOrNull(d.value_usd)
     ),
     planStartDate: d.closed_at,
   }));
@@ -67,16 +78,11 @@ function GainLossBadge({
   format: (value: number) => string;
 }) {
   if (currency.status === null) return <span className="text-sm text-subtle">-</span>;
-  if (currency.status === "gain") {
-    return (
-      <span className="rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success">
-        Gain
-      </span>
-    );
-  }
+  if (currency.status === "even") return <span className="text-sm text-muted">On plan</span>;
+  const gain = currency.status === "gain";
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-full bg-error/15 px-2 py-0.5 text-xs font-medium text-error">
-      Loss · {format(currency.lossAmount ?? 0)}
+    <span className={`text-sm font-medium ${gain ? "text-success" : "text-error"}`}>
+      {gain ? "Gain" : "Loss"} · {format(currency.difference ?? 0)}
     </span>
   );
 }

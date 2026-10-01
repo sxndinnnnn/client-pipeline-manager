@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getPlanName } from "@/lib/deals";
+import { getPlanName, getPlanPriceSnapshot, MISSING_COLUMN_CODE } from "@/lib/deals";
 import type { ActivityType } from "@/types/database";
 import { LOGGED_ACTIVITY_TYPES } from "@/lib/activities";
 import { getCurrentUser } from "@/lib/supabase/current-user";
@@ -57,7 +57,19 @@ export async function updateDeal(dealId: string, formData: FormData): Promise<Up
     return { error: "Closed At can't be earlier than the created date" };
   }
 
-  const { error } = await supabase.from("deals").update(update).eq("id", dealId);
+  // Changing the plan re-snapshots its price; keeping the plan keeps the old snapshot.
+  const { data: current } = await supabase.from("deals").select("plan_id").eq("id", dealId).single();
+  const planChanged = current?.plan_id !== planId;
+
+  let { error } = await supabase
+    .from("deals")
+    .update(planChanged ? { ...update, ...(await getPlanPriceSnapshot(planId)) } : update)
+    .eq("id", dealId);
+
+  // Migration 0138 adds the snapshot columns; until it has been run, update without them.
+  if (error?.code === MISSING_COLUMN_CODE) {
+    ({ error } = await supabase.from("deals").update(update).eq("id", dealId));
+  }
   if (error) return { error: error.message };
 
   revalidatePath(`/deals/${dealId}`);

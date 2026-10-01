@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getPlanName } from "@/lib/deals";
+import { getPlanName, getPlanPriceSnapshot, MISSING_COLUMN_CODE } from "@/lib/deals";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 
 function parseTags(raw: FormDataEntryValue | null): string[] {
@@ -219,17 +219,25 @@ export async function createDeal(clientId: string, formData: FormData) {
   const valueRaw = formData.get("value") as string;
   const valueUsdRaw = formData.get("value_usd") as string;
 
-  const { error } = await supabase
+  const row = {
+    title,
+    client_id: clientId,
+    stage_id: leadStage?.id ?? null,
+    owner_id: user?.id ?? null,
+    plan_id: planId,
+    value: valueRaw ? Number(valueRaw) : null,
+    value_usd: valueUsdRaw ? Number(valueUsdRaw) : null,
+  };
+
+  // Freeze the plan price on the deal so later plan edits do not change its gain/loss.
+  let { error } = await supabase
     .from("deals")
-    .insert({
-      title,
-      client_id: clientId,
-      stage_id: leadStage?.id ?? null,
-      owner_id: user?.id ?? null,
-      plan_id: planId,
-      value: valueRaw ? Number(valueRaw) : null,
-      value_usd: valueUsdRaw ? Number(valueUsdRaw) : null,
-    });
+    .insert({ ...row, ...(await getPlanPriceSnapshot(planId)) });
+
+  // Migration 0138 adds the snapshot columns; until it has been run, insert without them.
+  if (error?.code === MISSING_COLUMN_CODE) {
+    ({ error } = await supabase.from("deals").insert(row));
+  }
 
   if (error) throw new Error(error.message);
 

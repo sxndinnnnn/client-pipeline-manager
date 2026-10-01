@@ -73,6 +73,8 @@ export interface Deal {
   plan_id: string | null;
   value: number | null;
   value_usd: number | null;
+  plan_amount_lkr: number | null;
+  plan_amount_usd: number | null;
   status: DealStatus;
   lost_reason: string | null;
   closed_at: string | null;

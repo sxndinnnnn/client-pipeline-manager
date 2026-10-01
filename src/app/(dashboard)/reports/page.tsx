@@ -13,13 +13,21 @@ export default async function ReportsPage({
   const { report } = await searchParams;
   const supabase = await createClient();
 
-  const { data: wonDeals } = await supabase
-    .from("deals")
-    .select(
-      "id, value, value_usd, closed_at, clients(name), pipeline_stages(name), plans(name, amount_lkr, amount_usd)"
-    )
-    .eq("status", "WON")
-    .order("closed_at", { ascending: false });
+  const joins = "clients(name), pipeline_stages(name), plans(name, amount_lkr, amount_usd)";
+  const wonDealsQuery = (columns: string) =>
+    supabase
+      .from("deals")
+      .select(`${columns}, ${joins}`)
+      .eq("status", "WON")
+      .order("closed_at", { ascending: false });
+
+  // plan_amount_* come from migration 0138; fall back to the live plan price without them.
+  const withSnapshot = await wonDealsQuery(
+    "id, value, value_usd, closed_at, plan_amount_lkr, plan_amount_usd"
+  );
+  const wonDeals = withSnapshot.error
+    ? (await wonDealsQuery("id, value, value_usd, closed_at")).data
+    : withSnapshot.data;
 
   const gainLossRows = buildGainLossRows((wonDeals ?? []) as unknown as RawWonDeal[]);
 

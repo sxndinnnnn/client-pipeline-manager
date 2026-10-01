@@ -129,6 +129,8 @@ Current schema:
 - `pipeline_stages.kind` (`PENDING` / `IN_PROGRESS` / `WON` / `LOST`) drives deal status;
   `pipeline_stages.win_probability` feeds weighted-pipeline math.
 - `deals.lost_reason` - captured when a deal is dropped into a Lost stage.
+- `deals.plan_amount_lkr` / `plan_amount_usd` - the plan price frozen when a plan is set on a deal
+  (0138), so editing a plan in Settings does not rewrite past Gain/Loss rows.
 - `deal_stage_events` - stage history, written by `move_deal_stage()` and an insert trigger
   on `deals`.
 - `sales_targets` - one yearly LKR revenue target per year (Settings > Targets).
