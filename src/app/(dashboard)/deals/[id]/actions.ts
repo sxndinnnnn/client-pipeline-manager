@@ -28,6 +28,12 @@ export async function updateDeal(dealId: string, formData: FormData): Promise<Up
     updated_at: new Date().toISOString(),
   };
 
+  // The USD value is only touched when the form sends it.
+  const valueUsdRaw = formData.get("value_usd");
+  if (typeof valueUsdRaw === "string") {
+    update.value_usd = valueUsdRaw ? Number(valueUsdRaw) : null;
+  }
+
   // Created / Closed At are only touched when the form sends them (the deal page's
   // simpler form does not), and are entered as Colombo local time.
   let createdAt: string | null = null;

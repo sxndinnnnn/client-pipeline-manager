@@ -190,6 +190,18 @@ export function DealRow({
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-muted">
+                    Value (USD)
+                  </label>
+                  <input
+                    name="value_usd"
+                    type="number"
+                    step="0.01"
+                    defaultValue={deal.value_usd ?? ""}
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-muted">
                     Created
                   </label>
                   <input
@@ -232,7 +244,7 @@ export function DealRow({
                 </div>
               </form>
             ) : (
-              <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-5">
                 <div>
                   <dt className="text-xs text-subtle">Plan</dt>
                   <dd className="text-sm font-medium text-foreground">
@@ -240,9 +252,15 @@ export function DealRow({
                   </dd>
                 </div>
                 <div>
-                  <dt className="text-xs text-subtle">Value</dt>
+                  <dt className="text-xs text-subtle">Value (LKR)</dt>
                   <dd className="text-sm font-medium text-foreground">
                     {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-subtle">Value (USD)</dt>
+                  <dd className="text-sm font-medium text-foreground">
+                    {deal.value_usd != null ? formatUSD(Number(deal.value_usd)) : "-"}
                   </dd>
                 </div>
                 <div>
