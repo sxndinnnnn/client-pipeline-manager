@@ -201,25 +201,26 @@ export function GroupedBarChart({
   labels,
   series,
   format,
-  maxOverride,
+  tooltipFormat = format,
 }: {
   labels: string[];
   series: Series[];
+  /** Compact format for the axis. */
   format: (n: number) => string;
-  /** Fix the axis maximum (e.g. 100 for percentages). */
-  maxOverride?: number;
+  /** Full format for the hover tooltip; defaults to `format`. */
+  tooltipFormat?: (n: number) => string;
 }) {
   const dataMax = Math.max(0, ...series.flatMap((s) => s.values));
   if (dataMax === 0) return <EmptyNote>No data in the last 12 months.</EmptyNote>;
 
-  const ticks = maxOverride ? [0, maxOverride / 2, maxOverride] : niceTicks(dataMax);
+  const ticks = niceTicks(dataMax);
   const chartMax = Math.max(1, ticks[ticks.length - 1]);
   const axisWidth = Math.max(36, format(chartMax).length * 7 + 12);
 
   return (
     <div className="overflow-x-auto">
       <div style={{ minWidth: `${axisWidth + labels.length * 36}px` }}>
-        <div className="flex h-44">
+        <div className="flex h-60 pt-16">
           <div className="relative shrink-0" style={{ width: `${axisWidth}px` }}>
             {ticks.map((tick) => (
               <span
@@ -240,18 +241,41 @@ export function GroupedBarChart({
               />
             ))}
             <div className="absolute inset-0 flex items-end gap-1.5">
-              {labels.map((label, i) => (
-                <div key={label} className="flex h-full flex-1 items-end justify-center gap-0.5">
-                  {series.map((s) => (
+              {labels.map((label, i) => {
+                const tallest = Math.max(...series.map((s) => s.values[i]));
+                // Keep the tooltip inside the chart at both ends of the axis.
+                const align =
+                  i >= labels.length - 3
+                    ? "right-0"
+                    : i < 2
+                      ? "left-0"
+                      : "left-1/2 -translate-x-1/2";
+                return (
+                  <div
+                    key={label}
+                    className="group relative flex h-full flex-1 items-end justify-center gap-0.5 rounded hover:bg-surface-sunken/60"
+                  >
                     <div
-                      key={s.name}
-                      className={`w-full max-w-4 rounded-t ${s.barClass}`}
-                      style={{ height: `${(s.values[i] / chartMax) * 100}%` }}
-                      title={`${label} · ${s.name}: ${format(s.values[i])}`}
-                    />
-                  ))}
-                </div>
-              ))}
+                      className={`pointer-events-none absolute z-10 whitespace-nowrap rounded bg-foreground px-2.5 py-1.5 text-xs text-background opacity-0 shadow-floating transition-opacity group-hover:opacity-100 ${align}`}
+                      style={{ bottom: `calc(${(tallest / chartMax) * 100}% + 0.5rem)` }}
+                    >
+                      <p className="mb-0.5 font-semibold">{label}</p>
+                      {series.map((s) => (
+                        <p key={s.name} className="font-medium">
+                          {s.name}: {tooltipFormat(s.values[i])}
+                        </p>
+                      ))}
+                    </div>
+                    {series.map((s) => (
+                      <div
+                        key={s.name}
+                        className={`w-full max-w-4 rounded-t ${s.barClass}`}
+                        style={{ height: `${(s.values[i] / chartMax) * 100}%` }}
+                      />
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

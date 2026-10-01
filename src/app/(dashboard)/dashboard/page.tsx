@@ -102,6 +102,7 @@ export default async function DashboardPage() {
           <GroupedBarChart
             labels={monthLabels}
             format={formatCompact}
+            tooltipFormat={formatLKR}
             series={[
               { name: "Won", barClass: "bg-success", values: m.trend.map((t) => t.wonValue) },
               { name: "Lost", barClass: "bg-error", values: m.trend.map((t) => t.lostValue) },
