@@ -107,7 +107,7 @@ Do this in the same turn as the feature/fix itself, without being asked.
 
 ## Migrations
 
-`supabase/migrations/0001` through `0090` exist as of this handoff (90 files - many are
+`supabase/migrations/0001` through `0113` exist as of this handoff (113 files - many are
 tiny single-INSERT changelog-entry migrations that always follow the "real" migration
 for that change). **Ask the user to confirm which ones have actually been run** in their
 Supabase SQL Editor - Claude has no way to check this directly, and in this project's
@@ -134,6 +134,7 @@ Current schema (post-cleanup):
   parameter, which was a real security bug (anyone with a valid session could attribute
   an activity note to an arbitrary other user via direct RPC call, bypassing the app
   entirely); fixed in migration 0007 to derive the actor from `auth.uid()` server-side.
+- `deal_stage_events` (stage history, written by `move_deal_stage()` and an insert trigger), `deals.lost_reason`, `pipeline_stages.win_probability` and `sales_targets` (yearly LKR target) were added in 0112 for the dashboard KPIs.
 - Storage bucket `client-logos` (public read, authenticated write) for client logo
   uploads.
 - `tasks` **has been dropped entirely** (migration `0086_drop_tasks.sql`) - the Tasks
@@ -166,6 +167,7 @@ Current schema (post-cleanup):
   Users management uses `src/lib/supabase/admin.ts` (service-role) to invite/remove
   teammates via the Supabase Auth admin API, replacing the old "invite from the Supabase
   dashboard directly" workflow.
+- **Dashboard** (`/dashboard?period=month|quarter|year|all`) - KPI dashboard; math lives in `src/lib/dashboard/metrics.ts` + `period.ts` (Asia/Colombo boundaries), UI blocks in `dashboard/ui.tsx`. Dropping a deal into a Lost stage asks for a reason; Settings > Targets sets the yearly target; stage edit sets win probability.
 - **Reports** (`/reports`) - built as an extensible report generator. First report is
   Gain/Loss (`gain-loss-report.tsx`): customer, deal, plan, plan amount, actual amount,
   gain/loss, and plan start date (the date the deal moved to Won).

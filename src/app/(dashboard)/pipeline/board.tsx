@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import Link from "next/link";
 import {
   DndContext,
@@ -15,6 +15,7 @@ import {
 } from "@dnd-kit/core";
 import type { Deal, PipelineStage } from "@/types/database";
 import { formatLKR } from "@/lib/currency";
+import { LOSS_REASONS, formatLostReason } from "@/lib/loss-reasons";
 import { moveDeal } from "./actions";
 
 type DealWithClient = Deal & { clients: { name: string } | null };
@@ -93,6 +94,87 @@ function Column({
   );
 }
 
+function LostReasonDialog({
+  open,
+  dealTitle,
+  onCancel,
+  onConfirm,
+}: {
+  open: boolean;
+  dealTitle: string;
+  onCancel: () => void;
+  onConfirm: (reason: string) => void;
+}) {
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [reason, setReason] = useState<string>(LOSS_REASONS[0]);
+  const [note, setNote] = useState("");
+
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (open && !dialog.open) dialog.showModal();
+    if (!open && dialog.open) dialog.close();
+  }, [open]);
+
+  return (
+    <dialog
+      ref={dialogRef}
+      onClose={onCancel}
+      onClick={(e) => {
+        if (e.target === dialogRef.current) onCancel();
+      }}
+      className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
+    >
+      <div className="w-full max-w-sm rounded-lg border border-border bg-surface p-4 shadow-floating">
+        <h2 className="text-sm font-semibold text-foreground">Why was this deal lost?</h2>
+        {dealTitle && <p className="mt-1 text-xs text-subtle">{dealTitle}</p>}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            onConfirm(formatLostReason(reason, note));
+          }}
+          className="mt-3 flex flex-col gap-3"
+        >
+          <select
+            value={reason}
+            onChange={(e) => setReason(e.target.value)}
+            className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+          >
+            {LOSS_REASONS.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+          {reason === "Other" && (
+            <input
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a short note (optional)"
+              className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+            />
+          )}
+          <div className="flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="rounded-md border border-border-strong px-3 py-1.5 text-sm text-muted hover:text-foreground"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+            >
+              Mark As Lost
+            </button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+  );
+}
+
 export function PipelineBoard({
   stages,
   initialDeals,
@@ -102,6 +184,7 @@ export function PipelineBoard({
 }) {
   const [deals, setDeals] = useState(initialDeals);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [lostPrompt, setLostPrompt] = useState<{ dealId: string; stageId: string } | null>(null);
   const [, startTransition] = useTransition();
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -121,14 +204,25 @@ export function PipelineBoard({
     const deal = deals.find((d) => d.id === dealId);
     if (!deal || deal.stage_id === newStageId) return;
 
-    const previousStageId = deal.stage_id;
+    // Dropping into a Lost stage asks why first; the move happens on confirm.
+    const targetStage = stages.find((s) => s.id === newStageId);
+    if (targetStage?.kind === "LOST") {
+      setLostPrompt({ dealId, stageId: newStageId });
+      return;
+    }
+
+    applyMove(dealId, newStageId);
+  }
+
+  function applyMove(dealId: string, newStageId: string, lostReason?: string) {
+    const previousStageId = deals.find((d) => d.id === dealId)?.stage_id ?? null;
     setDeals((prev) =>
       prev.map((d) => (d.id === dealId ? { ...d, stage_id: newStageId } : d))
     );
 
     startTransition(async () => {
       try {
-        await moveDeal(dealId, newStageId);
+        await moveDeal(dealId, newStageId, lostReason);
       } catch {
         setDeals((prev) =>
           prev.map((d) => (d.id === dealId ? { ...d, stage_id: previousStageId } : d))
@@ -155,6 +249,16 @@ export function PipelineBoard({
         ))}
       </div>
       <DragOverlay>{activeDeal ? <DealCard deal={activeDeal} /> : null}</DragOverlay>
+      <LostReasonDialog
+        key={lostPrompt ? `${lostPrompt.dealId}:${lostPrompt.stageId}` : "closed"}
+        open={lostPrompt != null}
+        dealTitle={deals.find((d) => d.id === lostPrompt?.dealId)?.title ?? ""}
+        onCancel={() => setLostPrompt(null)}
+        onConfirm={(reason) => {
+          if (lostPrompt) applyMove(lostPrompt.dealId, lostPrompt.stageId, reason);
+          setLostPrompt(null);
+        }}
+      />
     </DndContext>
   );
 }

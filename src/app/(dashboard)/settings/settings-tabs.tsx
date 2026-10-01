@@ -7,6 +7,7 @@ const TABS = [
   { href: "/settings/plans", label: "Plans" },
   { href: "/settings/industries", label: "Industries" },
   { href: "/settings/stages", label: "Pipeline Stages" },
+  { href: "/settings/targets", label: "Targets" },
   { href: "/settings/users", label: "Users" },
 ];
 

@@ -1,6 +1,15 @@
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { formatLKR } from "@/lib/currency";
-import type { Client, Deal } from "@/types/database";
+import { formatLKR, formatUSD } from "@/lib/currency";
+import { buildDashboardMetrics, STALE_DAYS, type GroupRow } from "@/lib/dashboard/metrics";
+import { parsePeriod, resolvePeriod } from "@/lib/dashboard/period";
+import type {
+  Deal,
+  DealStageEvent,
+  Plan,
+  PipelineStage,
+  SalesTarget,
+} from "@/types/database";
 import {
   BarChartIcon,
   BriefcaseIcon,
@@ -11,462 +20,449 @@ import {
   TrendingDownIcon,
   TrendingUpIcon,
   UsersIcon,
+  ValueIcon,
 } from "@/components/icons";
+import {
+  BarList,
+  DataTable,
+  EmptyNote,
+  FunnelChart,
+  GroupedBarChart,
+  Legend,
+  LineChart,
+  MiniStat,
+  Panel,
+  PeriodSelector,
+  RankedList,
+  SectionHeading,
+  StageBarChart,
+  StatTile,
+  formatCompact,
+  formatPercent,
+} from "./ui";
 
-function avg(nums: number[]) {
-  return nums.length ? nums.reduce((sum, n) => sum + n, 0) / nums.length : null;
-}
+const DAY_MS = 24 * 60 * 60 * 1000;
 
-function numericValues(deals: Deal[]) {
-  return deals.map((d) => d.value).filter((v): v is number => v != null).map(Number);
-}
-
-// Rounds `maxValue` up to a "nice" number and returns evenly spaced ticks
-// from 0 to that nice max, for a chart y-axis.
-function niceTicks(maxValue: number, targetCount = 4) {
-  if (maxValue <= 0) return [0];
-  const rawStep = maxValue / targetCount;
-  const magnitude = Math.pow(10, Math.floor(Math.log10(rawStep)));
-  const residual = rawStep / magnitude;
-  const niceStep =
-    (residual > 5 ? 10 : residual > 2 ? 5 : residual > 1 ? 2 : 1) * magnitude;
-  const niceMax = Math.ceil(maxValue / niceStep) * niceStep;
-  const ticks: number[] = [];
-  for (let v = 0; v <= niceMax + niceStep / 2; v += niceStep) ticks.push(Math.round(v));
-  return ticks;
-}
-
-/* ------------------------- Building blocks ------------------------- */
-
-const toneText: Record<string, string> = {
-  default: "text-foreground",
-  good: "text-success",
-  warning: "text-warning",
-  critical: "text-error",
-};
-
-const badgeTone: Record<string, string> = {
-  default: "bg-border text-muted",
-  accent: "bg-primary/10 text-primary",
-  good: "bg-success/10 text-success",
-  warning: "bg-warning/10 text-warning",
-  critical: "bg-error/10 text-error",
-};
-
-function StatTile({
-  label,
-  value,
-  icon,
-  badgeToneKey = "accent",
-  valueTone = "default",
-}: {
-  label: string;
-  value: string;
-  icon: React.ReactNode;
-  badgeToneKey?: keyof typeof badgeTone;
-  valueTone?: keyof typeof toneText;
-}) {
+function GroupTable({ rows, label }: { rows: GroupRow[]; label: string }) {
+  if (rows.length === 0) return <EmptyNote>No closed deals in this period.</EmptyNote>;
   return (
-    <div className="flex flex-col gap-2.5 rounded-lg border border-border bg-surface p-4 shadow-resting transition-all hover:-translate-y-0.5 hover:shadow-raised hover:border-border-strong">
-      <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${badgeTone[badgeToneKey]}`}>
-        {icon}
-      </span>
-      <div>
-        <p className={`text-2xl font-bold ${toneText[valueTone]}`}>{value}</p>
-        <p className="text-xs uppercase tracking-wide text-subtle">{label}</p>
-      </div>
-    </div>
+    <DataTable
+      columns={[
+        { label },
+        { label: "Won", align: "right" },
+        { label: "Won Value", align: "right" },
+        { label: "Win Rate", align: "right" },
+      ]}
+      rows={rows.map((r) => [r.name, r.won, formatLKR(r.wonValue), formatPercent(r.winRate)])}
+    />
   );
 }
 
-function Panel({
-  title,
-  icon,
-  children,
+export default async function DashboardPage({
+  searchParams,
 }: {
-  title: string;
-  icon: React.ReactNode;
-  children: React.ReactNode;
+  searchParams: Promise<{ period?: string }>;
 }) {
-  return (
-    <div className="rounded-lg border border-border bg-surface p-4 shadow-resting">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-primary/10 text-primary">
-          {icon}
-        </span>
-        <h2 className="text-sm font-semibold text-foreground">{title}</h2>
-      </div>
-      {children}
-    </div>
-  );
-}
+  const { period: periodParam } = await searchParams;
+  const now = new Date();
+  const period = resolvePeriod(parsePeriod(periodParam), now);
 
-export function OpenDealsDonut({
-  total,
-  withValue,
-  withoutValue,
-}: {
-  total: number;
-  withValue: number;
-  withoutValue: number;
-}) {
-  const r = 70;
-  const strokeWidth = 18;
-  const circumference = 2 * Math.PI * r;
-  const withValueLen = total > 0 ? (withValue / total) * circumference : 0;
-  const withoutValueLen = total > 0 ? (withoutValue / total) * circumference : 0;
-
-  return (
-    <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-lg border border-border bg-surface p-5 shadow-resting sm:flex-row">
-      <div className="relative h-44 w-44 shrink-0">
-        <svg viewBox="0 0 200 200" className="h-full w-full -rotate-90">
-          <circle
-            cx="100"
-            cy="100"
-            r={r}
-            fill="none"
-            strokeWidth={strokeWidth}
-            className="stroke-border"
-          />
-          {total > 0 && (
-            <>
-              <circle
-                cx="100"
-                cy="100"
-                r={r}
-                fill="none"
-                strokeWidth={strokeWidth}
-                strokeDasharray={`${withValueLen} ${circumference - withValueLen}`}
-                className="stroke-primary"
-              />
-              <circle
-                cx="100"
-                cy="100"
-                r={r}
-                fill="none"
-                strokeWidth={strokeWidth}
-                strokeDasharray={`${withoutValueLen} ${circumference - withoutValueLen}`}
-                strokeDashoffset={-withValueLen}
-                className="stroke-warning"
-              />
-            </>
-          )}
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold leading-tight text-foreground">
-            {total}
-          </span>
-          <span className="text-[10px] font-semibold uppercase text-subtle">
-            Open Deals
-          </span>
-        </div>
-      </div>
-      <div className="flex w-full max-w-[220px] flex-col gap-3">
-        <div className="flex items-center gap-2.5">
-          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-primary" />
-          <span className="flex-1 text-sm text-muted">
-            Open Deals With Value
-          </span>
-          <span className="text-sm font-bold text-foreground">{withValue}</span>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-warning" />
-          <span className="flex-1 text-sm text-muted">
-            Open Deals Without Value
-          </span>
-          <span className="text-sm font-bold text-foreground">{withoutValue}</span>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function MiniStat({
-  label,
-  value,
-  tone = "default",
-}: {
-  label: string;
-  value: string;
-  tone?: keyof typeof toneText;
-}) {
-  return (
-    <div className="rounded-md bg-surface-sunken p-3">
-      <p className={`text-xl font-bold ${toneText[tone]}`}>{value}</p>
-      <p className="mt-0.5 text-[11px] font-medium uppercase tracking-wide text-subtle">
-        {label}
-      </p>
-    </div>
-  );
-}
-
-export function StageBarChart({
-  stageRows,
-}: {
-  stageRows: { name: string; count: number; value: number }[];
-}) {
-  if (stageRows.every((r) => r.count === 0)) {
-    return <p className="text-sm text-subtle">No deals yet.</p>;
-  }
-
-  const ticks = niceTicks(Math.max(...stageRows.map((r) => r.value)));
-  const chartMax = Math.max(1, ticks[ticks.length - 1]);
-
-  // Sized off the longest tick label so it never gets clipped by the
-  // horizontal-scroll container to its right (was previously a fixed w-20,
-  // which truncated once values grew past ~6 figures).
-  const axisWidth = Math.max(64, formatLKR(chartMax).length * 7 + 16);
-
-  // Below this many px the bar columns get too thin to read (value labels
-  // collide, hover targets shrink) - horizontal-scroll the chart instead of
-  // squeezing bars forever. Desktop content is always wider than this, so
-  // it never triggers there - the chart renders identically to before.
-  const chartMinWidth = axisWidth + stageRows.length * 90;
-
-  return (
-    <div className="overflow-x-auto">
-      <div style={{ minWidth: `${chartMinWidth}px` }}>
-        <div className="mt-6 flex h-56">
-          <div className="relative shrink-0" style={{ width: `${axisWidth}px` }}>
-            {ticks.map((tick) => (
-              <span
-                key={tick}
-                className="absolute right-2 -translate-y-1/2 whitespace-nowrap text-xs text-subtle"
-                style={{ bottom: `${(tick / chartMax) * 100}%` }}
-              >
-                {formatLKR(tick)}
-              </span>
-            ))}
-          </div>
-          <div className="relative flex-1">
-            {ticks.map((tick) => (
-              <div
-                key={tick}
-                className="absolute inset-x-0 border-t border-border"
-                style={{ bottom: `${(tick / chartMax) * 100}%` }}
-              />
-            ))}
-            <div className="absolute inset-0 flex items-end gap-3">
-              {stageRows.map((row) => (
-                <div
-                  key={row.name}
-                  className="group relative flex h-full flex-1 flex-col items-center justify-end"
-                >
-                  <div
-                    className="pointer-events-none absolute left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-foreground px-2 py-1 text-xs font-medium text-background opacity-0 shadow-floating transition-opacity group-hover:opacity-100"
-                    style={{ bottom: `calc(${(row.value / chartMax) * 100}% + 2rem)` }}
-                  >
-                    {row.count} Deal{row.count === 1 ? "" : "s"}
-                  </div>
-                  {row.value > 0 && (
-                    <span className="mb-1 text-xs font-medium text-muted">
-                      {formatLKR(row.value)}
-                    </span>
-                  )}
-                  <div
-                    className="w-full rounded-t bg-primary"
-                    style={{ height: `${(row.value / chartMax) * 100}%` }}
-                  />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-        <div className="mt-2 flex gap-3" style={{ paddingLeft: `${axisWidth}px` }}>
-          {stageRows.map((row) => (
-            <span
-              key={row.name}
-              className="flex-1 text-center text-xs text-subtle"
-            >
-              {row.name}
-            </span>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-/* ------------------------------ Page ------------------------------ */
-
-export default async function DashboardPage() {
   const supabase = await createClient();
+  const activitySince = new Date(now.getTime() - 400 * DAY_MS).toISOString();
 
-  const [{ data: deals }, { data: stages }, { data: clients }] = await Promise.all([
+  // Tables added by migration 0112 may not exist yet; their queries then return
+  // an error and `data: null`, which the `?? []` fallbacks below turn into empty states.
+  const [
+    { data: deals },
+    { data: stages },
+    { data: clients },
+    { data: plans },
+    { data: activities },
+    { data: events },
+    { data: profiles },
+    { data: targets },
+  ] = await Promise.all([
     supabase.from("deals").select("*"),
     supabase.from("pipeline_stages").select("*").order("sort_order", { ascending: true }),
-    supabase.from("clients").select("id, name"),
+    supabase.from("clients").select("id, name, industry, is_active, created_at"),
+    supabase.from("plans").select("*"),
+    supabase
+      .from("activities")
+      .select("deal_id, author_id, created_at, content")
+      .gte("created_at", activitySince),
+    supabase.from("deal_stage_events").select("*"),
+    supabase.from("user_profiles").select("id, name, email"),
+    supabase.from("sales_targets").select("*"),
   ]);
 
-  const allDeals = (deals ?? []) as Deal[];
-  const allClients = (clients ?? []) as Pick<Client, "id" | "name">[];
-
-  const openDeals = allDeals.filter((d) => d.status === "OPEN");
-  const wonDeals = allDeals.filter((d) => d.status === "WON");
-  const lostDeals = allDeals.filter((d) => d.status === "LOST");
-
-  // Pipeline overview
-  const totalOpenValue = numericValues(openDeals).reduce((sum, v) => sum + v, 0);
-  const totalWonValue = numericValues(wonDeals).reduce((sum, v) => sum + v, 0);
-  const totalLostValue = numericValues(lostDeals).reduce((sum, v) => sum + v, 0);
-  const decidedCount = wonDeals.length + lostDeals.length;
-  const winRate = decidedCount > 0 ? (wonDeals.length / decidedCount) * 100 : null;
-  const lostRate = decidedCount > 0 ? (lostDeals.length / decidedCount) * 100 : null;
-  const avgOpenSize = avg(numericValues(openDeals));
-  const openDealsWithValue = openDeals.filter((d) => d.value != null).length;
-  const openDealsWithoutValue = openDeals.length - openDealsWithValue;
-  const avgWonSize = avg(numericValues(wonDeals));
-  const avgLostSize = avg(numericValues(lostDeals));
-
-  // Pipeline by stage - every stage, including the terminal Won/Lost columns
-  const dealsByStage = new Map<string, Deal[]>();
-  for (const d of allDeals) {
-    const key = d.stage_id ?? "none";
-    dealsByStage.set(key, [...(dealsByStage.get(key) ?? []), d]);
-  }
-  const stageRows = (stages ?? []).map((s) => {
-    const list = dealsByStage.get(s.id) ?? [];
-    return { name: s.name, count: list.length, value: numericValues(list).reduce((sum, v) => sum + v, 0) };
+  const m = buildDashboardMetrics({
+    now,
+    period,
+    deals: (deals ?? []) as Deal[],
+    stages: (stages ?? []) as PipelineStage[],
+    clients: clients ?? [],
+    plans: (plans ?? []) as Plan[],
+    activities: activities ?? [],
+    events: (events ?? []) as DealStageEvent[],
+    profiles: profiles ?? [],
+    targets: (targets ?? []) as SalesTarget[],
   });
 
-  // Clients
-  const openDealsByClient = new Map<string, Deal[]>();
-  for (const d of openDeals) {
-    openDealsByClient.set(d.client_id, [...(openDealsByClient.get(d.client_id) ?? []), d]);
-  }
-  const clientsWithNoOpenDeals = allClients.filter((c) => !openDealsByClient.has(c.id)).length;
-  const topClients = allClients
-    .map((c) => ({
-      id: c.id,
-      name: c.name,
-      value: numericValues(openDealsByClient.get(c.id) ?? []).reduce((s, v) => s + v, 0),
-    }))
-    .filter((c) => c.value > 0)
-    .sort((a, b) => b.value - a.value)
-    .slice(0, 5);
+  const prevLabel = period.previousLabel;
+  const deltas = m.headline.deltas;
+  const hasTarget = m.target.amount != null;
+  const monthLabels = m.trend.map((t) => t.label);
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Open */}
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
-        <OpenDealsDonut
-          total={openDeals.length}
-          withValue={openDealsWithValue}
-          withoutValue={openDealsWithoutValue}
-        />
-        <div className="flex flex-col gap-3">
-          <StatTile
-            label="Open Pipeline Value"
-            value={formatLKR(totalOpenValue)}
-            icon={<TrendingUpIcon />}
-            badgeToneKey="accent"
-          />
-          <StatTile
-            label="Avg Open Deal Size"
-            value={avgOpenSize != null ? formatLKR(avgOpenSize) : "N/A"}
-            icon={<TagIcon />}
-            badgeToneKey="accent"
-          />
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-lg font-semibold text-foreground">Dashboard</h1>
+        <PeriodSelector active={period.key} />
       </div>
 
-      {/* Won */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+      {/* ------------------------------ Headline ------------------------------ */}
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <StatTile
-          label="Won Deals"
-          value={String(wonDeals.length)}
-          icon={<BriefcaseIcon />}
-          badgeToneKey="good"
+          label="Open Pipeline Value"
+          value={formatLKR(m.open.value.lkr)}
+          secondary={m.open.value.usd > 0 ? formatUSD(m.open.value.usd) : undefined}
+          note={
+            <>
+              {m.open.count} open deal{m.open.count === 1 ? "" : "s"}
+              {m.open.withoutValue > 0 && ` · ${m.open.withoutValue} without a value`}
+            </>
+          }
+          icon={<TrendingUpIcon />}
         />
         <StatTile
-          label="Win Rate"
-          value={winRate != null ? `${Math.round(winRate)}%` : "N/A"}
-          icon={<TargetIcon />}
-          badgeToneKey="good"
-        />
-        <StatTile
-          label="Won Pipeline Value"
-          value={formatLKR(totalWonValue)}
+          label={`Won Value ${period.label}`}
+          value={formatLKR(m.headline.wonValue.lkr)}
+          secondary={m.headline.wonValue.usd > 0 ? formatUSD(m.headline.wonValue.usd) : undefined}
+          note={`${m.headline.wonCount} won deal${m.headline.wonCount === 1 ? "" : "s"}`}
+          delta={deltas?.wonValue}
+          deltaSuffix={prevLabel}
           icon={<CheckCircleIcon />}
           badgeToneKey="good"
         />
         <StatTile
+          label="Win Rate"
+          value={formatPercent(m.headline.winRate)}
+          note={`${m.headline.wonCount} won · ${m.headline.lostCount} lost`}
+          delta={deltas?.winRate}
+          deltaSuffix={prevLabel}
+          icon={<TargetIcon />}
+          badgeToneKey="good"
+        />
+        <StatTile
           label="Avg Won Deal Size"
-          value={avgWonSize != null ? formatLKR(avgWonSize) : "N/A"}
+          value={m.headline.avgWonSize != null ? formatLKR(Math.round(m.headline.avgWonSize)) : "N/A"}
+          delta={deltas?.avgWonSize}
+          deltaSuffix={prevLabel}
           icon={<TagIcon />}
           badgeToneKey="good"
         />
-      </div>
-
-      {/* Lost */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <StatTile
-          label="Lost Deals"
-          value={String(lostDeals.length)}
+          label={`New Deals ${period.label}`}
+          value={String(m.headline.newDeals)}
+          delta={deltas?.newDeals}
+          deltaSuffix={prevLabel}
           icon={<BriefcaseIcon />}
-          badgeToneKey="critical"
-        />
-        <StatTile
-          label="Lost Rate"
-          value={lostRate != null ? `${Math.round(lostRate)}%` : "N/A"}
-          icon={<TargetIcon />}
-          badgeToneKey="critical"
-        />
-        <StatTile
-          label="Lost Pipeline Value"
-          value={formatLKR(totalLostValue)}
-          icon={<TrendingDownIcon />}
-          badgeToneKey="critical"
-        />
-        <StatTile
-          label="Avg Lost Deal Size"
-          value={avgLostSize != null ? formatLKR(avgLostSize) : "N/A"}
-          icon={<TagIcon />}
-          badgeToneKey="critical"
         />
       </div>
 
-      {/* Pipeline By Stage + Clients, side by side on wide screens */}
+      {/* ---------------------------- Pipeline health ---------------------------- */}
+      <SectionHeading>Pipeline Health</SectionHeading>
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatTile
+          label="Avg Sales Cycle"
+          value={
+            m.headline.avgCycleDays != null ? `${Math.round(m.headline.avgCycleDays)} days` : "N/A"
+          }
+          note="Created to won, deals won in period"
+          delta={deltas?.avgCycleDays}
+          deltaSuffix={prevLabel}
+          lowerIsBetter
+          icon={<TrendingDownIcon />}
+        />
+        <StatTile
+          label="Weighted Pipeline"
+          value={formatLKR(Math.round(m.open.weighted))}
+          note="Open value × stage win probability"
+          icon={<ValueIcon />}
+        />
+        <StatTile
+          label={`Pipeline Coverage ${m.target.year}`}
+          value={
+            !hasTarget
+              ? "No target"
+              : m.target.coverage != null
+                ? `${m.target.coverage.toFixed(1)}×`
+                : "Target met"
+          }
+          note={
+            !hasTarget ? (
+              <Link href="/settings/targets" className="text-primary hover:underline">
+                Set a yearly target
+              </Link>
+            ) : m.target.remaining != null && m.target.remaining > 0 ? (
+              `Open pipeline vs ${formatLKR(Math.round(m.target.remaining))} still to win`
+            ) : (
+              `${formatLKR(Math.round(m.target.wonThisYear))} won this year`
+            )
+          }
+          icon={<TargetIcon />}
+          valueTone={
+            m.target.coverage == null ? "default" : m.target.coverage >= 3 ? "good" : "warning"
+          }
+        />
+        <StatTile
+          label={`Stale Open Deals (${STALE_DAYS}+ days idle)`}
+          value={String(m.staleDeals.length)}
+          note={m.staleDeals.length > 0 ? `${formatLKR(m.staleValue)} at risk` : "Nothing is going cold"}
+          icon={<BriefcaseIcon />}
+          badgeToneKey={m.staleDeals.length > 0 ? "warning" : "good"}
+          valueTone={m.staleDeals.length > 0 ? "warning" : "good"}
+        />
+      </div>
+
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.6fr_1fr]">
         <Panel title="Pipeline By Stage" icon={<BarChartIcon />}>
-          <StageBarChart stageRows={stageRows} />
+          <StageBarChart stageRows={m.stageRows} />
         </Panel>
-
-        <Panel title="Clients" icon={<UsersIcon />}>
-          <div className="mb-4 grid grid-cols-2 gap-3">
-            <MiniStat label="Total Clients" value={String(allClients.length)} />
-            <MiniStat
-              label="No Open Deals"
-              value={String(clientsWithNoOpenDeals)}
-              tone={clientsWithNoOpenDeals > 0 ? "warning" : "good"}
-            />
-          </div>
-          <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-subtle">
-            <CrownIcon className="h-3 w-3" />
-            Top Clients By Open Pipeline Value
-          </div>
-          {topClients.length === 0 ? (
-            <p className="text-sm text-subtle">No open deals yet.</p>
+        <Panel title="Conversion Funnel" icon={<TrendingUpIcon />} subtitle="All deals">
+          {m.funnelRows.every((r) => r.count === 0) ? (
+            <EmptyNote>No deals yet.</EmptyNote>
           ) : (
-            <ol className="flex flex-col">
-              {topClients.map((c, i) => (
-                <li
-                  key={c.id}
-                  className="flex items-center gap-2.5 border-t border-border py-2 text-sm first:border-t-0"
-                >
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-primary/10 text-[11px] font-bold text-primary">
-                    {i + 1}
-                  </span>
-                  <span className="flex-1 text-muted">{c.name}</span>
-                  <span className="font-medium text-foreground">
-                    {formatLKR(c.value)}
-                  </span>
-                </li>
-              ))}
-            </ol>
+            <FunnelChart rows={m.funnelRows} />
           )}
         </Panel>
       </div>
+
+      {/* --------------------------------- Trends --------------------------------- */}
+      <SectionHeading>Trends · Last 12 Months</SectionHeading>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Panel title="Won vs Lost Value" icon={<BarChartIcon />}>
+          <Legend
+            items={[
+              { name: "Won", dotClass: "bg-success" },
+              { name: "Lost", dotClass: "bg-error" },
+            ]}
+          />
+          <GroupedBarChart
+            labels={monthLabels}
+            format={formatCompact}
+            series={[
+              { name: "Won", barClass: "bg-success", values: m.trend.map((t) => t.wonValue) },
+              { name: "Lost", barClass: "bg-error", values: m.trend.map((t) => t.lostValue) },
+            ]}
+          />
+        </Panel>
+        <Panel title="Deals Created vs Closed" icon={<BriefcaseIcon />}>
+          <Legend
+            items={[
+              { name: "Created", dotClass: "bg-primary" },
+              { name: "Closed (won + lost)", dotClass: "bg-subtle" },
+            ]}
+          />
+          <GroupedBarChart
+            labels={monthLabels}
+            format={(n) => String(Math.round(n))}
+            series={[
+              { name: "Created", barClass: "bg-primary", values: m.trend.map((t) => t.created) },
+              { name: "Closed", barClass: "bg-subtle", values: m.trend.map((t) => t.closed) },
+            ]}
+          />
+        </Panel>
+        <Panel
+          title={`Cumulative Revenue vs Target ${m.target.year}`}
+          icon={<TrendingUpIcon />}
+        >
+          <Legend
+            items={[
+              { name: "Won revenue", dotClass: "bg-primary" },
+              ...(hasTarget ? [{ name: "Target pace", dotClass: "bg-subtle" }] : []),
+            ]}
+          />
+          <LineChart points={m.cumulative} />
+          {!hasTarget && (
+            <p className="mt-2 text-xs text-subtle">
+              <Link href="/settings/targets" className="text-primary hover:underline">
+                Set a yearly target
+              </Link>{" "}
+              to see the pace line.
+            </p>
+          )}
+        </Panel>
+        <Panel title="Win Rate By Month" icon={<TargetIcon />}>
+          <GroupedBarChart
+            labels={monthLabels}
+            format={(n) => `${Math.round(n)}%`}
+            maxOverride={100}
+            series={[
+              { name: "Win rate", barClass: "bg-success", values: m.trend.map((t) => t.winRate) },
+            ]}
+          />
+        </Panel>
+      </div>
+
+      {/* ---------------------------- Needs attention ---------------------------- */}
+      <SectionHeading>Needs Attention</SectionHeading>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Panel title="Stale Open Deals" icon={<BriefcaseIcon />} subtitle={`${STALE_DAYS}+ days without activity`}>
+          {m.staleDeals.length === 0 ? (
+            <EmptyNote>Every open deal has been touched in the last {STALE_DAYS} days.</EmptyNote>
+          ) : (
+            <DataTable
+              columns={[
+                { label: "Deal" },
+                { label: "Stage" },
+                { label: "Value", align: "right" },
+                { label: "Idle", align: "right" },
+              ]}
+              rows={m.staleDeals.slice(0, 6).map((d) => [
+                <Link key={d.id} href={`/deals/${d.id}`} className="hover:text-foreground hover:underline">
+                  {d.client} · {d.title}
+                </Link>,
+                d.stage,
+                d.value > 0 ? formatLKR(d.value) : "-",
+                `${d.idleDays} days`,
+              ])}
+            />
+          )}
+          {m.staleDeals.length > 6 && (
+            <p className="mt-2 text-xs text-subtle">+ {m.staleDeals.length - 6} more</p>
+          )}
+        </Panel>
+
+        <Panel title="Loss Analysis" icon={<TrendingDownIcon />} subtitle={period.label}>
+          <div className="mb-4 grid grid-cols-2 gap-3">
+            <MiniStat label="Lost Deals" value={String(m.headline.lostCount)} tone={m.headline.lostCount > 0 ? "critical" : "default"} />
+            <MiniStat label="Lost Value" value={formatLKR(m.headline.lostValue.lkr)} tone={m.headline.lostValue.lkr > 0 ? "critical" : "default"} />
+          </div>
+          {m.headline.lostCount === 0 ? (
+            <EmptyNote>No deals lost in this period.</EmptyNote>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-subtle">
+                  Why deals were lost
+                </p>
+                <BarList
+                  rows={m.loss.reasons.map((r) => ({ name: r.name, value: r.count }))}
+                  tone="bg-error"
+                />
+              </div>
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-subtle">
+                  Stage where lost
+                </p>
+                <BarList
+                  rows={m.loss.lostAt.map((r) => ({ name: r.name, value: r.count }))}
+                  tone="bg-warning"
+                />
+              </div>
+            </div>
+          )}
+        </Panel>
+      </div>
+
+      {/* --------------------------------- Clients --------------------------------- */}
+      <SectionHeading>Clients</SectionHeading>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
+        <Panel title="Client Base" icon={<UsersIcon />}>
+          <div className="grid grid-cols-2 gap-3">
+            <MiniStat label="Active" value={String(m.clients.active)} tone="good" />
+            <MiniStat label="Inactive" value={String(m.clients.inactive)} />
+            <MiniStat
+              label="Active, No Open Deals"
+              value={String(m.clients.activeWithoutOpenDeals)}
+              tone={m.clients.activeWithoutOpenDeals > 0 ? "warning" : "good"}
+            />
+            <MiniStat label={`New ${period.label}`} value={String(m.headline.newClients)} />
+          </div>
+          <p className="mt-3 text-xs text-subtle">
+            {m.clients.top3Share != null
+              ? `Top 3 clients make up ${Math.round(m.clients.top3Share)}% of all won revenue.`
+              : "Won revenue concentration appears once deals are won."}
+          </p>
+        </Panel>
+        <Panel title="Top Clients By Open Value" icon={<CrownIcon />}>
+          {m.clients.topByOpen.length === 0 ? (
+            <EmptyNote>No open deals yet.</EmptyNote>
+          ) : (
+            <RankedList rows={m.clients.topByOpen} href={(id) => `/clients/${id}`} />
+          )}
+        </Panel>
+        <Panel title="Top Clients By Won Value" icon={<CrownIcon />} subtitle="All time">
+          {m.clients.topByWon.length === 0 ? (
+            <EmptyNote>No won deals yet.</EmptyNote>
+          ) : (
+            <RankedList rows={m.clients.topByWon} href={(id) => `/clients/${id}`} />
+          )}
+        </Panel>
+      </div>
+
+      {/* --------------------------- Plans & industries --------------------------- */}
+      <SectionHeading>Plans &amp; Industries · {period.label}</SectionHeading>
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+        <Panel title="By Plan" icon={<TagIcon />}>
+          <GroupTable rows={m.byPlan} label="Plan" />
+        </Panel>
+        <Panel title="By Industry" icon={<BriefcaseIcon />}>
+          <GroupTable rows={m.byIndustry} label="Industry" />
+        </Panel>
+      </div>
+      <Panel title="Won Deals vs Plan Price" icon={<ValueIcon />} subtitle="Same rule as the Gain / Loss report">
+        {m.planVariance.comparable === 0 ? (
+          <EmptyNote>No won deals in this period have both a plan price and a deal value.</EmptyNote>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <MiniStat
+              label="Net vs Plan (LKR)"
+              value={`${m.planVariance.netLkr >= 0 ? "+" : "-"}${formatLKR(Math.abs(m.planVariance.netLkr))}`}
+              tone={m.planVariance.netLkr >= 0 ? "good" : "critical"}
+            />
+            <MiniStat
+              label="Net vs Plan (USD)"
+              value={`${m.planVariance.netUsd >= 0 ? "+" : "-"}${formatUSD(Math.abs(m.planVariance.netUsd))}`}
+              tone={m.planVariance.netUsd >= 0 ? "good" : "critical"}
+            />
+            <MiniStat label="Deals Compared" value={String(m.planVariance.comparable)} />
+            <MiniStat
+              label="Closed Below Plan"
+              value={String(m.planVariance.belowPlan)}
+              tone={m.planVariance.belowPlan > 0 ? "warning" : "good"}
+            />
+          </div>
+        )}
+      </Panel>
+
+      {/* ---------------------------------- Team ---------------------------------- */}
+      <SectionHeading>Team · {period.label}</SectionHeading>
+      <Panel title="Activity &amp; Results By Owner" icon={<UsersIcon />}>
+        {m.team.length === 0 ? (
+          <EmptyNote>No activity yet.</EmptyNote>
+        ) : (
+          <DataTable
+            columns={[
+              { label: "Team Member" },
+              { label: "Activities Logged", align: "right" },
+              { label: "Open Deals", align: "right" },
+              { label: "Open Value", align: "right" },
+              { label: "Won", align: "right" },
+              { label: "Won Value", align: "right" },
+            ]}
+            rows={m.team.map((p) => [
+              p.name,
+              p.activities,
+              p.openDeals,
+              formatLKR(p.openValue),
+              p.won,
+              formatLKR(p.wonValue),
+            ])}
+          />
+        )}
+      </Panel>
     </div>
   );
 }

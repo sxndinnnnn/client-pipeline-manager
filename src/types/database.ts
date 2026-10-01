@@ -33,6 +33,7 @@ export interface PipelineStage {
   name: string;
   sort_order: number;
   kind: StageKind;
+  win_probability: number;
 }
 
 export interface Plan {
@@ -74,8 +75,22 @@ export interface Deal {
   value: number | null;
   value_usd: number | null;
   status: DealStatus;
+  lost_reason: string | null;
   closed_at: string | null;
   created_at: string;
+  updated_at: string;
+}
+
+export interface DealStageEvent {
+  id: string;
+  deal_id: string;
+  stage_id: string;
+  entered_at: string;
+}
+
+export interface SalesTarget {
+  year: number;
+  amount_lkr: number;
   updated_at: string;
 }
 
@@ -137,6 +152,16 @@ export interface Database {
         Update: Partial<UserProfile>;
       };
       deals: { Row: Deal; Insert: Partial<Deal>; Update: Partial<Deal> };
+      deal_stage_events: {
+        Row: DealStageEvent;
+        Insert: Partial<DealStageEvent>;
+        Update: Partial<DealStageEvent>;
+      };
+      sales_targets: {
+        Row: SalesTarget;
+        Insert: Partial<SalesTarget>;
+        Update: Partial<SalesTarget>;
+      };
       activities: { Row: Activity; Insert: Partial<Activity>; Update: Partial<Activity> };
     };
   };

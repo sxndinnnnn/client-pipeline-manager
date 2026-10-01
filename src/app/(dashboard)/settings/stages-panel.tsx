@@ -82,6 +82,7 @@ function StageRow({
         </button>
       </div>
       <span className="flex-1 text-foreground">{stage.name}</span>
+      <span className="text-xs text-subtle">{stage.win_probability}%</span>
       <button
         type="button"
         onClick={() => dialogRef.current?.showModal()}
@@ -157,6 +158,22 @@ function StageRow({
                   </option>
                 ))}
               </select>
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted">Win Probability (%)</label>
+              <input
+                name="win_probability"
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                defaultValue={stage.win_probability}
+                required
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              />
+              <p className="mt-1 text-xs text-subtle">
+                Used for the dashboard&apos;s weighted pipeline.
+              </p>
             </div>
             {error && <p className="text-xs text-error">{error}</p>}
             <button

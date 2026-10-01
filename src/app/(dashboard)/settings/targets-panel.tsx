@@ -1,0 +1,106 @@
+"use client";
+
+import { useRef, useState } from "react";
+import type { SalesTarget } from "@/types/database";
+import { formatLKR } from "@/lib/currency";
+import { TrashIcon } from "@/components/icons";
+import { deleteTarget, saveTarget } from "./targets-actions";
+
+function TargetForm({ defaultYear }: { defaultYear: number }) {
+  const [error, setError] = useState<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  return (
+    <form
+      ref={formRef}
+      action={async (formData) => {
+        try {
+          setError(null);
+          await saveTarget(formData);
+          formRef.current?.reset();
+        } catch (err) {
+          setError(err instanceof Error ? err.message : "Failed to save target");
+        }
+      }}
+      className="flex flex-wrap items-start gap-2"
+    >
+      <input
+        name="year"
+        type="number"
+        required
+        min={2000}
+        max={2100}
+        defaultValue={defaultYear}
+        aria-label="Year"
+        className="w-24 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+      />
+      <input
+        name="amount_lkr"
+        type="number"
+        required
+        min={0}
+        step="any"
+        placeholder="Target Revenue (LKR)"
+        aria-label="Target revenue in LKR"
+        className="w-full max-w-xs rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+      />
+      <button
+        type="submit"
+        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+      >
+        Save Target
+      </button>
+      {error && <p className="w-full text-xs text-error">{error}</p>}
+    </form>
+  );
+}
+
+export function TargetsPanel({ targets }: { targets: SalesTarget[] }) {
+  return (
+    <section>
+      <div>
+        <h2 className="text-lg font-semibold text-foreground">Sales Targets</h2>
+        <p className="mt-1 text-sm text-subtle">
+          A yearly won-revenue target in LKR. It drives the dashboard&apos;s pipeline coverage and
+          revenue-vs-target chart. Saving a year that already has a target replaces it.
+        </p>
+      </div>
+
+      <div className="mt-3">
+        <TargetForm defaultYear={new Date().getFullYear()} />
+      </div>
+
+      <ul className="mt-4 rounded-lg border border-border px-4">
+        {targets.length === 0 && (
+          <li className="py-8 text-center text-sm text-subtle">No targets yet.</li>
+        )}
+        {targets.map((t) => (
+          <li
+            key={t.year}
+            className="flex items-center gap-3 border-t border-border py-2.5 text-sm first:border-t-0"
+          >
+            <span className="w-16 font-medium text-foreground">{t.year}</span>
+            <span className="flex-1 text-muted">{formatLKR(Number(t.amount_lkr))}</span>
+            <form
+              action={async () => {
+                try {
+                  await deleteTarget(t.year);
+                } catch (err) {
+                  alert(err instanceof Error ? err.message : "Failed to delete target");
+                }
+              }}
+            >
+              <button
+                type="submit"
+                aria-label={`Delete ${t.year} target`}
+                className="p-3.5 text-error hover:opacity-80 lg:p-0"
+              >
+                <TrashIcon />
+              </button>
+            </form>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
