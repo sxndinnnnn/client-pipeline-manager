@@ -22,16 +22,20 @@ function AddIndustryForm() {
           setError(err instanceof Error ? err.message : "Failed to add industry");
         }
       }}
-      className="flex flex-wrap items-start gap-2"
+      className="flex flex-col gap-1"
     >
-      <input
-        name="name"
-        required
-        placeholder="New Industry Name"
-        className="w-full max-w-xs rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-      />
-      <SubmitButton className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">+ Add Industry</SubmitButton>
-      {error && <p className="w-full text-xs text-error">{error}</p>}
+      <div className="flex items-center gap-2">
+        <input
+          name="name"
+          required
+          placeholder="New Industry Name"
+          className="w-56 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground sm:w-64"
+        />
+        <SubmitButton className="shrink-0 whitespace-nowrap rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+          + Add Industry
+        </SubmitButton>
+      </div>
+      {error && <p className="text-xs text-error">{error}</p>}
     </form>
   );
 }
