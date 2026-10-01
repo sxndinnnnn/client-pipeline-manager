@@ -23,10 +23,10 @@ export default async function ReportsPage({
 
   // plan_amount_* come from migration 0138; fall back to the live plan price without them.
   const withSnapshot = await wonDealsQuery(
-    "id, value, value_usd, closed_at, plan_amount_lkr, plan_amount_usd"
+    "id, client_id, value, value_usd, closed_at, plan_amount_lkr, plan_amount_usd"
   );
   const wonDeals = withSnapshot.error
-    ? (await wonDealsQuery("id, value, value_usd, closed_at")).data
+    ? (await wonDealsQuery("id, client_id, value, value_usd, closed_at")).data
     : withSnapshot.data;
 
   const gainLossRows = buildGainLossRows((wonDeals ?? []) as unknown as RawWonDeal[]);

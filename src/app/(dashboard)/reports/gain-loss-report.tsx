@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { formatLKR, formatUSD } from "@/lib/currency";
 import { formatDate } from "@/lib/datetime";
 
@@ -12,6 +13,7 @@ type CurrencyGainLoss = {
 
 export type GainLossRow = {
   id: string;
+  clientId: string;
   customer: string;
   stage: string;
   plan: string;
@@ -22,6 +24,7 @@ export type GainLossRow = {
 
 export type RawWonDeal = {
   id: string;
+  client_id: string;
   value: number | null;
   value_usd: number | null;
   closed_at: string | null;
@@ -55,6 +58,7 @@ function numberOrNull(value: number | string | null | undefined): number | null 
 export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
   return deals.map((d) => ({
     id: d.id,
+    clientId: d.client_id,
     customer: d.clients?.name ?? "-",
     stage: d.pipeline_stages?.name ?? "-",
     plan: d.plans?.name ?? "-",
@@ -68,6 +72,69 @@ export function buildGainLossRows(deals: RawWonDeal[]): GainLossRow[] {
     ),
     planStartDate: d.closed_at,
   }));
+}
+
+type GainLossGroup = {
+  clientId: string;
+  customer: string;
+  rows: GainLossRow[];
+  // Totals over the deals that have both a plan price and an amount, so the plan and
+  // actual totals always compare like with like.
+  lkr: CurrencyGainLoss;
+  usd: CurrencyGainLoss;
+};
+
+function summarize(rows: GainLossRow[], key: "lkr" | "usd"): CurrencyGainLoss {
+  const comparable = rows
+    .map((r) => r[key])
+    .filter((c) => c.planAmount != null && c.actualAmount != null);
+  if (comparable.length === 0) return computeGainLoss(null, null);
+  return computeGainLoss(
+    comparable.reduce((sum, c) => sum + (c.planAmount ?? 0), 0),
+    comparable.reduce((sum, c) => sum + (c.actualAmount ?? 0), 0)
+  );
+}
+
+/** One group per customer, in order of each customer's most recent closed deal. */
+function groupByCustomer(rows: GainLossRow[]): GainLossGroup[] {
+  const groups = new Map<string, GainLossRow[]>();
+  for (const row of rows) {
+    const list = groups.get(row.clientId);
+    if (list) list.push(row);
+    else groups.set(row.clientId, [row]);
+  }
+  return [...groups.entries()].map(([clientId, groupRows]) => ({
+    clientId,
+    customer: groupRows[0].customer,
+    rows: groupRows,
+    lkr: summarize(groupRows, "lkr"),
+    usd: summarize(groupRows, "usd"),
+  }));
+}
+
+function AmountCells({ lkr, usd }: { lkr: CurrencyGainLoss; usd: CurrencyGainLoss }) {
+  return (
+    <>
+      <td className="px-4 py-3 text-sm text-muted">
+        {lkr.planAmount != null ? formatLKR(lkr.planAmount) : "-"}
+      </td>
+      <td className="px-4 py-3 text-sm text-muted">
+        {lkr.actualAmount != null ? formatLKR(lkr.actualAmount) : "-"}
+      </td>
+      <td className="px-4 py-3 text-sm text-muted">
+        {usd.planAmount != null ? formatUSD(usd.planAmount) : "-"}
+      </td>
+      <td className="px-4 py-3 text-sm text-muted">
+        {usd.actualAmount != null ? formatUSD(usd.actualAmount) : "-"}
+      </td>
+      <td className="px-4 py-3">
+        <GainLossBadge currency={lkr} format={formatLKR} />
+      </td>
+      <td className="px-4 py-3">
+        <GainLossBadge currency={usd} format={formatUSD} />
+      </td>
+    </>
+  );
 }
 
 function GainLossBadge({
@@ -136,36 +203,48 @@ export function GainLossReport({ rows }: { rows: GainLossRow[] }) {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {rows.map((row) => (
-                <tr key={row.id}>
-                  <td className="px-4 py-3 text-sm font-medium text-foreground">
-                    {row.customer}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted">{row.stage}</td>
-                  <td className="px-4 py-3 text-sm text-muted">{row.plan}</td>
-                  <td className="px-4 py-3 text-sm text-muted">
-                    {row.lkr.planAmount != null ? formatLKR(row.lkr.planAmount) : "-"}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted">
-                    {row.lkr.actualAmount != null ? formatLKR(row.lkr.actualAmount) : "-"}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted">
-                    {row.usd.planAmount != null ? formatUSD(row.usd.planAmount) : "-"}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted">
-                    {row.usd.actualAmount != null ? formatUSD(row.usd.actualAmount) : "-"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <GainLossBadge currency={row.lkr} format={formatLKR} />
-                  </td>
-                  <td className="px-4 py-3">
-                    <GainLossBadge currency={row.usd} format={formatUSD} />
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted">
-                    {row.planStartDate ? formatDate(row.planStartDate) : "-"}
-                  </td>
-                </tr>
-              ))}
+              {groupByCustomer(rows).map((group) =>
+                group.rows.length === 1 ? (
+                  <tr key={group.rows[0].id}>
+                    <td className="px-4 py-3 text-sm font-medium text-foreground">
+                      {group.customer}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-muted">{group.rows[0].stage}</td>
+                    <td className="px-4 py-3 text-sm text-muted">{group.rows[0].plan}</td>
+                    <AmountCells lkr={group.rows[0].lkr} usd={group.rows[0].usd} />
+                    <td className="px-4 py-3 text-sm text-muted">
+                      {group.rows[0].planStartDate ? formatDate(group.rows[0].planStartDate) : "-"}
+                    </td>
+                  </tr>
+                ) : (
+                  // A customer with several won deals: a total row, then each deal nested under it.
+                  <Fragment key={group.clientId}>
+                    <tr className="bg-surface-sunken/60">
+                      <td className="px-4 py-3 text-sm font-semibold text-foreground">
+                        {group.customer}
+                        <span className="ml-2 text-xs font-normal text-subtle">
+                          {group.rows.length} deals
+                        </span>
+                      </td>
+                      <td className="px-4 py-3" />
+                      <td className="px-4 py-3" />
+                      <AmountCells lkr={group.lkr} usd={group.usd} />
+                      <td className="px-4 py-3" />
+                    </tr>
+                    {group.rows.map((row) => (
+                      <tr key={row.id}>
+                        <td className="py-3 pl-9 pr-4 text-sm text-subtle">↳</td>
+                        <td className="px-4 py-3 text-sm text-muted">{row.stage}</td>
+                        <td className="px-4 py-3 text-sm text-muted">{row.plan}</td>
+                        <AmountCells lkr={row.lkr} usd={row.usd} />
+                        <td className="px-4 py-3 text-sm text-muted">
+                          {row.planStartDate ? formatDate(row.planStartDate) : "-"}
+                        </td>
+                      </tr>
+                    ))}
+                  </Fragment>
+                )
+              )}
             </tbody>
           </table>
         </div>
