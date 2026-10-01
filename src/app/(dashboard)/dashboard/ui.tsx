@@ -125,12 +125,6 @@ export function Panel({
   );
 }
 
-export function SectionHeading({ children }: { children: React.ReactNode }) {
-  return (
-    <h2 className="-mb-3 text-xs font-semibold uppercase tracking-wider text-subtle">{children}</h2>
-  );
-}
-
 export function MiniStat({
   label,
   value,

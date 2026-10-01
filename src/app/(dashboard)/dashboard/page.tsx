@@ -20,7 +20,6 @@ import {
   MiniStat,
   Panel,
   RankedList,
-  SectionHeading,
   StageBarChart,
   StatTile,
   formatCompact,
@@ -87,13 +86,11 @@ export default async function DashboardPage() {
       </div>
 
       {/* ---------------------------- Pipeline health ---------------------------- */}
-      <SectionHeading>Pipeline Health</SectionHeading>
       <Panel title="Pipeline By Stage" icon={<BarChartIcon />}>
         <StageBarChart stageRows={m.stageRows} />
       </Panel>
 
       {/* --------------------------------- Trends --------------------------------- */}
-      <SectionHeading>Trends · Last 12 Months</SectionHeading>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
         <Panel title="Won vs Lost Value" icon={<BarChartIcon />}>
           <Legend
@@ -134,7 +131,6 @@ export default async function DashboardPage() {
       </div>
 
       {/* --------------------------------- Clients --------------------------------- */}
-      <SectionHeading>Clients</SectionHeading>
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
         <Panel title="Client Base" icon={<UsersIcon />}>
           <div className="grid grid-cols-2 gap-3">
