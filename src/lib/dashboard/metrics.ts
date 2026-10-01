@@ -35,7 +35,8 @@ export function buildDashboardMetrics(input: MetricsInput) {
   const open = deals.filter((d) => d.status === "OPEN");
   const won = deals.filter((d) => d.status === "WON");
   const lost = deals.filter((d) => d.status === "LOST");
-  const decided = won.length + lost.length;
+  // Win rate counts every deal (open, won and lost) in the denominator.
+  const totalDeals = deals.length;
 
   // ---- Yearly target ------------------------------------------------------------
   const year = colomboYear(now);
@@ -100,9 +101,9 @@ export function buildDashboardMetrics(input: MetricsInput) {
     headline: {
       wonValue: sumMoney(won),
       lostValue: sumMoney(lost),
-      winRate: decided > 0 ? (won.length / decided) * 100 : null,
+      winRate: totalDeals > 0 ? (won.length / totalDeals) * 100 : null,
       wonCount: won.length,
-      decidedCount: decided,
+      totalDeals,
     },
     target: { year, amount: targetAmount },
     stageRows,

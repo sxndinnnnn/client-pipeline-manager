@@ -81,7 +81,7 @@ export default async function DashboardPage() {
         <StatTile
           label="Win Rate"
           value={formatPercent(m.headline.winRate)}
-          secondaryValue={`${m.headline.wonCount} / ${m.headline.decidedCount} Deals`}
+          secondaryValue={`${m.headline.wonCount} / ${m.headline.totalDeals} Deals`}
           icon={<TrophyIcon />}
           badgeToneKey="gold"
         />
