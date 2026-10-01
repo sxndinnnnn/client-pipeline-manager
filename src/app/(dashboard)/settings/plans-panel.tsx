@@ -189,31 +189,16 @@ function PlanRow({ plan }: { plan: Plan }) {
   return (
     <tr className="border-b border-border last:border-0">
       <td className="px-4 py-3 text-sm font-medium text-foreground">{plan.name}</td>
-      <td className="px-4 py-3">
-        <div className="flex flex-wrap gap-1">
-          {plan.platforms.length === 0 && <span className="text-sm text-subtle">-</span>}
-          {plan.platforms.map((p) => (
-            <span key={p} className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
-              {p}
-            </span>
-          ))}
-        </div>
+      <td className="px-4 py-3 text-sm text-muted">
+        {plan.platforms.length > 0 ? plan.platforms.join(" | ") : "-"}
       </td>
       <td className="px-4 py-3 text-sm text-muted">{formatUSD(plan.amount_usd)}</td>
       <td className="px-4 py-3 text-sm text-muted">{formatLKR(plan.amount_lkr ?? 0)}</td>
       <td className="px-4 py-3 text-sm text-muted">{formatCount(plan.vehicle_count)}</td>
       <td className="px-4 py-3 text-sm text-muted">{formatCount(plan.shipment_count)}</td>
       <td className="px-4 py-3 text-sm text-muted">{formatValidity(plan)}</td>
-      <td className="px-4 py-3">
-        {isPlanActive(plan) ? (
-          <span className="rounded-full bg-success/15 px-2 py-0.5 text-xs font-medium text-success">
-            Active
-          </span>
-        ) : (
-          <span className="rounded-full bg-border px-2 py-0.5 text-xs font-medium text-muted">
-            Expired
-          </span>
-        )}
+      <td className="px-4 py-3 text-sm text-muted">
+        {isPlanActive(plan) ? "Active" : "Expired"}
       </td>
       <td className="px-4 py-3">
         <div className="flex gap-3">
