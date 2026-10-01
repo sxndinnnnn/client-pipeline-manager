@@ -60,49 +60,56 @@ function StageRow({
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <li className="flex items-center gap-2.5 border-t border-border py-2.5 text-sm first:border-t-0">
-      <div className="flex flex-col">
-        <button
-          type="button"
-          onClick={() => moveStage(stage.id, "up")}
-          disabled={isFirst}
-          aria-label="Move up"
-          className="text-subtle hover:text-foreground disabled:opacity-30"
-        >
-          <ArrowUpIcon className="h-3.5 w-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={() => moveStage(stage.id, "down")}
-          disabled={isLast}
-          aria-label="Move down"
-          className="text-subtle hover:text-foreground disabled:opacity-30"
-        >
-          <ArrowDownIcon className="h-3.5 w-3.5" />
-        </button>
-      </div>
-      <span className="flex-1 text-foreground">{stage.name}</span>
-      <button
-        type="button"
-        onClick={() => dialogRef.current?.showModal()}
-        aria-label="Edit stage"
-        className="p-3.5 text-subtle hover:text-foreground lg:p-0"
-      >
-        <PencilIcon />
-      </button>
-      <form
-        action={async () => {
-          try {
-            await deleteStage(stage.id, stage.name);
-          } catch (err) {
-            alert(err instanceof Error ? err.message : "Failed to delete stage");
-          }
-        }}
-      >
-        <button type="submit" aria-label="Delete stage" className="p-3.5 text-error hover:opacity-80 lg:p-0">
-          <TrashIcon />
-        </button>
-      </form>
+    <tr className="border-b border-border last:border-0">
+      <td className="px-4 py-3">
+        <div className="flex flex-col">
+          <button
+            type="button"
+            onClick={() => moveStage(stage.id, "up")}
+            disabled={isFirst}
+            aria-label="Move up"
+            className="text-subtle hover:text-foreground disabled:opacity-30"
+          >
+            <ArrowUpIcon className="h-3.5 w-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => moveStage(stage.id, "down")}
+            disabled={isLast}
+            aria-label="Move down"
+            className="text-subtle hover:text-foreground disabled:opacity-30"
+          >
+            <ArrowDownIcon className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      </td>
+      <td className="px-4 py-3 text-sm font-medium text-foreground">{stage.name}</td>
+      <td className="px-4 py-3 text-sm text-muted">{KIND_LABELS[stage.kind]}</td>
+      <td className="px-4 py-3">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => dialogRef.current?.showModal()}
+            aria-label="Edit stage"
+            className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+          >
+            <PencilIcon />
+          </button>
+          <form
+            action={async () => {
+              try {
+                await deleteStage(stage.id, stage.name);
+              } catch (err) {
+                alert(err instanceof Error ? err.message : "Failed to delete stage");
+              }
+            }}
+          >
+            <button type="submit" aria-label="Delete stage" className="p-3.5 text-error hover:opacity-80 lg:p-0">
+              <TrashIcon />
+            </button>
+          </form>
+        </div>
+      </td>
 
       <dialog
         ref={dialogRef}
@@ -163,7 +170,7 @@ function StageRow({
           </form>
         </div>
       </dialog>
-    </li>
+    </tr>
   );
 }
 
@@ -177,19 +184,43 @@ export function StagesPanel({ stages }: { stages: PipelineStage[] }) {
         <AddStageForm />
       </div>
 
-      <ul className="mt-4 rounded-lg border border-border px-4">
-        {ordered.length === 0 && (
-          <li className="py-8 text-center text-sm text-subtle">No stages yet.</li>
-        )}
-        {ordered.map((stage, i) => (
-          <StageRow
-            key={stage.id}
-            stage={stage}
-            isFirst={i === 0}
-            isLast={i === ordered.length - 1}
-          />
-        ))}
-      </ul>
+      <div className="mt-3 overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-surface-sunken">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Order
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Stage Name
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Status Type
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {ordered.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-subtle">
+                  No stages yet.
+                </td>
+              </tr>
+            )}
+            {ordered.map((stage, i) => (
+              <StageRow
+                key={stage.id}
+                stage={stage}
+                isFirst={i === 0}
+                isLast={i === ordered.length - 1}
+              />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

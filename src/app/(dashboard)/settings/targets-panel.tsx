@@ -70,38 +70,60 @@ export function TargetsPanel({ targets }: { targets: SalesTarget[] }) {
         <TargetForm defaultYear={new Date().getFullYear()} />
       </div>
 
-      <ul className="mt-4 rounded-lg border border-border px-4">
-        {targets.length === 0 && (
-          <li className="py-8 text-center text-sm text-subtle">No targets yet.</li>
-        )}
-        {targets.map((t) => (
-          <li
-            key={t.year}
-            className="flex items-center gap-3 border-t border-border py-2.5 text-sm first:border-t-0"
-          >
-            <span className="w-16 font-medium text-foreground">{t.year}</span>
-            <span className="flex-1 text-muted">
-              {formatLKR(Number(t.amount_lkr))}
-              <span className="px-3 text-subtle">|</span>
-              {t.amount_usd != null ? formatUSD(Number(t.amount_usd)) : "-"}
-            </span>
-            <form
-              action={async () => {
-                const result = await deleteTarget(t.year);
-                if (result.error) alert(result.error);
-              }}
-            >
-              <button
-                type="submit"
-                aria-label={`Delete ${t.year} target`}
-                className="p-3.5 text-error hover:opacity-80 lg:p-0"
-              >
-                <TrashIcon />
-              </button>
-            </form>
-          </li>
-        ))}
-      </ul>
+      <div className="mt-3 overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-surface-sunken">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Year
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Amount (LKR)
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Amount (USD)
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {targets.length === 0 && (
+              <tr>
+                <td colSpan={4} className="px-4 py-8 text-center text-sm text-subtle">
+                  No targets yet.
+                </td>
+              </tr>
+            )}
+            {targets.map((t) => (
+              <tr key={t.year} className="border-b border-border last:border-0">
+                <td className="px-4 py-3 text-sm font-medium text-foreground">{t.year}</td>
+                <td className="px-4 py-3 text-sm text-muted">{formatLKR(Number(t.amount_lkr))}</td>
+                <td className="px-4 py-3 text-sm text-muted">
+                  {t.amount_usd != null ? formatUSD(Number(t.amount_usd)) : "-"}
+                </td>
+                <td className="px-4 py-3">
+                  <form
+                    action={async () => {
+                      const result = await deleteTarget(t.year);
+                      if (result.error) alert(result.error);
+                    }}
+                  >
+                    <button
+                      type="submit"
+                      aria-label={`Delete ${t.year} target`}
+                      className="p-3.5 text-error hover:opacity-80 lg:p-0"
+                    >
+                      <TrashIcon />
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }

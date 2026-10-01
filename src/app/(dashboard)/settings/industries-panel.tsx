@@ -45,29 +45,33 @@ function IndustryRow({ industry }: { industry: Industry }) {
   const [error, setError] = useState<string | null>(null);
 
   return (
-    <li className="flex items-center gap-2.5 border-t border-border py-2.5 text-sm first:border-t-0">
-      <span className="flex-1 text-foreground">{industry.name}</span>
-      <button
-        type="button"
-        onClick={() => dialogRef.current?.showModal()}
-        aria-label="Rename industry"
-        className="p-3.5 text-subtle hover:text-foreground lg:p-0"
-      >
-        <PencilIcon />
-      </button>
-      <form
-        action={async () => {
-          try {
-            await deleteIndustry(industry.id);
-          } catch (err) {
-            alert(err instanceof Error ? err.message : "Failed to delete industry");
-          }
-        }}
-      >
-        <button type="submit" aria-label="Delete industry" className="p-3.5 text-error hover:opacity-80 lg:p-0">
-          <TrashIcon />
-        </button>
-      </form>
+    <tr className="border-b border-border last:border-0">
+      <td className="px-4 py-3 text-sm font-medium text-foreground">{industry.name}</td>
+      <td className="px-4 py-3">
+        <div className="flex gap-3">
+          <button
+            type="button"
+            onClick={() => dialogRef.current?.showModal()}
+            aria-label="Rename industry"
+            className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+          >
+            <PencilIcon />
+          </button>
+          <form
+            action={async () => {
+              try {
+                await deleteIndustry(industry.id);
+              } catch (err) {
+                alert(err instanceof Error ? err.message : "Failed to delete industry");
+              }
+            }}
+          >
+            <button type="submit" aria-label="Delete industry" className="p-3.5 text-error hover:opacity-80 lg:p-0">
+              <TrashIcon />
+            </button>
+          </form>
+        </div>
+      </td>
 
       <dialog
         ref={dialogRef}
@@ -111,7 +115,7 @@ function IndustryRow({ industry }: { industry: Industry }) {
           </form>
         </div>
       </dialog>
-    </li>
+    </tr>
   );
 }
 
@@ -123,14 +127,32 @@ export function IndustriesPanel({ industries }: { industries: Industry[] }) {
         <AddIndustryForm />
       </div>
 
-      <ul className="mt-4 rounded-lg border border-border px-4">
-        {industries.length === 0 && (
-          <li className="py-8 text-center text-sm text-subtle">No industries yet.</li>
-        )}
-        {industries.map((industry) => (
-          <IndustryRow key={industry.id} industry={industry} />
-        ))}
-      </ul>
+      <div className="mt-3 overflow-x-auto rounded-lg border border-border">
+        <table className="min-w-full divide-y divide-border text-sm">
+          <thead className="bg-surface-sunken">
+            <tr>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Industry Name
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {industries.length === 0 && (
+              <tr>
+                <td colSpan={2} className="px-4 py-8 text-center text-sm text-subtle">
+                  No industries yet.
+                </td>
+              </tr>
+            )}
+            {industries.map((industry) => (
+              <IndustryRow key={industry.id} industry={industry} />
+            ))}
+          </tbody>
+        </table>
+      </div>
     </section>
   );
 }
