@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatLKR, formatUSD } from "@/lib/currency";
+import type { StageKind } from "@/types/database";
 
 /* ------------------------------ Formatting ------------------------------ */
 
@@ -402,11 +403,34 @@ export function LineChart({
   );
 }
 
+// Tailwind needs the full class names present in source, so the palette is spelled out.
+const STAGE_COLORS = [
+  "bg-chart-1",
+  "bg-chart-2",
+  "bg-chart-3",
+  "bg-chart-4",
+  "bg-chart-5",
+  "bg-chart-6",
+  "bg-chart-7",
+  "bg-chart-8",
+];
+
+/** Won is green and Lost is red; every other stage gets its own palette colour. */
+function stageBarColors(stageRows: { kind: StageKind }[]): string[] {
+  let next = 0;
+  return stageRows.map((row) => {
+    if (row.kind === "WON") return "bg-success";
+    if (row.kind === "LOST") return "bg-error";
+    return STAGE_COLORS[next++ % STAGE_COLORS.length];
+  });
+}
+
 export function StageBarChart({
   stageRows,
 }: {
-  stageRows: { name: string; count: number; value: number }[];
+  stageRows: { name: string; kind: StageKind; count: number; value: number }[];
 }) {
+  const colors = stageBarColors(stageRows);
   if (stageRows.every((r) => r.count === 0)) {
     return <EmptyNote>No deals yet.</EmptyNote>;
   }
@@ -440,7 +464,7 @@ export function StageBarChart({
               />
             ))}
             <div className="absolute inset-0 flex items-end gap-3">
-              {stageRows.map((row) => (
+              {stageRows.map((row, i) => (
                 <div
                   key={row.name}
                   className="group relative flex h-full flex-1 flex-col items-center justify-end"
@@ -455,7 +479,7 @@ export function StageBarChart({
                     <span className="mb-1 text-xs font-medium text-muted">{formatCompact(row.value)}</span>
                   )}
                   <div
-                    className="w-full rounded-t bg-primary"
+                    className={`w-full rounded-t ${colors[i]}`}
                     style={{ height: `${(row.value / chartMax) * 100}%` }}
                   />
                 </div>

@@ -21,6 +21,16 @@
   --success: #2e7d32;
   --warning: #b45309;
   --error: #c62828;
+  /* Categorical chart palette (one hue per series, skipping green/red which
+     are reserved for won/lost). */
+  --chart-1: #005b7a;
+  --chart-2: #19a59b;
+  --chart-3: #6d28d9;
+  --chart-4: #be185d;
+  --chart-5: #c2410c;
+  --chart-6: #a16207;
+  --chart-7: #1d4ed8;
+  --chart-8: #475569;
   color-scheme: light;
 }
 
@@ -39,6 +49,14 @@
   --success: #25c967;
   --warning: #ffa726;
   --error: #ef5350;
+  --chart-1: #38bdf8;
+  --chart-2: #19a59b;
+  --chart-3: #a78bfa;
+  --chart-4: #f472b6;
+  --chart-5: #fb923c;
+  --chart-6: #facc15;
+  --chart-7: #60a5fa;
+  --chart-8: #94a3b8;
   color-scheme: dark;
 }
 
@@ -57,6 +75,14 @@
   --color-success: var(--success);
   --color-warning: var(--warning);
   --color-error: var(--error);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+  --color-chart-7: var(--chart-7);
+  --color-chart-8: var(--chart-8);
 
   --shadow-resting: 0 1px 2px 0 rgb(0 0 0 / 0.06);
   --shadow-raised: 0 10px 20px -6px rgb(0 0 0 / 0.14), 0 3px 6px -3px rgb(0 0 0 / 0.10);

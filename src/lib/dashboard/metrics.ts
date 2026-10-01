@@ -45,7 +45,7 @@ export function buildDashboardMetrics(input: MetricsInput) {
   // ---- Pipeline by stage (current snapshot) -------------------------------------
   const stageRows = stages.map((s) => {
     const list = deals.filter((d) => d.stage_id === s.id);
-    return { name: s.name, count: list.length, value: sumMoney(list).lkr };
+    return { name: s.name, kind: s.kind, count: list.length, value: sumMoney(list).lkr };
   });
 
   // ---- Monthly won vs lost (Jan-Dec of the current year) ---------------------------------
