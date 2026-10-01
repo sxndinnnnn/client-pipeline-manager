@@ -384,6 +384,8 @@ export function buildDashboardMetrics(input: MetricsInput) {
     headline: {
       wonValue: cur.wonValue,
       wonCount: cur.won.length,
+      wonClients: new Set(cur.won.map((d) => d.client_id)).size,
+      totalClients: clients.length,
       lostCount: cur.lost.length,
       lostValue: cur.lostValue,
       winRate: cur.winRate,

@@ -121,7 +121,7 @@ export default async function DashboardPage({
       </div>
 
       {/* ------------------------------ Headline ------------------------------ */}
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatTile
           label="Open Pipeline Value"
           value={formatLKR(m.open.value.lkr)}
@@ -135,7 +135,7 @@ export default async function DashboardPage({
           icon={<TrendingUpIcon />}
         />
         <StatTile
-          label={`Won Value ${period.label}`}
+          label={`Closed Pipeline Value ${period.label}`}
           value={formatLKR(m.headline.wonValue.lkr)}
           secondary={m.headline.wonValue.usd > 0 ? formatUSD(m.headline.wonValue.usd) : undefined}
           note={`${m.headline.wonCount} won deal${m.headline.wonCount === 1 ? "" : "s"}`}
@@ -145,28 +145,24 @@ export default async function DashboardPage({
           badgeToneKey="good"
         />
         <StatTile
+          label={`Lost Pipeline Value ${period.label}`}
+          value={formatLKR(m.headline.lostValue.lkr)}
+          secondary={m.headline.lostValue.usd > 0 ? formatUSD(m.headline.lostValue.usd) : undefined}
+          note={`${m.headline.lostCount} lost deal${m.headline.lostCount === 1 ? "" : "s"}`}
+          delta={deltas?.lostValue}
+          deltaSuffix={prevLabel}
+          lowerIsBetter
+          icon={<TrendingDownIcon />}
+          badgeToneKey="critical"
+        />
+        <StatTile
           label="Win Rate"
           value={formatPercent(m.headline.winRate)}
-          note={`${m.headline.wonCount} won · ${m.headline.lostCount} lost`}
+          note={`${m.headline.wonClients} won client${m.headline.wonClients === 1 ? "" : "s"} of ${m.headline.totalClients} total`}
           delta={deltas?.winRate}
           deltaSuffix={prevLabel}
           icon={<TargetIcon />}
           badgeToneKey="good"
-        />
-        <StatTile
-          label="Avg Won Deal Size"
-          value={m.headline.avgWonSize != null ? formatLKR(Math.round(m.headline.avgWonSize)) : "N/A"}
-          delta={deltas?.avgWonSize}
-          deltaSuffix={prevLabel}
-          icon={<TagIcon />}
-          badgeToneKey="good"
-        />
-        <StatTile
-          label={`New Deals ${period.label}`}
-          value={String(m.headline.newDeals)}
-          delta={deltas?.newDeals}
-          deltaSuffix={prevLabel}
-          icon={<BriefcaseIcon />}
         />
       </div>
 
