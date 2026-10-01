@@ -356,7 +356,7 @@ export function StageBarChart({
   return (
     <div className="overflow-x-auto">
       <div style={{ minWidth: `${chartMinWidth}px` }}>
-        <div className="mt-6 flex h-56">
+        <div className="flex h-72 pt-16">
           <div className="relative shrink-0" style={{ width: `${axisWidth}px` }}>
             {ticks.map((tick) => (
               <span
