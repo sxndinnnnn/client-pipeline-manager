@@ -267,107 +267,112 @@ export function DealRow({
               </dl>
             )}
 
-            <div className="mt-6 flex min-h-0 flex-1 flex-col">
-              <h3 className="border-b border-border pb-2 text-sm font-medium text-foreground">
-                Activity
-              </h3>
+            {/* Activity and pipeline history are for viewing; hide them while editing. */}
+            {!editing && (
+              <>
+              <div className="mt-6 flex min-h-0 flex-1 flex-col">
+                <h3 className="border-b border-border pb-2 text-sm font-medium text-foreground">
+                  Activity
+                </h3>
 
-              <div className="pt-4">
-                <form
-                  action={onAddActivity}
-                  className="flex flex-col gap-2 rounded-lg border border-border bg-surface-sunken p-3"
-                >
-                  <div className="flex gap-2">
-                    <select
-                      name="type"
-                      defaultValue="call"
-                      className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-foreground"
-                    >
-                      {LOGGED_ACTIVITY_TYPES.map((t) => (
-                        <option key={t} value={t}>
-                          {t[0].toUpperCase() + t.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                    <button
-                      type="submit"
-                      className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-                    >
-                      Log Activity
-                    </button>
-                  </div>
-                  <textarea
-                    name="content"
-                    required
-                    rows={2}
-                    placeholder="What happened?"
-                    className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                  />
-                </form>
-
-                <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
-                  {logged.length === 0 && (
-                    <p className="text-sm text-subtle">
-                      No activity logged yet.
-                    </p>
-                  )}
-                  {logged.map((activity) => (
-                    <div
-                      key={activity.id}
-                      className="rounded-md border border-border p-3"
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs font-medium uppercase tracking-wide text-subtle">
-                          {activity.type}
-                        </span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs text-subtle">
-                            {formatDateTime(activity.created_at)}
-                          </span>
-                          <button
-                            type="button"
-                            onClick={() => onDeleteActivity(deal.id, activity.id)}
-                            aria-label="Delete activity"
-                            className="p-3.5 text-subtle hover:text-error lg:p-0"
-                          >
-                            <TrashIcon />
-                          </button>
-                        </div>
-                      </div>
-                      <p className="mt-1 text-sm text-muted">
-                        {activity.content}
-                      </p>
+                <div className="pt-4">
+                  <form
+                    action={onAddActivity}
+                    className="flex flex-col gap-2 rounded-lg border border-border bg-surface-sunken p-3"
+                  >
+                    <div className="flex gap-2">
+                      <select
+                        name="type"
+                        defaultValue="call"
+                        className="rounded-md border border-border-strong bg-surface px-2 py-1.5 text-sm text-foreground"
+                      >
+                        {LOGGED_ACTIVITY_TYPES.map((t) => (
+                          <option key={t} value={t}>
+                            {t[0].toUpperCase() + t.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                      <button
+                        type="submit"
+                        className="ml-auto rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+                      >
+                        Log Activity
+                      </button>
                     </div>
-                  ))}
+                    <textarea
+                      name="content"
+                      required
+                      rows={2}
+                      placeholder="What happened?"
+                      className="w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                    />
+                  </form>
+
+                  <div className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                    {logged.length === 0 && (
+                      <p className="text-sm text-subtle">
+                        No activity logged yet.
+                      </p>
+                    )}
+                    {logged.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="rounded-md border border-border p-3"
+                      >
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium uppercase tracking-wide text-subtle">
+                            {activity.type}
+                          </span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-subtle">
+                              {formatDateTime(activity.created_at)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => onDeleteActivity(deal.id, activity.id)}
+                              aria-label="Delete activity"
+                              className="p-3.5 text-subtle hover:text-error lg:p-0"
+                            >
+                              <TrashIcon />
+                            </button>
+                          </div>
+                        </div>
+                        <p className="mt-1 text-sm text-muted">
+                          {activity.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-6">
-              <h3 className="border-b border-border pb-2 text-sm font-medium text-foreground">
-                Pipeline Movement
-              </h3>
-              {moves.length === 0 ? (
-                <p className="pt-3 text-sm text-subtle">No pipeline movement yet.</p>
-              ) : (
-                <ul className="pt-3">
-                  {moves.map((move) => (
-                    <li
-                      key={move.id}
-                      className="flex items-center justify-between gap-3 border-t border-border py-2 text-sm first:border-t-0"
-                    >
-                      <span className="text-muted">
-                        Deal Moved To:{" "}
-                        <span className="font-medium text-foreground">{move.stage}</span>
-                      </span>
-                      <span className="text-xs text-subtle">
-                        {formatDateTime(move.created_at)}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </div>
+              <div className="mt-6">
+                <h3 className="border-b border-border pb-2 text-sm font-medium text-foreground">
+                  Pipeline Movement
+                </h3>
+                {moves.length === 0 ? (
+                  <p className="pt-3 text-sm text-subtle">No pipeline movement yet.</p>
+                ) : (
+                  <ul className="pt-3">
+                    {moves.map((move) => (
+                      <li
+                        key={move.id}
+                        className="flex items-center justify-between gap-3 border-t border-border py-2 text-sm first:border-t-0"
+                      >
+                        <span className="text-muted">
+                          Deal Moved To:{" "}
+                          <span className="font-medium text-foreground">{move.stage}</span>
+                        </span>
+                        <span className="text-xs text-subtle">
+                          {formatDateTime(move.created_at)}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              </>
+            )}
           </div>
           </dialog>,
           document.body
