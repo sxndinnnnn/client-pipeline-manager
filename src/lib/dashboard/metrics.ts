@@ -80,11 +80,6 @@ export function buildDashboardMetrics(input: MetricsInput) {
       .sort((a, b) => b.value - a.value);
   };
   const wonByClient = valueByClient(won);
-  const totalWon = wonByClient.reduce((s, c) => s + c.value, 0);
-  const top3Share =
-    totalWon > 0
-      ? (wonByClient.slice(0, 3).reduce((s, c) => s + c.value, 0) / totalWon) * 100
-      : null;
 
   return {
     open: { value: sumMoney(open) },
@@ -106,7 +101,6 @@ export function buildDashboardMetrics(input: MetricsInput) {
       activeWithoutOpenDeals: activeClients.filter((c) => !openClientIds.has(c.id)).length,
       topByOpen: valueByClient(open).slice(0, 5),
       topByWon: wonByClient.slice(0, 5),
-      top3Share,
     },
   };
 }

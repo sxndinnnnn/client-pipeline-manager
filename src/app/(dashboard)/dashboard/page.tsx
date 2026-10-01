@@ -130,11 +130,6 @@ export default async function DashboardPage() {
             />
             <MiniStat label="Total Clients" value={String(m.clients.total)} />
           </div>
-          <p className="mt-3 text-xs text-subtle">
-            {m.clients.top3Share != null
-              ? `Top 3 clients make up ${Math.round(m.clients.top3Share)}% of all won revenue.`
-              : "Won revenue concentration appears once deals are won."}
-          </p>
         </Panel>
         <Panel title="Top Clients By Open Value" icon={<CrownIcon />}>
           {m.clients.topByOpen.length === 0 ? (
@@ -143,7 +138,7 @@ export default async function DashboardPage() {
             <RankedList rows={m.clients.topByOpen} href={(id) => `/clients/${id}`} />
           )}
         </Panel>
-        <Panel title="Top Clients By Won Value" icon={<CrownIcon />} subtitle="All time">
+        <Panel title="Top Clients By Won Value" icon={<CrownIcon />}>
           {m.clients.topByWon.length === 0 ? (
             <EmptyNote>No won deals yet.</EmptyNote>
           ) : (
