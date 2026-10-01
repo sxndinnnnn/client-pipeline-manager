@@ -296,8 +296,9 @@ export default async function ClientDetailPage({
             {deals?.map((deal) => {
               async function updateAction(formData: FormData) {
                 "use server";
-                await updateDeal(deal.id, formData);
+                const result = await updateDeal(deal.id, formData);
                 revalidatePath(`/clients/${id}`);
+                return result;
               }
               async function deleteAction() {
                 "use server";

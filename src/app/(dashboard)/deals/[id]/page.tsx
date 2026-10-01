@@ -49,7 +49,8 @@ export default async function DealDetailPage({
 
   async function saveDeal(formData: FormData) {
     "use server";
-    await updateDeal(id, formData);
+    const result = await updateDeal(id, formData);
+    if (result.error) throw new Error(result.error);
   }
 
   async function addActivityAction(formData: FormData) {

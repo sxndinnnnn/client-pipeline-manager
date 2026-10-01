@@ -3,8 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatLKR } from "@/lib/currency";
-import { formatDateTime } from "@/lib/datetime";
-import { EyeIcon, TrashIcon, XIcon } from "@/components/icons";
+import { formatDateTime, toColomboInputValue } from "@/lib/datetime";
+import { EyeIcon, PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
 import type { Activity, Deal, Plan } from "@/types/database";
 
@@ -33,7 +33,7 @@ export function DealRow({
   deal: DealWithStage;
   activities: Activity[];
   plans: Plan[];
-  onUpdate: (formData: FormData) => Promise<void>;
+  onUpdate: (formData: FormData) => Promise<{ error?: string }>;
   onDelete: () => Promise<void>;
   onAddActivity: (formData: FormData) => Promise<void>;
   onDeleteActivity: (dealId: string, activityId: string) => Promise<void>;
@@ -41,6 +41,7 @@ export function DealRow({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const [mounted, setMounted] = useState(false);
   const [editing, setEditing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Portal target (document.body) only exists client-side; same
@@ -62,6 +63,13 @@ export function DealRow({
 
   function openView() {
     setEditing(false);
+    setError(null);
+    dialogRef.current?.showModal();
+  }
+
+  function openEdit() {
+    setEditing(true);
+    setError(null);
     dialogRef.current?.showModal();
   }
 
@@ -83,15 +91,36 @@ export function DealRow({
           {deal.status}
         </span>
       </td>
-      <td className="px-4 py-3 text-center">
-        <button
-          type="button"
-          onClick={openView}
-          aria-label="View deal"
-          className="p-3.5 text-subtle hover:text-foreground lg:p-0"
-        >
-          <EyeIcon />
-        </button>
+      <td className="px-4 py-3">
+        <div className="flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={openView}
+            aria-label="View deal"
+            className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+          >
+            <EyeIcon />
+          </button>
+          <button
+            type="button"
+            onClick={openEdit}
+            aria-label="Edit deal"
+            className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+          >
+            <PencilIcon />
+          </button>
+          <button
+            type="button"
+            onClick={async () => {
+              if (!window.confirm(`Delete "${deal.title}"? This can't be undone.`)) return;
+              await onDelete();
+            }}
+            aria-label="Delete deal"
+            className="p-3.5 text-error hover:opacity-80 lg:p-0"
+          >
+            <TrashIcon />
+          </button>
+        </div>
       </td>
 
       {mounted &&
@@ -113,23 +142,6 @@ export function DealRow({
               <div className="flex items-center gap-3">
                 <button
                   type="button"
-                  onClick={() => setEditing((v) => !v)}
-                  className="rounded-md border border-border-strong px-3 py-1.5 text-sm font-medium text-muted hover:bg-surface-sunken"
-                >
-                  {editing ? "Cancel" : "Edit Deal"}
-                </button>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    await onDelete();
-                    dialogRef.current?.close();
-                  }}
-                  className="rounded-md border border-error/40 px-3 py-1.5 text-sm font-medium text-error hover:bg-error/10"
-                >
-                  Delete Deal
-                </button>
-                <button
-                  type="button"
                   onClick={() => dialogRef.current?.close()}
                   aria-label="Close"
                   className="p-3.5 text-subtle hover:text-foreground lg:p-0"
@@ -142,8 +154,10 @@ export function DealRow({
             {editing ? (
               <form
                 action={async (formData) => {
-                  await onUpdate(formData);
-                  setEditing(false);
+                  setError(null);
+                  const result = await onUpdate(formData);
+                  if (result.error) setError(result.error);
+                  else setEditing(false);
                 }}
                 className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
               >
@@ -180,15 +194,51 @@ export function DealRow({
                     className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
                   />
                 </div>
-                <button
-                  type="submit"
-                  className="col-span-full mt-1 self-start rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
-                >
-                  Save Changes
-                </button>
+                <div>
+                  <label className="block text-xs font-medium text-muted">
+                    Created
+                  </label>
+                  <input
+                    name="created_at"
+                    type="datetime-local"
+                    required
+                    defaultValue={toColomboInputValue(deal.created_at)}
+                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                  />
+                </div>
+                {deal.closed_at && (
+                  <div>
+                    <label className="block text-xs font-medium text-muted">
+                      Closed At
+                    </label>
+                    <input
+                      name="closed_at"
+                      type="datetime-local"
+                      required
+                      defaultValue={toColomboInputValue(deal.closed_at)}
+                      className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                    />
+                  </div>
+                )}
+                {error && <p className="col-span-full text-xs text-error">{error}</p>}
+                <div className="col-span-full flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(false)}
+                    className="rounded-md border border-border-strong px-3 py-1.5 text-sm font-medium text-muted hover:bg-surface-sunken"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+                  >
+                    Save Changes
+                  </button>
+                </div>
               </form>
             ) : (
-              <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+              <dl className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
                 <div>
                   <dt className="text-xs text-subtle">Plan</dt>
                   <dd className="text-sm font-medium text-foreground">
@@ -199,6 +249,12 @@ export function DealRow({
                   <dt className="text-xs text-subtle">Value</dt>
                   <dd className="text-sm font-medium text-foreground">
                     {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="text-xs text-subtle">Created</dt>
+                  <dd className="text-sm font-medium text-foreground">
+                    {formatDateTime(deal.created_at)}
                   </dd>
                 </div>
                 <div>
