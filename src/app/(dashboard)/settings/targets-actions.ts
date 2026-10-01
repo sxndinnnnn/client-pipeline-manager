@@ -7,12 +7,21 @@ import { createClient } from "@/lib/supabase/server";
 // so these actions return the error text for the form to display instead.
 export type TargetResult = { error?: string };
 
-// PGRST205 / 42P01: the table does not exist, i.e. migration 0112 has not been run yet.
 function describeDbError(error: { code?: string; message: string }): string {
+  // PGRST205 / 42P01: the table does not exist, i.e. migration 0112 has not been run yet.
   if (error.code === "PGRST205" || error.code === "42P01") {
     return "The sales_targets table doesn't exist yet. Run migration 0112_dashboard_kpi_schema.sql in the Supabase SQL Editor first.";
   }
+  // PGRST204: column not found, i.e. migration 0140 (amount_usd) has not been run yet.
+  if (error.code === "PGRST204") {
+    return "The USD target column doesn't exist yet. Run migration 0140_sales_target_usd.sql in the Supabase SQL Editor first.";
+  }
   return error.message;
+}
+
+function parseAmount(raw: FormDataEntryValue | null): number | null {
+  const n = typeof raw === "string" && raw.trim() !== "" ? Number(raw) : NaN;
+  return Number.isFinite(n) && n >= 0 ? n : null;
 }
 
 export async function saveTarget(formData: FormData): Promise<TargetResult> {
@@ -22,14 +31,17 @@ export async function saveTarget(formData: FormData): Promise<TargetResult> {
   if (!Number.isInteger(year) || year < 2000 || year > 2100) {
     return { error: "Enter a valid year" };
   }
-  const amount = Number(formData.get("amount_lkr"));
-  if (!Number.isFinite(amount) || amount < 0) {
-    return { error: "Target must be a positive amount" };
-  }
+  const amountLkr = parseAmount(formData.get("amount_lkr"));
+  if (amountLkr == null) return { error: "Enter the LKR target as a positive amount" };
+  const amountUsd = parseAmount(formData.get("amount_usd"));
+  if (amountUsd == null) return { error: "Enter the USD target as a positive amount" };
 
-  const { error } = await supabase
-    .from("sales_targets")
-    .upsert({ year, amount_lkr: amount, updated_at: new Date().toISOString() });
+  const { error } = await supabase.from("sales_targets").upsert({
+    year,
+    amount_lkr: amountLkr,
+    amount_usd: amountUsd,
+    updated_at: new Date().toISOString(),
+  });
   if (error) return { error: describeDbError(error) };
 
   revalidatePath("/settings/targets");

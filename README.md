@@ -133,7 +133,7 @@ Current schema:
   (0138), so editing a plan in Settings does not rewrite past Gain/Loss rows.
 - `deal_stage_events` - stage history, written by `move_deal_stage()` and an insert trigger
   on `deals`.
-- `sales_targets` - one yearly LKR revenue target per year (Settings > Targets).
+- `sales_targets` - one yearly revenue target per year, in LKR and USD (Settings > Targets; USD added in 0140). The dashboard chart uses the LKR amount.
 - `move_deal_stage(p_deal_id, p_stage_id, p_lost_reason default null)` Postgres function
   (used by the pipeline board drag-and-drop). It once took a caller-supplied `p_actor_id`,
   which was a real security bug (any session could attribute an activity note to another

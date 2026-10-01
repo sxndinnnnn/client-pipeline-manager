@@ -91,6 +91,7 @@ export interface DealStageEvent {
 export interface SalesTarget {
   year: number;
   amount_lkr: number;
+  amount_usd: number | null;
   updated_at: string;
 }
 
