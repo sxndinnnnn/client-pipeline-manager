@@ -10,8 +10,6 @@ export type SettingsUser = {
   email: string | null;
   name: string | null;
   position: string | null;
-  created_at: string;
-  last_sign_in_at: string | null;
 };
 
 // Production builds replace thrown server-action errors with a generic masked message,
@@ -35,16 +33,15 @@ export async function listUsers(): Promise<SettingsUser[]> {
   const { data: profiles } = await supabase.from("user_profiles").select("*");
   const profileById = new Map((profiles ?? []).map((p) => [p.id, p]));
 
-  return data.users
+  // Oldest login first, so the list order stays stable.
+  return [...data.users]
+    .sort((a, b) => a.created_at.localeCompare(b.created_at))
     .map((u) => ({
       id: u.id,
       email: u.email ?? null,
       name: profileById.get(u.id)?.name ?? null,
       position: profileById.get(u.id)?.position ?? null,
-      created_at: u.created_at,
-      last_sign_in_at: u.last_sign_in_at ?? null,
-    }))
-    .sort((a, b) => a.created_at.localeCompare(b.created_at));
+    }));
 }
 
 /** Creates a login with the given password (no email round trip) plus its profile row. */

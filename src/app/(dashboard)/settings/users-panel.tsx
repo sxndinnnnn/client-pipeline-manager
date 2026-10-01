@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { formatDateTime } from "@/lib/datetime";
 import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import {
   addUser,
@@ -202,15 +201,13 @@ export function UsersPanel({
                 <th className={TH_CLASS}>Name</th>
                 <th className={TH_CLASS}>Position</th>
                 <th className={TH_CLASS}>Email</th>
-                <th className={TH_CLASS}>Joined</th>
-                <th className={TH_CLASS}>Last Sign In</th>
                 <th className={TH_CLASS}>Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-sm text-subtle">
+                  <td colSpan={4} className="px-4 py-8 text-center text-sm text-subtle">
                     No users yet.
                   </td>
                 </tr>
@@ -222,12 +219,6 @@ export function UsersPanel({
                   </td>
                   <td className="px-4 py-3 text-sm text-muted">{user.position ?? "-"}</td>
                   <td className="px-4 py-3 text-sm text-muted">{user.email ?? "-"}</td>
-                  <td className="px-4 py-3 text-sm text-muted">
-                    {formatDateTime(user.created_at)}
-                  </td>
-                  <td className="px-4 py-3 text-sm text-muted">
-                    {user.last_sign_in_at ? formatDateTime(user.last_sign_in_at) : "Never"}
-                  </td>
                   <td className="px-4 py-3">
                     <div className="flex gap-3">
                       <EditUserModal user={user} />
