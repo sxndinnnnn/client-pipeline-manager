@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { formatLKR } from "@/lib/currency";
+import { formatLKR, formatUSD } from "@/lib/currency";
 import { formatDateTime, toColomboInputValue } from "@/lib/datetime";
 import { EyeIcon, PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
@@ -75,10 +75,13 @@ export function DealRow({
       <td className="px-4 py-3 text-sm font-medium text-foreground">
         {deal.title}
       </td>
-      <td className="px-4 py-3 text-sm text-muted">{stageName}</td>
       <td className="px-4 py-3 text-sm text-muted">
         {deal.value != null ? formatLKR(Number(deal.value)) : "-"}
       </td>
+      <td className="px-4 py-3 text-sm text-muted">
+        {deal.value_usd != null ? formatUSD(Number(deal.value_usd)) : "-"}
+      </td>
+      <td className="px-4 py-3 text-sm text-muted">{stageName}</td>
       <td className="px-4 py-3 text-sm capitalize text-muted">
         {deal.status.toLowerCase()}
       </td>

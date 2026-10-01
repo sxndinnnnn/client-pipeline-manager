@@ -239,7 +239,7 @@ export default async function ClientDetailPage({
                 Phone
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Action
+                Actions
               </th>
             </tr>
           </thead>
@@ -290,19 +290,22 @@ export default async function ClientDetailPage({
           <thead className="bg-surface-sunken">
             <tr>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Title
+                Plan
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Value (LKR)
+              </th>
+              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
+                Value (USD)
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Stage
               </th>
               <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
-                Value
-              </th>
-              <th className="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wide text-subtle">
                 Status
               </th>
               <th className="px-4 py-2 text-center text-xs font-semibold uppercase tracking-wide text-subtle">
-                Action
+                Actions
               </th>
             </tr>
           </thead>
@@ -310,7 +313,7 @@ export default async function ClientDetailPage({
             {dealCount === 0 && (
               <tr>
                 <td
-                  colSpan={5}
+                  colSpan={6}
                   className="px-4 py-8 text-center text-sm text-subtle"
                 >
                   No deals yet for this client.
