@@ -8,7 +8,7 @@ import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { createPlan, deletePlan, updatePlan } from "./plans-actions";
 import { SubmitButton } from "@/components/submit-button";
 
-const PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HES", "FMS"];
+const PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HSC", "FMS"];
 
 function formatUSD(value: number | null) {
   return value != null ? `$${value.toLocaleString()}` : "-";

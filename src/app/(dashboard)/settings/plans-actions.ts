@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import type { PlanPlatform } from "@/types/database";
 
-const VALID_PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HES", "FMS"];
+const VALID_PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HSC", "FMS"];
 
 function parsePlatforms(formData: FormData): PlanPlatform[] {
   return formData

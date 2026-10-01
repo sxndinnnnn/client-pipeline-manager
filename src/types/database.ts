@@ -1,7 +1,7 @@
 export type DealStatus = "OPEN" | "WON" | "LOST";
 export type StageKind = "PENDING" | "IN_PROGRESS" | "WON" | "LOST";
 export type ActivityType = "call" | "email" | "meeting" | "note";
-export type PlanPlatform = "GPS" | "TMS" | "DVR" | "HES" | "FMS";
+export type PlanPlatform = "GPS" | "TMS" | "DVR" | "HSC" | "FMS";
 
 export interface Client {
   id: string;
