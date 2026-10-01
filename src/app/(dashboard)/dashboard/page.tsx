@@ -108,8 +108,6 @@ export default async function DashboardPage({
     targets: (targets ?? []) as SalesTarget[],
   });
 
-  const prevLabel = period.previousLabel;
-  const deltas = m.headline.deltas;
   const hasTarget = m.target.amount != null;
   const monthLabels = m.trend.map((t) => t.label);
 
@@ -126,21 +124,12 @@ export default async function DashboardPage({
           label="Open Pipeline Value"
           value={formatLKR(m.open.value.lkr)}
           secondary={m.open.value.usd > 0 ? formatUSD(m.open.value.usd) : undefined}
-          note={
-            <>
-              {m.open.count} open deal{m.open.count === 1 ? "" : "s"}
-              {m.open.withoutValue > 0 && ` · ${m.open.withoutValue} without a value`}
-            </>
-          }
           icon={<TrendingUpIcon />}
         />
         <StatTile
           label={`Closed Pipeline Value ${period.label}`}
           value={formatLKR(m.headline.wonValue.lkr)}
           secondary={m.headline.wonValue.usd > 0 ? formatUSD(m.headline.wonValue.usd) : undefined}
-          note={`${m.headline.wonCount} won deal${m.headline.wonCount === 1 ? "" : "s"}`}
-          delta={deltas?.wonValue}
-          deltaSuffix={prevLabel}
           icon={<CheckCircleIcon />}
           badgeToneKey="good"
         />
@@ -148,19 +137,12 @@ export default async function DashboardPage({
           label={`Lost Pipeline Value ${period.label}`}
           value={formatLKR(m.headline.lostValue.lkr)}
           secondary={m.headline.lostValue.usd > 0 ? formatUSD(m.headline.lostValue.usd) : undefined}
-          note={`${m.headline.lostCount} lost deal${m.headline.lostCount === 1 ? "" : "s"}`}
-          delta={deltas?.lostValue}
-          deltaSuffix={prevLabel}
-          lowerIsBetter
           icon={<TrendingDownIcon />}
           badgeToneKey="critical"
         />
         <StatTile
           label="Win Rate"
           value={formatPercent(m.headline.winRate)}
-          note={`${m.headline.wonClients} won client${m.headline.wonClients === 1 ? "" : "s"} of ${m.headline.totalClients} total`}
-          delta={deltas?.winRate}
-          deltaSuffix={prevLabel}
           icon={<TargetIcon />}
           badgeToneKey="good"
         />
