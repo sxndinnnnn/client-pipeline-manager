@@ -7,58 +7,89 @@ import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { deleteTarget, saveTarget } from "./targets-actions";
 import { SubmitButton } from "@/components/submit-button";
 
-function TargetForm({ defaultYear }: { defaultYear: number }) {
+function AddTargetModal() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   return (
-    <form
-      ref={formRef}
-      action={async (formData) => {
-        setError(null);
-        const result = await saveTarget(formData);
-        if (result.error) setError(result.error);
-        else formRef.current?.reset();
-      }}
-      className="flex flex-col gap-1"
-    >
-      <div className="flex flex-wrap items-center gap-2">
-        <input
-          name="year"
-          type="number"
-          required
-          min={2000}
-          max={2100}
-          defaultValue={defaultYear}
-          aria-label="Year"
-          className="w-24 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-        />
-        <input
-          name="amount_lkr"
-          type="number"
-          required
-          min={0}
-          step="any"
-          placeholder="Target Revenue (LKR)"
-          aria-label="Target revenue in LKR"
-          className="w-48 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-        />
-        <input
-          name="amount_usd"
-          type="number"
-          required
-          min={0}
-          step="any"
-          placeholder="Target Revenue (USD)"
-          aria-label="Target revenue in USD"
-          className="w-48 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-        />
-        <SubmitButton className="shrink-0 whitespace-nowrap rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
-          + Add Target
-        </SubmitButton>
-      </div>
-      {error && <p className="text-xs text-error">{error}</p>}
-    </form>
+    <>
+      <button
+        type="button"
+        onClick={() => dialogRef.current?.showModal()}
+        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+      >
+        + Add Target
+      </button>
+      <dialog
+        ref={dialogRef}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) dialogRef.current?.close();
+        }}
+        className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
+      >
+        <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h2 className="text-sm font-semibold text-foreground">Add Target</h2>
+            <button
+              type="button"
+              onClick={() => dialogRef.current?.close()}
+              aria-label="Close"
+              className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+            >
+              <XIcon />
+            </button>
+          </div>
+          <form
+            action={async (formData) => {
+              setError(null);
+              const result = await saveTarget(formData);
+              if (result.error) setError(result.error);
+              else dialogRef.current?.close();
+            }}
+            className="mt-3 flex flex-col gap-3"
+          >
+            <div>
+              <label className="block text-xs font-medium text-muted">Year *</label>
+              <input
+                name="year"
+                type="number"
+                required
+                min={2000}
+                max={2100}
+                defaultValue={new Date().getFullYear()}
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted">Target Revenue (LKR) *</label>
+              <input
+                name="amount_lkr"
+                type="number"
+                required
+                min={0}
+                step="any"
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-medium text-muted">Target Revenue (USD) *</label>
+              <input
+                name="amount_usd"
+                type="number"
+                required
+                min={0}
+                step="any"
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              />
+            </div>
+            {error && <p className="text-xs text-error">{error}</p>}
+            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+              Create Target
+            </SubmitButton>
+          </form>
+        </div>
+      </dialog>
+    </>
   );
 }
 
@@ -172,7 +203,7 @@ export function TargetsPanel({ targets }: { targets: SalesTarget[] }) {
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-foreground">Targets</h2>
-        <TargetForm defaultYear={new Date().getFullYear()} />
+        <AddTargetModal />
       </div>
 
       <div className="mt-3 overflow-x-auto rounded-lg border border-border">

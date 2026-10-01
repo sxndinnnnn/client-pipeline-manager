@@ -6,37 +6,67 @@ import { PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { createIndustry, deleteIndustry, renameIndustry } from "./industries-actions";
 import { SubmitButton } from "@/components/submit-button";
 
-function AddIndustryForm() {
+function AddIndustryModal() {
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const [error, setError] = useState<string | null>(null);
-  const formRef = useRef<HTMLFormElement>(null);
 
   return (
-    <form
-      ref={formRef}
-      action={async (formData) => {
-        try {
-          setError(null);
-          await createIndustry(formData);
-          formRef.current?.reset();
-        } catch (err) {
-          setError(err instanceof Error ? err.message : "Failed to add industry");
-        }
-      }}
-      className="flex flex-col gap-1"
-    >
-      <div className="flex items-center gap-2">
-        <input
-          name="name"
-          required
-          placeholder="New Industry Name"
-          className="w-56 rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground sm:w-64"
-        />
-        <SubmitButton className="shrink-0 whitespace-nowrap rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
-          + Add Industry
-        </SubmitButton>
-      </div>
-      {error && <p className="text-xs text-error">{error}</p>}
-    </form>
+    <>
+      <button
+        type="button"
+        onClick={() => dialogRef.current?.showModal()}
+        className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90"
+      >
+        + Add Industry
+      </button>
+      <dialog
+        ref={dialogRef}
+        onClick={(e) => {
+          if (e.target === dialogRef.current) dialogRef.current?.close();
+        }}
+        className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
+      >
+        <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <h2 className="text-sm font-semibold text-foreground">Add Industry</h2>
+            <button
+              type="button"
+              onClick={() => dialogRef.current?.close()}
+              aria-label="Close"
+              className="p-3.5 text-subtle hover:text-foreground lg:p-0"
+            >
+              <XIcon />
+            </button>
+          </div>
+          <form
+            action={async (formData) => {
+              try {
+                setError(null);
+                await createIndustry(formData);
+                dialogRef.current?.close();
+              } catch (err) {
+                setError(err instanceof Error ? err.message : "Failed to add industry");
+              }
+            }}
+            className="mt-3 flex flex-col gap-3"
+          >
+            <div>
+              <label className="block text-xs font-medium text-muted">Industry Name *</label>
+              <input
+                name="name"
+                type="text"
+                required
+                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+              />
+            </div>
+            {error && <p className="text-xs text-error">{error}</p>}
+            <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">
+              Create Industry
+            </SubmitButton>
+          </form>
+        </div>
+      </dialog>
+    </>
   );
 }
 
@@ -124,7 +154,7 @@ export function IndustriesPanel({ industries }: { industries: Industry[] }) {
     <section>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="text-lg font-semibold text-foreground">Industries</h2>
-        <AddIndustryForm />
+        <AddIndustryModal />
       </div>
 
       <div className="mt-3 overflow-x-auto rounded-lg border border-border">
