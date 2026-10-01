@@ -71,9 +71,14 @@ export function StatTile({
 }) {
   return (
     <div className="flex flex-col gap-2.5 rounded-lg border border-border bg-surface p-4 shadow-resting transition-all hover:-translate-y-0.5 hover:border-border-strong hover:shadow-raised">
-      <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${badgeTone[badgeToneKey]}`}>
-        {icon}
-      </span>
+      <div className="flex items-center gap-2.5">
+        <span
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${badgeTone[badgeToneKey]}`}
+        >
+          {icon}
+        </span>
+        <h3 className="text-sm font-semibold text-foreground">{label}</h3>
+      </div>
       <div>
         <p
           className={`flex flex-wrap items-baseline gap-x-3 text-2xl font-bold ${toneText[valueTone]}`}
@@ -87,7 +92,6 @@ export function StatTile({
           )}
         </p>
         {secondary && <p className="text-xs text-muted">{secondary}</p>}
-        <p className="text-xs uppercase tracking-wide text-subtle">{label}</p>
       </div>
       {note && (
         <div className="border-t border-border pt-2 text-xs text-subtle">{note}</div>
