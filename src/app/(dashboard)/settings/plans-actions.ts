@@ -3,74 +3,19 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { runAction, type ActionResult } from "@/lib/action-result";
-import type { PlanPlatform } from "@/types/database";
-
-const VALID_PLATFORMS: PlanPlatform[] = ["GPS", "TMS", "DVR", "HSC", "FMS"];
+import { parseLines, selectedPlatforms, totalsOf, type PriceLine } from "@/lib/plan-lines";
 
 const MIGRATION_HINT =
   "Per-platform pricing isn't set up yet. Run migration 0142_plan_platforms.sql in the Supabase SQL Editor first.";
 
-type PriceLine = {
-  platform: PlanPlatform;
-  billing_basis: "UNITS" | "SHIPMENTS";
-  quantity: number;
-  price_lkr: number;
-  price_usd: number;
-};
-
-function selectedPlatforms(formData: FormData): PlanPlatform[] {
-  return formData
-    .getAll("platforms")
-    .filter((p): p is string => typeof p === "string")
-    .filter((p): p is PlanPlatform => (VALID_PLATFORMS as string[]).includes(p));
-}
-
-function numberField(formData: FormData, key: string): number | null {
-  const raw = formData.get(key);
-  if (typeof raw !== "string" || raw.trim() === "") return null;
-  const n = Number(raw);
-  return Number.isFinite(n) && n >= 0 ? n : null;
-}
-
-/**
- * Reads one priced line per ticked platform. A platform with all three numbers blank is
- * left unpriced (this is how plans created before per-platform pricing are saved);
- * otherwise quantity and both prices are required.
- */
-function parseLines(formData: FormData, platforms: PlanPlatform[]): PriceLine[] {
-  const lines: PriceLine[] = [];
-  for (const platform of platforms) {
-    const quantity = numberField(formData, `qty_${platform}`);
-    const priceLkr = numberField(formData, `price_lkr_${platform}`);
-    const priceUsd = numberField(formData, `price_usd_${platform}`);
-    if (quantity == null && priceLkr == null && priceUsd == null) continue;
-    if (quantity == null || priceLkr == null || priceUsd == null) {
-      throw new Error(`${platform}: enter the quantity and both prices, or untick it.`);
-    }
-    lines.push({
-      platform,
-      billing_basis: formData.get(`basis_${platform}`) === "SHIPMENTS" ? "SHIPMENTS" : "UNITS",
-      quantity,
-      price_lkr: priceLkr,
-      price_usd: priceUsd,
-    });
-  }
-  return lines;
-}
-
-const round2 = (n: number) => Math.round(n * 100) / 100;
-
-/** The plan's own totals, always computed here so the client can't send different ones. */
-function totalsOf(lines: PriceLine[]) {
+/** The plan's own columns, computed from its priced lines (Units is stored as vehicle_count). */
+function planTotals(lines: PriceLine[]) {
+  const t = totalsOf(lines);
   return {
-    amount_lkr: round2(lines.reduce((s, l) => s + l.quantity * l.price_lkr, 0)),
-    amount_usd: round2(lines.reduce((s, l) => s + l.quantity * l.price_usd, 0)),
-    vehicle_count: round2(
-      lines.filter((l) => l.billing_basis === "UNITS").reduce((s, l) => s + l.quantity, 0)
-    ),
-    shipment_count: round2(
-      lines.filter((l) => l.billing_basis === "SHIPMENTS").reduce((s, l) => s + l.quantity, 0)
-    ),
+    amount_lkr: t.amount_lkr,
+    amount_usd: t.amount_usd,
+    vehicle_count: t.units,
+    shipment_count: t.shipments,
   };
 }
 
@@ -101,7 +46,7 @@ async function createPlanImpl(formData: FormData) {
       name,
       platforms,
       ...(lines.length > 0
-        ? totalsOf(lines)
+        ? planTotals(lines)
         : { amount_lkr: null, amount_usd: null, vehicle_count: null, shipment_count: null }),
       valid_from,
       valid_to,
@@ -134,7 +79,7 @@ async function updatePlanImpl(planId: string, formData: FormData) {
       name,
       platforms,
       // With no priced lines (an older plan saved without pricing) the stored totals stay.
-      ...(lines.length > 0 ? totalsOf(lines) : {}),
+      ...(lines.length > 0 ? planTotals(lines) : {}),
       valid_from,
       valid_to,
       updated_at: new Date().toISOString(),

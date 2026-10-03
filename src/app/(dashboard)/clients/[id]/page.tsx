@@ -28,7 +28,15 @@ import { AddAttachmentModal } from "./add-attachment-modal";
 import { AttachmentRow } from "./attachment-row";
 import { DeleteClientButton } from "./delete-client-button";
 import { ToggleActiveButton } from "./toggle-active-button";
-import type { Activity, ClientAttachment, Deal, Industry, Plan } from "@/types/database";
+import type {
+  Activity,
+  ClientAttachment,
+  Deal,
+  DealPlatformLine,
+  Industry,
+  Plan,
+  PlanPlatformLine,
+} from "@/types/database";
 import {
   ArrowLeftIcon,
   BriefcaseIcon,
@@ -88,6 +96,7 @@ export default async function ClientDetailPage({
     { data: plans },
     { data: industries },
     { data: attachments },
+    { data: planPlatformRows },
   ] = await Promise.all([
     supabase.from("clients").select("*").eq("id", id).single(),
     supabase.from("contacts").select("*").eq("client_id", id).order("created_at"),
@@ -104,6 +113,8 @@ export default async function ClientDetailPage({
       .select("*")
       .eq("client_id", id)
       .order("created_at", { ascending: false }),
+    // plan_platforms comes from migration 0142; until then this errors and plans have no breakdown.
+    supabase.from("plan_platforms").select("*"),
   ]);
 
   if (clientError || !client) notFound();
@@ -162,6 +173,23 @@ export default async function ClientDetailPage({
   const activitiesByDeal = groupByDealId(allActivities ?? []);
 
   const plansList = (plans ?? []) as Plan[];
+
+  const planLines: Record<string, PlanPlatformLine[]> = {};
+  for (const line of (planPlatformRows ?? []) as PlanPlatformLine[]) {
+    (planLines[line.plan_id] ??= []).push(line);
+  }
+
+  // Each deal's own copy of its lines (migration 0143); empty for older deals.
+  const dealLinesByDeal: Record<string, DealPlatformLine[]> = {};
+  if (dealIds.length > 0) {
+    const { data: dealLineRows } = await supabase
+      .from("deal_platforms")
+      .select("*")
+      .in("deal_id", dealIds);
+    for (const line of (dealLineRows ?? []) as DealPlatformLine[]) {
+      (dealLinesByDeal[line.deal_id] ??= []).push(line);
+    }
+  }
   const industriesList = (industries ?? []) as Industry[];
 
   async function saveClient(formData: FormData) {
@@ -354,7 +382,7 @@ export default async function ClientDetailPage({
     <section>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-lg font-semibold text-foreground">Deals</h2>
-        <AddDealModal createDealAction={createDealAction} plans={plansList} />
+        <AddDealModal createDealAction={createDealAction} plans={plansList} planLines={planLines} />
       </div>
 
       <div className="mt-3 overflow-x-auto rounded-lg border border-border">
@@ -425,6 +453,8 @@ export default async function ClientDetailPage({
                   }
                   activities={activitiesByDeal[deal.id] ?? []}
                   plans={plansList}
+                  planLines={planLines}
+                  dealLines={dealLinesByDeal[deal.id] ?? []}
                   onUpdate={updateAction}
                   onDelete={deleteAction}
                   onAddActivity={addActivityAction}

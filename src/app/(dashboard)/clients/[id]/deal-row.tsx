@@ -7,7 +7,8 @@ import { formatDateTime, toColomboInputValue } from "@/lib/datetime";
 import { EyeIcon, PencilIcon, TrashIcon, XIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
 import { LOGGED_ACTIVITY_TYPES, splitActivities } from "@/lib/activities";
-import type { Activity, Deal, Plan } from "@/types/database";
+import type { Activity, Deal, DealPlatformLine, Plan, PlanPlatformLine } from "@/types/database";
+import { DealPlanFields } from "./deal-plan-fields";
 import { SubmitButton } from "@/components/submit-button";
 
 
@@ -20,6 +21,8 @@ export function DealRow({
   deal,
   activities,
   plans,
+  planLines,
+  dealLines,
   onUpdate,
   onDelete,
   onAddActivity,
@@ -28,6 +31,8 @@ export function DealRow({
   deal: DealWithStage;
   activities: Activity[];
   plans: Plan[];
+  planLines: Record<string, PlanPlatformLine[]>;
+  dealLines: DealPlatformLine[];
   onUpdate: (formData: FormData) => Promise<{ error?: string }>;
   onDelete: () => Promise<void>;
   onAddActivity: (formData: FormData) => Promise<void>;
@@ -156,49 +161,15 @@ export function DealRow({
                 }}
                 className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2"
               >
-                <div>
-                  <label className="block text-xs font-medium text-muted">
-                    Plan *
-                  </label>
-                  <select
-                    name="plan_id"
-                    required
-                    defaultValue={deal.plan_id ?? ""}
-                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                  >
-                    <option value="" disabled>Select a plan</option>
-                    {plans
-                      .filter((plan) => isPlanActive(plan) || plan.id === deal.plan_id)
-                      .map((plan) => (
-                        <option key={plan.id} value={plan.id}>
-                          {plan.name}
-                          {!isPlanActive(plan) ? " (Expired)" : ""}
-                        </option>
-                      ))}
-                  </select>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted">
-                    Value (LKR)
-                  </label>
-                  <input
-                    name="value"
-                    type="number"
-                    step="0.01"
-                    defaultValue={deal.value ?? ""}
-                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-muted">
-                    Value (USD)
-                  </label>
-                  <input
-                    name="value_usd"
-                    type="number"
-                    step="0.01"
-                    defaultValue={deal.value_usd ?? ""}
-                    className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
+                <div className="col-span-full flex flex-col gap-3">
+                  <DealPlanFields
+                    plans={plans.filter((plan) => isPlanActive(plan) || plan.id === deal.plan_id)}
+                    planLines={planLines}
+                    initialPlanId={deal.plan_id ?? ""}
+                    initialLines={dealLines}
+                    initialValue={deal.value != null ? String(deal.value) : ""}
+                    initialValueUsd={deal.value_usd != null ? String(deal.value_usd) : ""}
+                    autoFillFromPlan={false}
                   />
                 </div>
                 <div>

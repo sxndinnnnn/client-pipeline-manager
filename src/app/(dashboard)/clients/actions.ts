@@ -3,7 +3,13 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getPlanName, getPlanPriceSnapshot, MISSING_COLUMN_CODE } from "@/lib/deals";
+import {
+  getPlanName,
+  getPlanPriceSnapshot,
+  MISSING_COLUMN_CODE,
+  saveDealLines,
+} from "@/lib/deals";
+import { parseLines, selectedPlatforms, totalsOf } from "@/lib/plan-lines";
 import { getCurrentUser } from "@/lib/supabase/current-user";
 
 function parseTags(raw: FormDataEntryValue | null): string[] {
@@ -216,6 +222,10 @@ export async function createDeal(clientId: string, formData: FormData) {
 
   const user = await getCurrentUser();
 
+  // With per-platform lines the deal's value is their total (computed here, never trusted
+  // from the browser); a plan without a breakdown keeps the plain Value boxes.
+  const lines = parseLines(formData, selectedPlatforms(formData));
+  const totals = lines.length > 0 ? totalsOf(lines) : null;
   const valueRaw = formData.get("value") as string;
   const valueUsdRaw = formData.get("value_usd") as string;
 
@@ -225,21 +235,32 @@ export async function createDeal(clientId: string, formData: FormData) {
     stage_id: leadStage?.id ?? null,
     owner_id: user?.id ?? null,
     plan_id: planId,
-    value: valueRaw ? Number(valueRaw) : null,
-    value_usd: valueUsdRaw ? Number(valueUsdRaw) : null,
+    value: totals ? totals.amount_lkr : valueRaw ? Number(valueRaw) : null,
+    value_usd: totals ? totals.amount_usd : valueUsdRaw ? Number(valueUsdRaw) : null,
   };
 
   // Freeze the plan price on the deal so later plan edits do not change its gain/loss.
-  let { error } = await supabase
+  let { data: created, error } = await supabase
     .from("deals")
-    .insert({ ...row, ...(await getPlanPriceSnapshot(planId)) });
+    .insert({ ...row, ...(await getPlanPriceSnapshot(planId)) })
+    .select("id")
+    .single();
 
   // Migration 0138 adds the snapshot columns; until it has been run, insert without them.
   if (error?.code === MISSING_COLUMN_CODE) {
-    ({ error } = await supabase.from("deals").insert(row));
+    ({ data: created, error } = await supabase.from("deals").insert(row).select("id").single());
   }
 
-  if (error) throw new Error(error.message);
+  if (error || !created) throw new Error(error?.message ?? "Could not create the deal");
+
+  if (lines.length > 0) {
+    const lineError = await saveDealLines(supabase, created.id, lines);
+    if (lineError) {
+      // Do not leave a deal behind without the lines that priced it.
+      await supabase.from("deals").delete().eq("id", created.id);
+      throw new Error(lineError);
+    }
+  }
 
   revalidatePath(`/clients/${clientId}`);
   redirect(`/clients/${clientId}?tab=deals`);

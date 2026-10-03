@@ -57,6 +57,15 @@ export interface PlanPlatformLine {
   price_usd: number;
 }
 
+export interface DealPlatformLine {
+  deal_id: string;
+  platform: PlanPlatform;
+  billing_basis: "UNITS" | "SHIPMENTS";
+  quantity: number;
+  price_lkr: number;
+  price_usd: number;
+}
+
 export interface Industry {
   id: string;
   name: string;

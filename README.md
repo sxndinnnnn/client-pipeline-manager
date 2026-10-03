@@ -125,6 +125,9 @@ Current schema:
 - `plans` - named pricing plans, managed from Settings > Plans. Its amount_usd/amount_lkr/
   vehicle_count (shown as Units)/shipment_count are totals the server recomputes from `plan_platforms`
   whenever a plan is saved; older plans keep their stored totals until re-priced.
+- `deal_platforms` (0143) - a deal's own editable copy of its plan's lines (same shape as `plan_platforms`).
+  Picking a plan on Add Deal pre-fills them; `deals.value`/`value_usd` are then the lines' totals,
+  computed server-side. Deals and plans without lines keep plain editable Value boxes.
 - `plan_platforms` (0142) - per-platform pricing for a plan: billed by units or shipments, quantity,
   and price per unit/shipment in LKR and USD.
 - `industries` - client industry tags, managed from Settings > Industries.

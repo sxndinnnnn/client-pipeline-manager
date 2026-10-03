@@ -2,7 +2,8 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { getPlanName, getPlanPriceSnapshot, MISSING_COLUMN_CODE } from "@/lib/deals";
+import { getPlanName, getPlanPriceSnapshot, MISSING_COLUMN_CODE, saveDealLines } from "@/lib/deals";
+import { parseLines, selectedPlatforms, totalsOf } from "@/lib/plan-lines";
 import type { ActivityType } from "@/types/database";
 import { LOGGED_ACTIVITY_TYPES } from "@/lib/activities";
 import { getCurrentUser } from "@/lib/supabase/current-user";
@@ -19,19 +20,33 @@ export async function updateDeal(dealId: string, formData: FormData): Promise<Up
   if (!planId) return { error: "Plan is required" };
   const title = await getPlanName(planId);
 
+  let lines;
+  try {
+    lines = parseLines(formData, selectedPlatforms(formData));
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Check the plan details" };
+  }
+  const totals = lines.length > 0 ? totalsOf(lines) : null;
+
   const valueRaw = formData.get("value") as string;
 
   const update: Record<string, unknown> = {
     title,
     plan_id: planId,
-    value: valueRaw ? Number(valueRaw) : null,
     updated_at: new Date().toISOString(),
   };
 
-  // The USD value is only touched when the form sends it.
-  const valueUsdRaw = formData.get("value_usd");
-  if (typeof valueUsdRaw === "string") {
-    update.value_usd = valueUsdRaw ? Number(valueUsdRaw) : null;
+  if (totals) {
+    // Deals with per-platform lines always carry the lines' totals.
+    update.value = totals.amount_lkr;
+    update.value_usd = totals.amount_usd;
+  } else {
+    update.value = valueRaw ? Number(valueRaw) : null;
+    // The USD value is only touched when the form sends it.
+    const valueUsdRaw = formData.get("value_usd");
+    if (typeof valueUsdRaw === "string") {
+      update.value_usd = valueUsdRaw ? Number(valueUsdRaw) : null;
+    }
   }
 
   // Created / Closed At are only touched when the form sends them (the deal page's
@@ -71,6 +86,13 @@ export async function updateDeal(dealId: string, formData: FormData): Promise<Up
     ({ error } = await supabase.from("deals").update(update).eq("id", dealId));
   }
   if (error) return { error: error.message };
+
+  // Save the edited lines. Switching to a plan with no breakdown clears the old lines so
+  // they cannot disagree with the new value; an unchanged older deal is left alone.
+  if (lines.length > 0 || planChanged) {
+    const lineError = await saveDealLines(supabase, dealId, lines);
+    if (lineError && lines.length > 0) return { error: lineError };
+  }
 
   revalidatePath(`/deals/${dealId}`);
   revalidatePath("/pipeline");

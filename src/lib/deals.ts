@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import type { PriceLine } from "@/lib/plan-lines";
 
 /** A deal's title is always its plan's name. */
 export async function getPlanName(planId: string): Promise<string> {
@@ -29,3 +30,25 @@ export async function getPlanPriceSnapshot(
 
 /** PostgREST error code for "column not found" - i.e. migration 0138 has not been run yet. */
 export const MISSING_COLUMN_CODE = "PGRST204";
+
+const DEAL_LINES_HINT =
+  "Per-platform deal pricing isn't set up yet. Run migration 0143_deal_platforms.sql in the Supabase SQL Editor first.";
+
+/** Replaces the deal's own copy of its plan lines (delete, then insert). */
+export async function saveDealLines(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  dealId: string,
+  lines: PriceLine[]
+): Promise<string | null> {
+  const { error: deleteError } = await supabase.from("deal_platforms").delete().eq("deal_id", dealId);
+  if (deleteError) {
+    return deleteError.code === "PGRST205" || deleteError.code === "42P01"
+      ? DEAL_LINES_HINT
+      : deleteError.message;
+  }
+  if (lines.length === 0) return null;
+  const { error } = await supabase
+    .from("deal_platforms")
+    .insert(lines.map((l) => ({ ...l, deal_id: dealId })));
+  return error ? error.message : null;
+}

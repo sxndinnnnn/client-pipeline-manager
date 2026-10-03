@@ -3,19 +3,22 @@
 import { useRef, useState } from "react";
 import { XIcon } from "@/components/icons";
 import { isPlanActive } from "@/lib/plans";
-import type { Plan } from "@/types/database";
+import type { Plan, PlanPlatformLine } from "@/types/database";
+import { DealPlanFields } from "./deal-plan-fields";
 import { SubmitButton } from "@/components/submit-button";
 
 export function AddDealModal({
   createDealAction,
   plans,
+  planLines,
 }: {
   createDealAction: (formData: FormData) => Promise<void>;
   plans: Plan[];
+  planLines: Record<string, PlanPlatformLine[]>;
 }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
-  const [value, setValue] = useState("");
-  const [usdValue, setUsdValue] = useState("");
+  // Bumped on submit so the next time the dialog opens it starts empty.
+  const [formKey, setFormKey] = useState(0);
 
   function open() {
     dialogRef.current?.showModal();
@@ -23,12 +26,6 @@ export function AddDealModal({
 
   function close() {
     dialogRef.current?.close();
-  }
-
-  function handlePlanChange(e: React.ChangeEvent<HTMLSelectElement>) {
-    const plan = plans.find((p) => p.id === e.target.value);
-    setValue(plan?.amount_lkr != null ? String(plan.amount_lkr) : "");
-    setUsdValue(plan?.amount_usd != null ? String(plan.amount_usd) : "");
   }
 
   return (
@@ -48,7 +45,7 @@ export function AddDealModal({
         }}
         className="fixed inset-0 m-0 hidden h-full max-h-none w-full max-w-none items-center justify-center bg-transparent p-4 open:flex backdrop:bg-black/40"
       >
-        <div className="max-h-[85vh] w-full max-w-sm overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
+        <div className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-lg border border-border bg-surface p-4 shadow-floating">
           <div className="flex items-center justify-between border-b border-border pb-3">
             <h2 className="text-sm font-semibold text-foreground">Add Deal</h2>
             <button
@@ -64,57 +61,16 @@ export function AddDealModal({
           <form
             action={async (formData) => {
               close();
+              setFormKey((k) => k + 1);
               await createDealAction(formData);
             }}
             className="mt-3 flex flex-col gap-3"
           >
-            <div>
-              <label className="block text-xs font-medium text-muted">
-                Plan *
-              </label>
-              <select
-                name="plan_id"
-                required
-                defaultValue=""
-                onChange={handlePlanChange}
-                className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-              >
-                <option value="" disabled>Select a plan</option>
-                {plans.filter((plan) => isPlanActive(plan)).map((plan) => (
-                  <option key={plan.id} value={plan.id}>
-                    {plan.name}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-muted">
-                  Value (LKR)
-                </label>
-                <input
-                  name="value"
-                  type="number"
-                  step="0.01"
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-muted">
-                  Value (USD)
-                </label>
-                <input
-                  name="value_usd"
-                  type="number"
-                  step="0.01"
-                  value={usdValue}
-                  onChange={(e) => setUsdValue(e.target.value)}
-                  className="mt-1 w-full rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm text-foreground"
-                />
-              </div>
-            </div>
+            <DealPlanFields
+              key={formKey}
+              plans={plans.filter((plan) => isPlanActive(plan))}
+              planLines={planLines}
+            />
             <SubmitButton className="mt-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:opacity-90">Create Deal</SubmitButton>
           </form>
         </div>
