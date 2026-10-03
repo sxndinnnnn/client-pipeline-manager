@@ -261,7 +261,7 @@ export function DealPlanFields({
 
           <div className="flex flex-wrap items-center justify-between gap-2 text-xs">
             <span className="text-muted">
-              Plan price: {money(listLkr, "LKR ")} | {money(listUsd, "$")}
+              Plan Price: {money(listLkr, "LKR ")} | {money(listUsd, "$")}
             </span>
             <span
               className={
@@ -269,8 +269,8 @@ export function DealPlanFields({
               }
             >
               {Math.abs(diff) < 0.005
-                ? "On plan"
-                : `${diff > 0 ? "Above" : "Below"} plan by ${money(Math.abs(diff), "LKR ")}`}
+                ? "On Plan"
+                : `${diff > 0 ? "Above" : "Below"} Plan By ${money(Math.abs(diff), "LKR ")}`}
             </span>
             <button
               type="button"
