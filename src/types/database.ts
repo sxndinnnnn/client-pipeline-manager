@@ -48,6 +48,15 @@ export interface Plan {
   updated_at: string;
 }
 
+export interface PlanPlatformLine {
+  plan_id: string;
+  platform: PlanPlatform;
+  billing_basis: "UNITS" | "SHIPMENTS";
+  quantity: number;
+  price_lkr: number;
+  price_usd: number;
+}
+
 export interface Industry {
   id: string;
   name: string;

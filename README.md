@@ -122,7 +122,11 @@ Current schema:
 - `clients`, `contacts`, `pipeline_stages`, `deals`, `activities` - core pipeline tables.
   `deals.plan_id` references `plans` (nullable - a deal need not have a plan);
   `deals.owner_id` is set to the creator; `deals.value` is LKR, `deals.value_usd` is USD.
-- `plans` - named pricing plans with a fixed amount, managed from Settings > Plans.
+- `plans` - named pricing plans, managed from Settings > Plans. Its amount_usd/amount_lkr/
+  vehicle_count (shown as Units)/shipment_count are totals the server recomputes from `plan_platforms`
+  whenever a plan is saved; older plans keep their stored totals until re-priced.
+- `plan_platforms` (0142) - per-platform pricing for a plan: billed by units or shipments, quantity,
+  and price per unit/shipment in LKR and USD.
 - `industries` - client industry tags, managed from Settings > Industries.
 - `user_profiles` - name/position/email per auth user, shown in Settings > Users.
 - `clients.logo_url`, `clients.is_active`, `clients.created_by_email`,
